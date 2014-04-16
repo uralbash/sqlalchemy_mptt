@@ -1,9 +1,10 @@
+from sqlalchemy_mptt import __version__
 from setuptools import setup
 
 
 setup(
     name='sqlalchemy_mptt',
-    version='0.0.0',
+    version=__version__,
     url='http://github.com/ITCase/sqlalchemy_mptt/',
     author='Svintsov Dmitry',
     author_email='root@uralbash.ru',

@@ -19,7 +19,7 @@ from sqlalchemy.orm import backref, relationship
 class NestedSetsExtension(object):
 
     @staticmethod
-    def before_insert(mapper, connection, instance):
+    def mptt_before_insert(mapper, connection, instance):
         if not instance.parent_id:
             instance.left = 1
             instance.right = 2
@@ -58,7 +58,7 @@ class NestedSetsExtension(object):
             instance.right = right_most_sibling + 1
 
     @staticmethod
-    def after_delete(mapper, connection, instance):
+    def mptt_after_delete(mapper, connection, instance):
 
         table = mapper.mapped_table
         lft = instance.left
@@ -101,6 +101,120 @@ class NestedSetsExtension(object):
                 )
             )
 
+    @classmethod
+    def mptt_before_update(self, mapper, connection, instance):
+        """ Based on this example:
+            http://stackoverflow.com/questions/889527/move-node-in-nested-set
+        """
+        table = mapper.mapped_table
+
+        """ step 0: Initialize parameters.
+        """
+        # put there id of moving node
+        node_id = self.id
+
+        # put there left and right position of moving node
+        node_pos_left, node_pos_right = connection.execute(
+            select([table.c.lft, table.c.rgt])
+            .where(table.c.id == node_id)
+        ).fetchone()
+
+        # put there id of new parent node (there moving node should be moved)
+        # put there right position of new parent node (there moving node should be moved)
+        parent_id, parent_pos_right = connection.execute(
+            select([table.c.id, table.c.rgt])
+            .where(table.c.id == instance.parent_id)
+        ).fetchone()
+
+        # 'size' of moving node (including all it's sub nodes)
+        node_size = node_pos_right - node_pos_left + 1
+
+        """ step 1: temporary "remove" moving node
+
+            UPDATE `list_items`
+            SET `pos_left` = 0-(`pos_left`), `pos_right` = 0-(`pos_right`)
+            WHERE `pos_left` >= @node_pos_left AND `pos_right` <= @node_pos_right;
+        """
+        connection.execute(
+            table.update(
+                and_(table.c.lft >= node_pos_left,
+                     table.c.rgt <= node_pos_right))
+            .values(
+                lft=0-table.c.lft,
+                rgt=0-table.c.rgt,
+            )
+        )
+
+        """ step 2: decrease left and/or right position values of currently
+            'lower' items (and parents)
+
+            UPDATE `list_items`
+            SET `pos_left` = `pos_left` - @node_size
+            WHERE `pos_left` > @node_pos_right;
+
+            UPDATE `list_items`
+            SET `pos_right` = `pos_right` - @node_size
+            WHERE `pos_right` > @node_pos_right;
+        """
+        connection.execute(
+            table.update(table.c.lft > node_pos_right)
+            .values(lft=table.c.lft-node_size)
+        )
+        connection.execute(
+            table.update(table.c.rgt > node_pos_right)
+            .values(rgt=table.c.rgt-node_size)
+        )
+
+        """ step 3: increase left and/or right position values of future
+            'lower' items (and parents)
+
+            UPDATE `list_items`
+            SET `pos_left` = `pos_left` + @node_size
+            WHERE `pos_left` >= IF(@parent_pos_right > @node_pos_right,
+                        @parent_pos_right - @node_size, @parent_pos_right);
+        """
+        clause = parent_pos_right
+        if parent_pos_right > node_pos_right:
+            clause = parent_pos_right - node_size
+
+        connection.execute(
+            table.update(table.c.lft >= clause)
+            .values(lft=table.c.lft+node_size)
+        )
+        """
+            UPDATE `list_items`
+            SET `pos_right` = `pos_right` + @node_size
+            WHERE `pos_right` >= IF(@parent_pos_right > @node_pos_right,
+                        @parent_pos_right - @node_size, @parent_pos_right);
+        """
+        connection.execute(
+            table.update(table.c.rgt >= clause)
+            .values(rgt=table.c.rgt+node_size)
+        )
+
+        """ step 4: move node (ant it's subnodes) and update it's parent item id
+
+            UPDATE `list_items`
+            SET
+                `pos_left` = 0-(`pos_left`)+IF(@parent_pos_right > @node_pos_right,
+                                               @parent_pos_right - @node_pos_right - 1,
+                                               @parent_pos_right - @node_pos_right - 1 + @node_size),
+                `pos_right` = 0-(`pos_right`)+IF(@parent_pos_right > @node_pos_right,
+                                                 @parent_pos_right - @node_pos_right - 1,
+                                                 @parent_pos_right - @node_pos_right - 1 + @node_size)
+            WHERE `pos_left` <= 0-@node_pos_left AND `pos_right` >= 0-@node_pos_right;
+        """
+        clause = parent_pos_right - node_pos_right - 1 + node_size
+        if parent_pos_right > node_pos_right:
+            clause = parent_pos_right - node_pos_right - 1
+
+        connection.execute(
+            table.update(and_(table.c.lft <= 0-node_pos_left,
+                              table.c.rgt >= 0-node_pos_right))
+            .values(lft=0-table.c.lft+clause,
+                    rgt=0-table.c.rgt+clause)
+        )
+
 
 class BaseNestedSets(NestedSetsExtension):
     __table_args__ = (
@@ -115,7 +229,8 @@ class BaseNestedSets(NestedSetsExtension):
 
     @declared_attr
     def tree_id(cls):
-        return Column(Integer, ForeignKey('%s.id' % cls.__tablename__))
+        return Column("tree_id", Integer,
+                      ForeignKey('%s.id' % cls.__tablename__))
 
     @declared_attr
     def tree(cls):
@@ -127,7 +242,8 @@ class BaseNestedSets(NestedSetsExtension):
 
     @declared_attr
     def parent_id(cls):
-        return Column(Integer, ForeignKey('%s.id' % cls.__tablename__))
+        return Column("parent_id", Integer,
+                      ForeignKey('%s.id' % cls.__tablename__))
 
     @declared_attr
     def parent(cls):
@@ -146,9 +262,10 @@ class BaseNestedSets(NestedSetsExtension):
 
     @declared_attr
     def level(cls):
-        return Column(Integer, nullable=False, default=0)
+        return Column("level", Integer, nullable=False, default=0)
 
     @classmethod
     def register_tree(cls):
-        event.listen(cls, "before_insert", cls.before_insert)
-        event.listen(cls, "after_delete", cls.after_delete)
+        event.listen(cls, "before_insert", cls.mptt_before_insert)
+        event.listen(cls, "before_update", cls.mptt_before_update)
+        event.listen(cls, "after_delete", cls.mptt_after_delete)

@@ -176,18 +176,18 @@ class NestedSetsExtension(object):
 
             """ insert subtree in exist tree
             """
+            instance.tree_id = parent_tree_id
+            instance.right = delta
             self._insert_subtree(table, connection, node_id, node_size,
                                  node_pos_left, node_pos_right, parent_pos_left,
                                  parent_pos_right, node_tree_id, subtree,
-                                 parent_tree_id, delta)
-            instance.tree_id = parent_tree_id
-            instance.right = delta
+                                 parent_tree_id, delta, instance, mapper)
 
     @classmethod
     def _insert_subtree(self, table, connection, node_id, node_size,
                         node_pos_left, node_pos_right, parent_pos_left,
                         parent_pos_right, node_tree_id, subtree,
-                        parent_tree_id, delta):
+                        parent_tree_id, delta, instance, mapper):
         """ step 1: rebuild inserted subtree
         """
         connection.execute(
@@ -199,25 +199,19 @@ class NestedSetsExtension(object):
             )
         )
 
-        """ step2: rebuild parent branch
-
-            SELECT id, name, level FROM my_tree
-            WHERE left_key <= $left_key AND right_key >= $right_key
-            ORDER BY left_key
+        """ step 2: update key of right side
         """
-        parent_branch = connection.execute(
-            select([table.c.id])
-            .where(and_(table.c.lft <= parent_pos_left,
-                        table.c.rgt >= parent_pos_right,
-                        table.c.tree_id == parent_tree_id))
-            .order_by(table.c.lft)
-        ).fetchall()
-        parent_branch = map(lambda x: x[0], parent_branch)
-
         connection.execute(
-            table.update(table.c.id.in_(parent_branch))
-            .values(
-                rgt=table.c.rgt-parent_pos_right+delta+1,
+            table.update(
+                and_(table.c.rgt >= parent_pos_right,
+                     table.c.id.notin_(subtree),
+                     table.c.tree_id == parent_tree_id)
+            ).values(
+                rgt=case(
+                    [(table.c.rgt >= parent_pos_right,
+                        table.c.rgt + node_size)],
+                    else_=table.c.rgt
+                )
             )
         )
 

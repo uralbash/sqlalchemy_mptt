@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8
+#
+# Copyright © 2014 uralbash <root@uralbash.ru>
+#
+# Distributed under terms of the MIT license.
+
+language: python
+
+notifications:
+  email: "sacrud@uralbash.ru"
+
+python:
+  - "2.7"
+
+install:
+  - pip install nose coverage coveralls
+  - pip install -r requirements.txt
+
+script:
+  - nosetests --with-coverage --cover-package sqlalchemy_mptt  --cover-erase --with-doctest
+
+after_success:
+  coveralls

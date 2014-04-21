@@ -73,18 +73,43 @@ def add_mptt_tree(session):
     add_fixture(Tree, pages, session)
 
 
-class TestQuery(unittest.TestCase):
+class TestTree(unittest.TestCase):
     def setUp(self):
         self.engine = create_engine('sqlite:///:memory:')
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
         Base.metadata.create_all(self.engine)
         add_mptt_tree(self.session)
+        self.result = self.session.query(Tree.id, Tree.left,
+                                         Tree.right, Tree.level,
+                                         Tree.parent_id, Tree.tree_id)
 
     def tearDown(self):
         Base.metadata.drop_all(self.engine)
 
-    def test_query_panel(self):
-        result = self.session.query(Tree).all()
-        self.assertEqual(result, 'foo')
-        print result
+    def test_tree_initialize(self):
+        #               id lft rgt lvl parent tree
+        self.assertEqual([(1, 1, 22, 1, None, 1),
+                          (2, 2, 5, 2, 1, 1),
+                          (3, 3, 4, 3, 2, 1),
+                          (4, 6, 11, 2, 1, 1),
+                          (5, 7, 8, 3, 4, 1),
+                          (6, 9, 10, 3, 4, 1),
+                          (7, 12, 21, 2, 1, 1),
+                          (8, 13, 16, 3, 7, 1),
+                          (9, 14, 15, 4, 8, 1),
+                          (10, 17, 20, 3, 7, 1),
+                          (11, 18, 19, 4, 10, 1)], self.result.all())
+
+    def test_delete_node(self):
+        node = self.session.query(Tree).filter(Tree.id == 4).one()
+        self.session.delete(node)
+        #               id lft rgt lvl parent tree
+        self.assertEqual([(1, 1, 16, 1, None, 1),
+                          (2, 2, 5, 2, 1, 1),
+                          (3, 3, 4, 3, 2, 1),
+                          (7, 6, 15, 2, 1, 1),
+                          (8, 7, 10, 3, 7, 1),
+                          (9, 8, 9, 4, 8, 1),
+                          (10, 11, 14, 3, 7, 1),
+                          (11, 12, 13, 4, 10, 1)], self.result.all())

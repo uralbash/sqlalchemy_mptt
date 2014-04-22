@@ -45,14 +45,14 @@ def add_fixture(model, fixtures, session):
 
 def add_mptt_tree(session):
     """ level           Nested sets example
-          1                   (1)1(22)
+          1                    1(1)22
                   _______________|___________________
                  |               |                   |
-          2   (2)2(5)         (6)4(11)           (12)7(21)
+          2    2(2)5           6(4)11             12(7)21
                  |               ^                   ^
-          3   (3)3(4)     (7)5(8) (9)6(10)  (13)8(16) (17)10(20)
-                                               |           |
-          4                                (14)9(15)  (18)11(19)
+          3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                |          |
+          4                                  14(9)15   18(11)19
     """
     pages = (
         {'id': '1', 'parent_id': None},
@@ -101,9 +101,27 @@ class TestTree(unittest.TestCase):
                           (10, 17, 20, 3, 7, 1),
                           (11, 18, 19, 4, 10, 1)], self.result.all())
 
+    def test_insert_node(self):
+        node = Tree(parent_id=6)
+        self.session.add(node)
+        #               id lft rgt lvl parent tree
+        self.assertEqual([(1, 1, 24, 1, None, 1),
+                          (2, 2, 5, 2, 1, 1),
+                          (3, 3, 4, 3, 2, 1),
+                          (4, 6, 13, 2, 1, 1),
+                          (5, 7, 8, 3, 4, 1),
+                          (6, 9, 12, 3, 4, 1),
+                          (7, 14, 23, 2, 1, 1),
+                          (8, 15, 18, 3, 7, 1),
+                          (9, 16, 17, 4, 8, 1),
+                          (10, 19, 22, 3, 7, 1),
+                          (11, 20, 21, 4, 10, 1),
+                          (12, 10, 11, 4, 6, 1)], self.result.all())
+
     def test_delete_node(self):
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         self.session.delete(node)
+        self.session.flush()
         #               id lft rgt lvl parent tree
         self.assertEqual([(1, 1, 16, 1, None, 1),
                           (2, 2, 5, 2, 1, 1),

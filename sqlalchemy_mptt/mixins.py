@@ -14,10 +14,10 @@ from sqlalchemy import Column, event, ForeignKey, Index, Integer
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import backref, relationship
 
-from events import NestedSetsExtension
+from events import mptt_after_delete, mptt_before_insert, mptt_before_update
 
 
-class BaseNestedSets(NestedSetsExtension):
+class BaseNestedSets(object):
     __table_args__ = (
         Index('mptt_pages2_lft', "lft"),
         Index('mptt_pages2_rgt', "rgt"),
@@ -67,6 +67,6 @@ class BaseNestedSets(NestedSetsExtension):
 
     @classmethod
     def register_tree(cls):
-        event.listen(cls, "before_insert", cls.mptt_before_insert)
-        event.listen(cls, "after_delete", cls.mptt_after_delete)
-        event.listen(cls, "before_update", cls.mptt_before_update)
+        event.listen(cls, "before_insert", mptt_before_insert)
+        event.listen(cls, "after_delete", mptt_after_delete)
+        event.listen(cls, "before_update", mptt_before_update)

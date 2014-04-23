@@ -45,7 +45,8 @@ def _insert_subtree(table, connection, node_id, node_size,
 
 
 def _update_tree(table, connection, node_id, node_size, node_pos_left,
-                 node_pos_right, parent_pos_right, node_tree_id):
+                 node_pos_right, parent_pos_right, node_tree_id,
+                 node_parent_level, paren_level):
     """ step 1: temporary "remove" moving node
 
         UPDATE `list_items`
@@ -130,12 +131,15 @@ def _update_tree(table, connection, node_id, node_size, node_pos_left,
     if parent_pos_right > node_pos_right:
         clause = parent_pos_right - node_pos_right - 1
 
+    delta_level = paren_level - node_parent_level
+
     connection.execute(
         table.update(and_(table.c.lft <= 0 - node_pos_left,
                           table.c.rgt >= 0 - node_pos_right,
                           table.c.tree_id == node_tree_id))
         .values(lft=0 - table.c.lft + clause,
-                rgt=0 - table.c.rgt + clause)
+                rgt=0 - table.c.rgt + clause,
+                level=table.c.level + delta_level)
     )
 
 
@@ -240,12 +244,17 @@ def mptt_before_update(mapper, connection, instance):
         .where(table.c.id == node_id)
     ).fetchone()
 
+    node_parent_level = connection.scalar(
+        select([table.c.level]).where(table.c.id == node_parent_id)
+    )
+
     # put there id of new parent node (there moving node should be moved)
     # put there right position of new parent node (there moving node should be
     # moved)
     (parent_id, parent_pos_right,
-        parent_pos_left, parent_tree_id) = connection.execute(
-        select([table.c.id, table.c.rgt, table.c.lft, table.c.tree_id])
+        parent_pos_left, parent_tree_id, paren_level) = connection.execute(
+        select([table.c.id, table.c.rgt, table.c.lft, table.c.tree_id,
+                table.c.level])
         .where(table.c.id == instance.parent_id)
     ).fetchone()
 
@@ -257,7 +266,7 @@ def mptt_before_update(mapper, connection, instance):
         """
         _update_tree(table, connection, node_id, node_size,
                      node_pos_left, node_pos_right, parent_pos_right,
-                     node_tree_id)
+                     node_tree_id, node_parent_level, paren_level)
     elif node_tree_id != parent_tree_id:
         """ If move node to another tree
 

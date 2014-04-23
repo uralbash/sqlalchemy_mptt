@@ -14,15 +14,18 @@ from sqlalchemy import Column, event, ForeignKey, Index, Integer
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import backref, relationship
 
-from events import mptt_after_delete, mptt_before_insert, mptt_before_update
+from events import mptt_before_update, mptt_before_insert, mptt_before_delete
 
 
 class BaseNestedSets(object):
-    __table_args__ = (
-        Index('mptt_pages2_lft', "lft"),
-        Index('mptt_pages2_rgt', "rgt"),
-        Index('mptt_pages2_level', "level"),
-    )
+    @declared_attr
+    def __table_args__(cls):
+        return (
+            Index('%s_lft' % cls, "lft"),
+            Index('%s_rgt' % cls, "rgt"),
+            Index('%s_level' % cls, "level"),
+        )
+
     __mapper_args__ = {
         'batch': False  # allows extension to fire for each
                         # instance before going to the next.
@@ -38,7 +41,7 @@ class BaseNestedSets(object):
         return relationship(cls, primaryjoin=lambda: cls.id == cls.tree_id,
                             backref=backref('children_tree'),  # for delete
                             remote_side=[cls.id],  # for show in sacrud
-                            post_update=True   # solve CircularDependencyError
+                            post_update=True,   # solve CircularDependencyError
                             )
 
     @declared_attr
@@ -49,8 +52,8 @@ class BaseNestedSets(object):
     @declared_attr
     def parent(cls):
         return relationship(cls, primaryjoin=lambda: cls.id == cls.parent_id,
-                            backref=backref('children'),  # for delete
-                            remote_side=[cls.id]  # for show in sacrud relation
+                            backref=backref('children', cascade="all,delete"),
+                            remote_side=[cls.id],  # for show in sacrud relation
                             )
 
     @declared_attr
@@ -68,5 +71,5 @@ class BaseNestedSets(object):
     @classmethod
     def register_tree(cls):
         event.listen(cls, "before_insert", mptt_before_insert)
-        event.listen(cls, "after_delete", mptt_after_delete)
         event.listen(cls, "before_update", mptt_before_update)
+        event.listen(cls, "before_delete", mptt_before_delete)

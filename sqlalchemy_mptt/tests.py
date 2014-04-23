@@ -75,7 +75,7 @@ def add_mptt_tree(session):
 
 class TestTree(unittest.TestCase):
     def setUp(self):
-        self.engine = create_engine('sqlite:///:memory:')
+        self.engine = create_engine('sqlite:///:memory:') #, echo=True)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
         Base.metadata.create_all(self.engine)
@@ -121,7 +121,6 @@ class TestTree(unittest.TestCase):
     def test_delete_node(self):
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         self.session.delete(node)
-        self.session.flush()
         #               id lft rgt lvl parent tree
         self.assertEqual([(1, 1, 16, 1, None, 1),
                           (2, 2, 5, 2, 1, 1),

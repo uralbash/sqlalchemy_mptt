@@ -178,22 +178,18 @@ def mptt_before_insert(mapper, connection, instance):
         instance.right = right_most_sibling + 1
 
 
-def mptt_after_delete(mapper, connection, instance, delete=True):
-
+def mptt_before_delete(mapper, connection, instance, delete=True):
     table = mapper.mapped_table
-    lft = instance.left
-    rgt = instance.right
     tree_id = instance.tree_id
+    lft, rgt = connection.execute(
+        select([table.c.lft, table.c.rgt]).where(table.c.id == instance.id)
+    ).fetchone()
     delta = rgt - lft + 1
 
-    """ Delete node or baranch of node
-
-        DELETE FROM tree WHERE lft >= $lft AND rgt <= $rgt
-    """
     if delete:
+        mapper.confirm_deleted_rows = False
         connection.execute(
-            table.delete(and_(table.c.lft >= lft, table.c.rgt <= rgt,
-                              table.c.tree_id == tree_id))
+            table.delete(table.c.id == instance.id)
         )
 
     if instance.parent_id:
@@ -285,7 +281,7 @@ def mptt_before_update(mapper, connection, instance):
 
         """ delete from old tree
         """
-        mptt_after_delete(mapper, connection, instance, False)
+        mptt_before_delete(mapper, connection, instance, False)
 
         """ insert subtree in exist tree
         """

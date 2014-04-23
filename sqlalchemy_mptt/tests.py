@@ -37,8 +37,6 @@ def add_fixture(model, fixtures, session):
     hashes = ({'foo': {'foo': 'bar', '1': '2'}}, {'foo': {'test': 'data'}})
     add_fixture(TestHSTORE, hashes)
     """
-    session.query(model).delete()
-    session.commit()
     for fixture in fixtures:
         session.add(model(**fixture))
 
@@ -54,7 +52,9 @@ def add_mptt_tree(session):
                                                 |          |
           4                                  14(9)15   18(11)19
     """
-    pages = (
+    session.query(Tree).delete()
+    session.commit()
+    tree1 = (
         {'id': '1', 'parent_id': None},
 
         {'id': '2', 'parent_id': '1'},
@@ -70,7 +70,25 @@ def add_mptt_tree(session):
         {'id': '10', 'parent_id': '7'},
         {'id': '11', 'parent_id': '10'},
     )
-    add_fixture(Tree, pages, session)
+
+    tree2 = (
+        {'id': '12', 'parent_id': None, 'tree_id': '12'},
+
+        {'id': '13', 'parent_id': '12', 'tree_id': '12'},
+        {'id': '14', 'parent_id': '13', 'tree_id': '12'},
+
+        {'id': '15', 'parent_id': '12', 'tree_id': '12'},
+        {'id': '16', 'parent_id': '15', 'tree_id': '12'},
+        {'id': '17', 'parent_id': '15', 'tree_id': '12'},
+
+        {'id': '18', 'parent_id': '12', 'tree_id': '12'},
+        {'id': '19', 'parent_id': '18', 'tree_id': '12'},
+        {'id': '20', 'parent_id': '19', 'tree_id': '12'},
+        {'id': '21', 'parent_id': '18', 'tree_id': '12'},
+        {'id': '22', 'parent_id': '21', 'tree_id': '12'},
+    )
+    add_fixture(Tree, tree1, session)
+    add_fixture(Tree, tree2, session)
 
 
 class TestTree(unittest.TestCase):
@@ -110,7 +128,19 @@ class TestTree(unittest.TestCase):
                           (8, 13, 16, 3, 7, 1),
                           (9, 14, 15, 4, 8, 1),
                           (10, 17, 20, 3, 7, 1),
-                          (11, 18, 19, 4, 10, 1)], self.result.all())
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12, 1, 22, 1, None, 12),
+                          (13, 2, 5, 2, 12, 12),
+                          (14, 3, 4, 3, 13, 12),
+                          (15, 6, 11, 2, 12, 12),
+                          (16, 7, 8, 3, 15, 12),
+                          (17, 9, 10, 3, 15, 12),
+                          (18, 12, 21, 2, 12, 12),
+                          (19, 13, 16, 3, 18, 12),
+                          (20, 14, 15, 4, 19, 12),
+                          (21, 17, 20, 3, 18, 12),
+                          (22, 18, 19, 4, 21, 12)], self.result.all())
 
     def test_insert_node(self):
         node = Tree(parent_id=6)
@@ -149,7 +179,20 @@ class TestTree(unittest.TestCase):
                           (9, 16, 17, 4, 8, 1),
                           (10, 19, 22, 3, 7, 1),
                           (11, 20, 21, 4, 10, 1),
-                          (12, 10, 11, 4, 6, 1)], self.result.all())
+
+                          (12, 1, 22, 1, None, 12),
+                          (13, 2, 5, 2, 12, 12),
+                          (14, 3, 4, 3, 13, 12),
+                          (15, 6, 11, 2, 12, 12),
+                          (16, 7, 8, 3, 15, 12),
+                          (17, 9, 10, 3, 15, 12),
+                          (18, 12, 21, 2, 12, 12),
+                          (19, 13, 16, 3, 18, 12),
+                          (20, 14, 15, 4, 19, 12),
+                          (21, 17, 20, 3, 18, 12),
+                          (22, 18, 19, 4, 21, 12),
+
+                          (23, 10, 11, 4, 6, 1)], self.result.all())
 
     def test_delete_node(self):
         """ level           Nested sets example
@@ -183,7 +226,19 @@ class TestTree(unittest.TestCase):
                           (8, 7, 10, 3, 7, 1),
                           (9, 8, 9, 4, 8, 1),
                           (10, 11, 14, 3, 7, 1),
-                          (11, 12, 13, 4, 10, 1)], self.result.all())
+                          (11, 12, 13, 4, 10, 1),
+
+                          (12, 1, 22, 1, None, 12),
+                          (13, 2, 5, 2, 12, 12),
+                          (14, 3, 4, 3, 13, 12),
+                          (15, 6, 11, 2, 12, 12),
+                          (16, 7, 8, 3, 15, 12),
+                          (17, 9, 10, 3, 15, 12),
+                          (18, 12, 21, 2, 12, 12),
+                          (19, 13, 16, 3, 18, 12),
+                          (20, 14, 15, 4, 19, 12),
+                          (21, 17, 20, 3, 18, 12),
+                          (22, 18, 19, 4, 21, 12)], self.result.all())
 
     def test_update_node(self):
         """ level           Nested sets example
@@ -213,7 +268,7 @@ class TestTree(unittest.TestCase):
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.parent_id = 5
         self.session.add(node)
-        self.assertEqual([(1,   1, 22, 1, None, 1),
+        self.assertEqual([(1, 1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
                           (4,   6, 15, 2,  1, 1),
@@ -223,7 +278,19 @@ class TestTree(unittest.TestCase):
                           (8,   8, 11, 4,  5, 1),
                           (9,   9, 10, 5,  8, 1),
                           (10, 17, 20, 3,  7, 1),
-                          (11, 18, 19, 4, 10, 1)], self.result.all())
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12, 1, 22, 1, None, 12),
+                          (13, 2, 5, 2, 12, 12),
+                          (14, 3, 4, 3, 13, 12),
+                          (15, 6, 11, 2, 12, 12),
+                          (16, 7, 8, 3, 15, 12),
+                          (17, 9, 10, 3, 15, 12),
+                          (18, 12, 21, 2, 12, 12),
+                          (19, 13, 16, 3, 18, 12),
+                          (20, 14, 15, 4, 19, 12),
+                          (21, 17, 20, 3, 18, 12),
+                          (22, 18, 19, 4, 21, 12)], self.result.all())
 
         """ level               Move 8 - > 5
                 1                     1(1)22
@@ -267,7 +334,19 @@ class TestTree(unittest.TestCase):
                           (8,   7, 10, 5,  5, 1),
                           (9,   8,  9, 6,  8, 1),
                           (10, 17, 20, 3,  7, 1),
-                          (11, 18, 19, 4, 10, 1)], self.result.all())
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12, 1, 22, 1, None, 12),
+                          (13, 2, 5, 2, 12, 12),
+                          (14, 3, 4, 3, 13, 12),
+                          (15, 6, 11, 2, 12, 12),
+                          (16, 7, 8, 3, 15, 12),
+                          (17, 9, 10, 3, 15, 12),
+                          (18, 12, 21, 2, 12, 12),
+                          (19, 13, 16, 3, 18, 12),
+                          (20, 14, 15, 4, 19, 12),
+                          (21, 17, 20, 3, 18, 12),
+                          (22, 18, 19, 4, 21, 12)], self.result.all())
 
         """ level               Move 4 - > 2
                 1                     1(1)22
@@ -316,4 +395,22 @@ class TestTree(unittest.TestCase):
                           (8,  16, 19, 4, 10, 1),
                           (9,  17, 18, 5,  8, 1),
                           (10, 13, 20, 3,  7, 1),
-                          (11, 14, 15, 4, 10, 1)], self.result.all())
+                          (11, 14, 15, 4, 10, 1),
+
+                          (12, 1, 22, 1, None, 12),
+                          (13, 2, 5, 2, 12, 12),
+                          (14, 3, 4, 3, 13, 12),
+                          (15, 6, 11, 2, 12, 12),
+                          (16, 7, 8, 3, 15, 12),
+                          (17, 9, 10, 3, 15, 12),
+                          (18, 12, 21, 2, 12, 12),
+                          (19, 13, 16, 3, 18, 12),
+                          (20, 14, 15, 4, 19, 12),
+                          (21, 17, 20, 3, 18, 12),
+                          (22, 18, 19, 4, 21, 12)], self.result.all())
+
+    def test_move_to_uplevel(self):
+        pass
+
+    def test_move_between_tree(self):
+        pass

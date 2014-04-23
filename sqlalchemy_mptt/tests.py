@@ -208,7 +208,6 @@ class TestTree(unittest.TestCase):
                                    |
                 5                9(9)10
 
-
                           id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 8).one()
@@ -252,8 +251,6 @@ class TestTree(unittest.TestCase):
                 5             8(8)11
                                 |
                 6             9(9)10
-
-
 
                           id lft rgt lvl parent tree
         """

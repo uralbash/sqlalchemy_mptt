@@ -42,7 +42,7 @@ def add_fixture(model, fixtures, session):
 
 
 def add_mptt_tree(session):
-    """ level           Nested sets example
+    """ level           Nested sets tree1
           1                    1(1)22
                   _______________|___________________
                  |               |                   |
@@ -51,6 +51,17 @@ def add_mptt_tree(session):
           3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
                                                 |          |
           4                                  14(9)15   18(11)19
+
+        level           Nested sets tree2
+          1                    1(12)22
+                  _______________|___________________
+                 |               |                   |
+          2    2(13)5         6(15)11             12(18)21
+                 |               ^                    ^
+          3    3(14)4     7(16)8   9(17)10   13(19)16   17(21)20
+                                                 |          |
+          4                                  14(20)15   18(22)19
+
     """
     session.query(Tree).delete()
     session.commit()

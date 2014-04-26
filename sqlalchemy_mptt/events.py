@@ -20,8 +20,7 @@ def _insert_subtree(table, connection, node_size,
     """
     left_node = (None, parent_pos_left, parent_pos_right)
 
-    delta = -1
-    delta_lft = left_node[1] + 2 + delta
+    delta_lft = left_node[1] + 1
     delta_rgt = left_node[1] + node_size
 
     connection.execute(

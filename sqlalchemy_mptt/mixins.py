@@ -81,3 +81,9 @@ class BaseNestedSets(object):
         session = Session.object_session(self)
         self.parent_id = parent_id
         session.add(self)
+
+    def move_after(self, node_id):
+        session = Session.object_session(self)
+        self.parent_id = self.parent_id
+        self.mptt_move_after = node_id
+        session.add(self)

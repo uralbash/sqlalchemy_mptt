@@ -9,22 +9,26 @@
 """
 SQLAlchemy events extension
 """
-from sqlalchemy import and_, case, desc, select
+from sqlalchemy import and_, case, select
 
 
-def _insert_subtree(table, connection, node_id, node_size,
-                    node_pos_left, node_pos_right, parent_pos_left,
-                    parent_pos_right, node_tree_id, subtree,
-                    parent_tree_id, parent_level, node_level, left_node,
-                    instance, mapper):
+def _insert_subtree(table, connection, node_size,
+                    node_pos_left, node_pos_right,
+                    parent_pos_left, parent_pos_right, subtree,
+                    parent_tree_id, parent_level, node_level):
     """ step 1: rebuild inserted subtree
     """
-    delta = left_node[2] + node_size
+    left_node = (None, parent_pos_left, parent_pos_right)
+
+    delta = -1
+    delta_lft = left_node[1] + 2 + delta
+    delta_rgt = left_node[1] + node_size
+
     connection.execute(
         table.update(table.c.id.in_(subtree))
         .values(
-            lft=table.c.lft-node_pos_left+left_node[1]+2,
-            rgt=table.c.rgt-node_pos_right+delta,
+            lft=table.c.lft-node_pos_left+delta_lft,
+            rgt=table.c.rgt-node_pos_right+delta_rgt,
             level=table.c.level-node_level+parent_level+1,
             tree_id=parent_tree_id
         )
@@ -34,116 +38,17 @@ def _insert_subtree(table, connection, node_id, node_size,
     """
     connection.execute(
         table.update(
-            and_(table.c.rgt >= parent_pos_right,
+            and_(table.c.rgt > parent_pos_left,
                  table.c.id.notin_(subtree),
                  table.c.tree_id == parent_tree_id)
         ).values(
             rgt=table.c.rgt + node_size,
             lft=case(
-                [(table.c.lft >= parent_pos_right,
+                [(table.c.lft > parent_pos_left,
                   table.c.lft + node_size)],
                 else_=table.c.lft
             )
         )
-    )
-
-
-def _update_tree(table, connection, node_id, node_size, node_pos_left,
-                 node_pos_right, parent_pos_right, node_tree_id,
-                 node_parent_level, parent_level):
-    """ step 1: temporary "remove" moving node
-
-        UPDATE `list_items`
-        SET `pos_left` = 0-(`pos_left`), `pos_right` = 0-(`pos_right`)
-        WHERE `pos_left` >= @node_pos_left AND `pos_right` <= @node_pos_right;
-    """
-    connection.execute(
-        table.update(
-            and_(table.c.lft >= node_pos_left,
-                 table.c.rgt <= node_pos_right,
-                 table.c.tree_id == node_tree_id))
-        .values(
-            lft=0 - table.c.lft,
-            rgt=0 - table.c.rgt,
-        )
-    )
-
-    """ step 2: decrease left and/or right position values of currently
-        'lower' items (and parents)
-
-        UPDATE `list_items`
-        SET `pos_left` = `pos_left` - @node_size
-        WHERE `pos_left` > @node_pos_right;
-
-        UPDATE `list_items`
-        SET `pos_right` = `pos_right` - @node_size
-        WHERE `pos_right` > @node_pos_right;
-    """
-    connection.execute(
-        table.update(and_(table.c.lft > node_pos_right,
-                          table.c.tree_id == node_tree_id))
-        .values(lft=table.c.lft - node_size)
-    )
-    connection.execute(
-        table.update(and_(table.c.rgt > node_pos_right,
-                          table.c.tree_id == node_tree_id))
-        .values(rgt=table.c.rgt - node_size)
-    )
-
-    """ step 3: increase left and/or right position values of future
-        'lower' items (and parents)
-
-        UPDATE `list_items`
-        SET `pos_left` = `pos_left` + @node_size
-        WHERE `pos_left` >= IF(@parent_pos_right > @node_pos_right,
-                    @parent_pos_right - @node_size, @parent_pos_right);
-    """
-    clause = parent_pos_right
-    if parent_pos_right > node_pos_right:
-        clause = parent_pos_right - node_size
-
-    connection.execute(
-        table.update(and_(table.c.lft >= clause,
-                          table.c.tree_id == node_tree_id))
-        .values(lft=table.c.lft + node_size)
-    )
-    """
-        UPDATE `list_items`
-        SET `pos_right` = `pos_right` + @node_size
-        WHERE `pos_right` >= IF(@parent_pos_right > @node_pos_right,
-                    @parent_pos_right - @node_size, @parent_pos_right);
-    """
-    connection.execute(
-        table.update(and_(table.c.rgt >= clause,
-                          table.c.tree_id == node_tree_id))
-        .values(rgt=table.c.rgt + node_size)
-    )
-
-    """ step 4: move node (ant it's subnodes) and update it's parent item id
-
-        UPDATE `list_items`
-        SET
-            `pos_left` = 0-(`pos_left`)+IF(@parent_pos_right > @node_pos_right,
-                                            @parent_pos_right - @node_pos_right - 1,
-                                            @parent_pos_right - @node_pos_right - 1 + @node_size),
-            `pos_right` = 0-(`pos_right`)+IF(@parent_pos_right > @node_pos_right,
-                                                @parent_pos_right - @node_pos_right - 1,
-                                                @parent_pos_right - @node_pos_right - 1 + @node_size)
-        WHERE `pos_left` <= 0-@node_pos_left AND `pos_right` >= 0-@node_pos_right;
-    """
-    clause = parent_pos_right - node_pos_right - 1 + node_size
-    if parent_pos_right > node_pos_right:
-        clause = parent_pos_right - node_pos_right - 1
-
-    delta_level = parent_level - node_parent_level
-
-    connection.execute(
-        table.update(and_(table.c.lft <= 0 - node_pos_left,
-                          table.c.rgt >= 0 - node_pos_right,
-                          table.c.tree_id == node_tree_id))
-        .values(lft=0 - table.c.lft + clause,
-                rgt=0 - table.c.rgt + clause,
-                level=table.c.level + delta_level)
     )
 
 
@@ -234,7 +139,6 @@ def mptt_before_update(mapper, connection, instance):
         http://stackoverflow.com/questions/889527/move-node-in-nested-set
     """
     table = mapper.mapped_table
-
     """ step 0: Initialize parameters.
     """
     # put there id of moving node
@@ -248,13 +152,42 @@ def mptt_before_update(mapper, connection, instance):
         .where(table.c.id == node_id)
     ).fetchone()
 
-    node_parent_level = connection.scalar(
-        select([table.c.level]).where(table.c.id == node_parent_id)
-    )
+    """ Get subtree from node
 
-    # put there id of new parent node (there moving node should be moved)
-    # put there right position of new parent node (there moving node should be
-    # moved)
+        SELECT id, name, level FROM my_tree
+        WHERE left_key >= $left_key AND right_key <= $right_key
+        ORDER BY left_key
+    """
+    subtree = connection.execute(
+        select([table.c.id])
+        .where(and_(table.c.lft >= node_pos_left,
+                    table.c.rgt <= node_pos_right,
+                    table.c.tree_id == node_tree_id))
+        .order_by(table.c.lft)
+    ).fetchall()
+    subtree = map(lambda x: x[0], subtree)
+
+    """ delete from old tree
+    """
+    mptt_before_delete(mapper, connection, instance, False)
+
+    """ step 0: Reinitialize parameters.
+    """
+    # put there id of moving node
+    node_id = instance.id
+
+    # put there left and right position of moving node
+    (node_pos_left, node_pos_right,
+        node_tree_id, node_parent_id, node_level) = connection.execute(
+        select([table.c.lft, table.c.rgt,
+                table.c.tree_id, table.c.parent_id, table.c.level])
+        .where(table.c.id == node_id)
+    ).fetchone()
+
+    """ Put there id of new parent node (there moving node should be moved)
+        put there right position of new parent node (there moving node should
+        be moved)
+    """
     (parent_id, parent_pos_right,
         parent_pos_left, parent_tree_id, parent_level) = connection.execute(
         select([table.c.id, table.c.rgt, table.c.lft, table.c.tree_id,
@@ -265,45 +198,10 @@ def mptt_before_update(mapper, connection, instance):
     # 'size' of moving node (including all it's sub nodes)
     node_size = node_pos_right - node_pos_left + 1
 
-    if node_tree_id == parent_tree_id:
-        """ If move node in current tree
-        """
-        _update_tree(table, connection, node_id, node_size,
-                     node_pos_left, node_pos_right, parent_pos_right,
-                     node_tree_id, node_parent_level, parent_level)
-    elif node_tree_id != parent_tree_id:
-        """ If move node to another tree
-
-            get subtree from node
-
-            SELECT id, name, level FROM my_tree
-            WHERE left_key >= $left_key AND right_key <= $right_key
-            ORDER BY left_key
-        """
-        subtree = connection.execute(
-            select([table.c.id])
-            .where(and_(table.c.lft >= node_pos_left,
-                        table.c.rgt <= node_pos_right,
-                        table.c.tree_id == node_tree_id))
-            .order_by(table.c.lft)
-        ).fetchall()
-        subtree = map(lambda x: x[0], subtree)
-
-        left_node = connection.execute(
-            select([table.c.id, table.c.lft, table.c.rgt])
-            .where(table.c.parent_id == parent_id)
-            .order_by(desc(table.c.rgt)).limit(1)
-        ).fetchone()
-
-        """ delete from old tree
-        """
-        mptt_before_delete(mapper, connection, instance, False)
-
-        """ insert subtree in exist tree
-        """
-        instance.tree_id = parent_tree_id
-        _insert_subtree(table, connection, node_id, node_size,
-                        node_pos_left, node_pos_right, parent_pos_left,
-                        parent_pos_right, node_tree_id, subtree,
-                        parent_tree_id, parent_level, node_level, left_node,
-                        instance, mapper)
+    """ insert subtree in exist tree
+    """
+    instance.tree_id = parent_tree_id
+    _insert_subtree(table, connection, node_size,
+                    node_pos_left, node_pos_right, parent_pos_left,
+                    parent_pos_right, subtree,
+                    parent_tree_id, parent_level, node_level)

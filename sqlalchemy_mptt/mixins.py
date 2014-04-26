@@ -13,8 +13,9 @@ SQLAlchemy nested sets mixin
 from sqlalchemy import Column, event, ForeignKey, Index, Integer
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm.session import Session
 
-from events import mptt_before_update, mptt_before_insert, mptt_before_delete
+from events import mptt_before_delete, mptt_before_insert, mptt_before_update
 
 
 class BaseNestedSets(object):
@@ -52,7 +53,9 @@ class BaseNestedSets(object):
     @declared_attr
     def parent(cls):
         return relationship(cls, primaryjoin=lambda: cls.id == cls.parent_id,
-                            backref=backref('children', cascade="all,delete"),
+                            order_by=lambda: cls.left,
+                            backref=backref('children', cascade="all,delete",
+                                            order_by=lambda: cls.left),
                             remote_side=[cls.id],  # for show in sacrud relation
                             )
 
@@ -73,3 +76,8 @@ class BaseNestedSets(object):
         event.listen(cls, "before_insert", mptt_before_insert)
         event.listen(cls, "before_update", mptt_before_update)
         event.listen(cls, "before_delete", mptt_before_delete)
+
+    def move_inside(self, parent_id):
+        session = Session.object_session(self)
+        self.parent_id = parent_id
+        session.add(self)

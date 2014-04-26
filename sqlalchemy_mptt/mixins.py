@@ -22,9 +22,9 @@ class BaseNestedSets(object):
     @declared_attr
     def __table_args__(cls):
         return (
-            Index('%s_lft' % cls, "lft"),
-            Index('%s_rgt' % cls, "rgt"),
-            Index('%s_level' % cls, "level"),
+            Index('%s_lft_idx' % cls.__tablename__, "lft"),
+            Index('%s_rgt_idx' % cls.__tablename__, "rgt"),
+            Index('%s_level_idx' % cls.__tablename__, "level"),
         )
 
     __mapper_args__ = {

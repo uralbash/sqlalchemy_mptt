@@ -136,6 +136,7 @@ def mptt_before_update(mapper, connection, instance):
         http://stackoverflow.com/questions/889527/move-node-in-nested-set
     """
     table = mapper.mapped_table
+    node_id = instance.id
 
     left_sibling = None
     # if placed after a particular node
@@ -150,23 +151,6 @@ def mptt_before_update(mapper, connection, instance):
         left_sibling = {'lft': left_sibling_left, 'rgt': left_sibling_right,
                         'is_parent': False}
 
-    """ step 0: Initialize parameters.
-
-        put there id of moving node
-    """
-    node_id = instance.id
-
-    # put there left and right position of moving node
-    (node_pos_left,
-     node_pos_right,
-     node_tree_id,
-     node_parent_id,
-     node_level) = connection.execute(
-        select([table.c.lft, table.c.rgt,
-                table.c.tree_id, table.c.parent_id, table.c.level])
-        .where(table.c.id == node_id)
-    ).fetchone()
-
     """ Get subtree from node
 
         SELECT id, name, level FROM my_tree
@@ -175,9 +159,9 @@ def mptt_before_update(mapper, connection, instance):
     """
     subtree = connection.execute(
         select([table.c.id])
-        .where(and_(table.c.lft >= node_pos_left,
-                    table.c.rgt <= node_pos_right,
-                    table.c.tree_id == node_tree_id))
+        .where(and_(table.c.lft >= instance.left,
+                    table.c.rgt <= instance.right,
+                    table.c.tree_id == instance.tree_id))
         .order_by(table.c.lft)
     ).fetchall()
     subtree = map(lambda x: x[0], subtree)
@@ -185,7 +169,7 @@ def mptt_before_update(mapper, connection, instance):
     # delete from old tree
     mptt_before_delete(mapper, connection, instance, False)
 
-    """ step 0: Reinitialize parameters.
+    """ step 0: Initialize parameters.
 
         Put there left and right position of moving node
     """

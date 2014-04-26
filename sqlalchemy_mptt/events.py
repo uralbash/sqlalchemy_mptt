@@ -102,7 +102,7 @@ def mptt_before_delete(mapper, connection, instance, delete=True):
             table.delete(table.c.id == instance.id)
         )
 
-    if instance.parent_id:
+    if instance.parent_id or not delete:
         """ Update key of current tree
 
             UPDATE tree
@@ -187,11 +187,8 @@ def mptt_before_update(mapper, connection, instance):
 
     """ step 0: Reinitialize parameters.
 
-        put there id of moving node
+        Put there left and right position of moving node
     """
-    node_id = instance.id
-
-    # put there left and right position of moving node
     (node_pos_left,
      node_pos_right,
      node_tree_id,
@@ -202,31 +199,41 @@ def mptt_before_update(mapper, connection, instance):
         .where(table.c.id == node_id)
     ).fetchone()
 
-    """ Put there id of new parent node (there moving node should be moved)
-        put there right position of new parent node (there moving node should
-        be moved)
-    """
-    (parent_id,
-     parent_pos_right,
-     parent_pos_left,
-     parent_tree_id,
-     parent_level) = connection.execute(
-        select([table.c.id, table.c.rgt, table.c.lft, table.c.tree_id,
-                table.c.level])
-        .where(table.c.id == instance.parent_id)
-    ).fetchone()
+    if instance.parent_id:
+        """ Put there right position of new parent node (there moving node
+            should be moved)
+        """
+        (parent_id,
+         parent_pos_right,
+         parent_pos_left,
+         parent_tree_id,
+         parent_level) = connection.execute(
+            select([table.c.id, table.c.rgt, table.c.lft, table.c.tree_id,
+                    table.c.level])
+            .where(table.c.id == instance.parent_id)
+        ).fetchone()
 
-    # 'size' of moving node (including all it's sub nodes)
-    node_size = node_pos_right - node_pos_left + 1
+        # 'size' of moving node (including all it's sub nodes)
+        node_size = node_pos_right - node_pos_left + 1
 
-    # left sibling node
-    if not left_sibling:
-        left_sibling = {'lft': parent_pos_left, 'rgt': parent_pos_right,
-                        'is_parent': True}
+        # left sibling node
+        if not left_sibling:
+            left_sibling = {'lft': parent_pos_left, 'rgt': parent_pos_right,
+                            'is_parent': True}
 
-    # insert subtree in exist tree
-    instance.tree_id = parent_tree_id
-    _insert_subtree(table, connection, node_size,
-                    node_pos_left, node_pos_right, parent_pos_left,
-                    parent_pos_right, subtree,
-                    parent_tree_id, parent_level, node_level, left_sibling)
+        # insert subtree in exist tree
+        instance.tree_id = parent_tree_id
+        _insert_subtree(table, connection, node_size,
+                        node_pos_left, node_pos_right, parent_pos_left,
+                        parent_pos_right, subtree,
+                        parent_tree_id, parent_level, node_level, left_sibling)
+    else:
+        connection.execute(
+            table.update(table.c.id.in_(subtree))
+            .values(
+                lft=table.c.lft-node_pos_left+1,
+                rgt=table.c.rgt-node_pos_left+1,
+                level=table.c.level-node_level+1,
+                tree_id=node_id
+            )
+        )

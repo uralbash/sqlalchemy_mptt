@@ -57,26 +57,27 @@ def mptt_before_insert(mapper, connection, instance):
         instance.tree_id = instance.id
     else:
         table = mapper.mapped_table
-        right_most_sibling, parent_tree_id, parent_level = connection.execute(
-            select([table.c.rgt, table.c.tree_id, table.c.level]).
+        (parent_pos_left,
+         parent_pos_right,
+         parent_tree_id,
+         parent_level) = connection.execute(
+            select([table.c.lft, table.c.rgt, table.c.tree_id, table.c.level]).
             where(table.c.id == instance.parent_id)
         ).fetchone()
 
-        instance.tree_id = parent_tree_id
-
-        # update key of current tree
+        # Update key of right side
         connection.execute(
             table.update(
-                and_(table.c.rgt >= right_most_sibling,
+                and_(table.c.rgt >= parent_pos_right,
                      table.c.tree_id == parent_tree_id)
             ).values(
                 lft=case(
-                    [(table.c.lft > right_most_sibling,
+                    [(table.c.lft > parent_pos_right,
                         table.c.lft + 2)],
                     else_=table.c.lft
                 ),
                 rgt=case(
-                    [(table.c.rgt >= right_most_sibling,
+                    [(table.c.rgt >= parent_pos_right,
                         table.c.rgt + 2)],
                     else_=table.c.rgt
                 )
@@ -84,8 +85,9 @@ def mptt_before_insert(mapper, connection, instance):
         )
 
         instance.level = parent_level + 1
-        instance.left = right_most_sibling
-        instance.right = right_most_sibling + 1
+        instance.tree_id = parent_tree_id
+        instance.left = parent_pos_right
+        instance.right = parent_pos_right + 1
 
 
 def mptt_before_delete(mapper, connection, instance, delete=True):

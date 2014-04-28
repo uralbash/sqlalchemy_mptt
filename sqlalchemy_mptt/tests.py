@@ -223,11 +223,11 @@ class TestTree(unittest.TestCase):
                     _______________|_____________________
                    |               |                     |
             2    2(2)5           6(4)13               14(7)23
-                   |         ______|________          ___|____
-                   |        |      |        |        |        |
-            3    3(3)4    7(5)8  9(6)10  11(23)12 15(8)18   19(10)22
-                                                     |         |
-            4                                     16(9)17  20(11)21
+                   |         ______|________           __|______
+                   |        |      |        |         |         |
+            3    3(3)4    7(5)8  9(6)10  11(23)12  15(8)18   19(10)22
+                                                      |         |
+            4                                      16(9)17   20(11)21
 
                         id lft rgt lvl parent tree
         """
@@ -256,6 +256,9 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 12),
 
                           (23, 11, 12, 3,  4, 1)], self.result.all())
+
+    def test_insert_after_node(self):
+        pass
 
     def test_delete_node(self):
         """ level           Nested sets example

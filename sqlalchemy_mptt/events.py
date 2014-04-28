@@ -50,6 +50,8 @@ def _insert_subtree(table, connection, node_size,
 
 
 def mptt_before_insert(mapper, connection, instance):
+    """ https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
+    """
     if not instance.parent_id:
         instance.left = 1
         instance.right = 2

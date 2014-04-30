@@ -175,9 +175,6 @@ def mptt_before_update(mapper, connection, instance):
     ).fetchall()
     subtree = map(lambda x: x[0], subtree)
 
-    # delete from old tree
-    mptt_before_delete(mapper, connection, instance, False)
-
     """ step 0: Initialize parameters.
 
         Put there left and right position of moving node
@@ -191,6 +188,13 @@ def mptt_before_update(mapper, connection, instance):
                 table.c.tree_id, table.c.parent_id, table.c.level])
         .where(table.c.id == node_id)
     ).fetchone()
+
+    # if instance just update w/o move
+    if not left_sibling and node_parent_id == instance.parent_id:
+        return
+
+    # delete from old tree
+    mptt_before_delete(mapper, connection, instance, False)
 
     if instance.parent_id:
         """ Put there right position of new parent node (there moving node
@@ -225,7 +229,7 @@ def mptt_before_update(mapper, connection, instance):
         if left_sibling_tree_id:
             tree_id = left_sibling_tree_id + 1
             connection.execute(
-                table.update(table.c.tree_id>left_sibling_tree_id)
+                table.update(table.c.tree_id > left_sibling_tree_id)
                 .values(tree_id=tree_id+1)
             )
         # if just insert

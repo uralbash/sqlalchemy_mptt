@@ -10,6 +10,7 @@
 SQLAlchemy events extension
 """
 from sqlalchemy import and_, case, select
+from sqlalchemy.sql import func
 
 
 def _insert_subtree(table, connection, node_size,
@@ -52,13 +53,14 @@ def _insert_subtree(table, connection, node_size,
 def mptt_before_insert(mapper, connection, instance):
     """ https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
     """
+    table = mapper.mapped_table
     if not instance.parent_id:
         instance.left = 1
         instance.right = 2
         instance.level = 1
-        instance.tree_id = instance.id
+        tree_id = connection.scalar(select([table.c.tree_id + 1])) or 1
+        instance.tree_id = tree_id
     else:
-        table = mapper.mapped_table
         (parent_pos_left,
          parent_pos_right,
          parent_tree_id,
@@ -143,12 +145,15 @@ def mptt_before_update(mapper, connection, instance):
     node_id = instance.id
 
     left_sibling = None
+    left_sibling_tree_id = None
     # if placed after a particular node
     if hasattr(instance, 'mptt_move_after'):
         (left_sibling_left,
          left_sibling_right,
-         left_sibling_parent) = connection.execute(
-            select([table.c.lft, table.c.rgt, table.c.parent_id]).
+         left_sibling_parent,
+         left_sibling_tree_id) = connection.execute(
+            select([table.c.lft, table.c.rgt, table.c.parent_id,
+                    table.c.tree_id]).
             where(table.c.id == instance.mptt_move_after)
         ).fetchone()
         instance.parent_id = left_sibling_parent
@@ -216,12 +221,23 @@ def mptt_before_update(mapper, connection, instance):
                         parent_pos_right, subtree,
                         parent_tree_id, parent_level, node_level, left_sibling)
     else:
+        # if insert after
+        if left_sibling_tree_id:
+            tree_id = left_sibling_tree_id + 1
+            connection.execute(
+                table.update(table.c.tree_id>left_sibling_tree_id)
+                .values(tree_id=tree_id+1)
+            )
+        # if just insert
+        else:
+            tree_id = connection.scalar(select([func.max(table.c.tree_id) + 1]))
+
         connection.execute(
             table.update(table.c.id.in_(subtree))
             .values(
                 lft=table.c.lft-node_pos_left+1,
                 rgt=table.c.rgt-node_pos_left+1,
                 level=table.c.level-node_level+1,
-                tree_id=node_id
+                tree_id=tree_id
             )
         )

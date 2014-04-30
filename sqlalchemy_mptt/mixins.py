@@ -34,16 +34,7 @@ class BaseNestedSets(object):
 
     @declared_attr
     def tree_id(cls):
-        return Column("tree_id", Integer,
-                      ForeignKey('%s.id' % cls.__tablename__))
-
-    @declared_attr
-    def tree(cls):
-        return relationship(cls, primaryjoin=lambda: cls.id == cls.tree_id,
-                            backref=backref('children_tree'),  # for delete
-                            remote_side=[cls.id],  # for show in sacrud
-                            post_update=True,   # solve CircularDependencyError
-                            )
+        return Column("tree_id", Integer)
 
     @declared_attr
     def parent_id(cls):
@@ -101,7 +92,7 @@ class BaseNestedSets(object):
             return result
 
         nodes = session.query(self).filter_by(parent_id=None)\
-            .order_by(self.id).all()
+            .order_by(self.tree_id).all()
         tree = []
         for i, node in enumerate(nodes):
             tree.append(recursive_node_to_dict(node))

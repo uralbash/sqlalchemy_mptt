@@ -11,7 +11,7 @@ test tree
 """
 import unittest
 
-from sqlalchemy import Column, create_engine, Integer
+from sqlalchemy import Column, create_engine, Integer, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -24,6 +24,7 @@ class Tree(Base, BaseNestedSets):
     __tablename__ = "tree"
 
     id = Column(Integer, primary_key=True)
+    visible = Column(Boolean)
 
     def __repr__(self):
         return "<Node (%s)>" % self.id
@@ -71,15 +72,15 @@ def add_mptt_tree(session):
     tree1 = (
         {'id': '1', 'parent_id': None},
 
-        {'id': '2', 'parent_id': '1'},
-        {'id': '3', 'parent_id': '2'},
+        {'id': '2', 'visible': True, 'parent_id': '1'},
+        {'id': '3', 'visible': True, 'parent_id': '2'},
 
-        {'id': '4', 'parent_id': '1'},
-        {'id': '5', 'parent_id': '4'},
-        {'id': '6', 'parent_id': '4'},
+        {'id': '4', 'visible': True, 'parent_id': '1'},
+        {'id': '5', 'visible': True, 'parent_id': '4'},
+        {'id': '6', 'visible': True, 'parent_id': '4'},
 
-        {'id': '7', 'parent_id': '1'},
-        {'id': '8', 'parent_id': '7'},
+        {'id': '7', 'visible': True, 'parent_id': '1'},
+        {'id': '8', 'visible': True, 'parent_id': '7'},
         {'id': '9', 'parent_id': '8'},
         {'id': '10', 'parent_id': '7'},
         {'id': '11', 'parent_id': '10'},
@@ -841,3 +842,9 @@ class TestTree(unittest.TestCase):
     def test_get_json_tree(self):
         tree = Tree.get_tree(self.session, json=True)
         self.assertEqual(tree, [{'children': [{'children': [{'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'children': [{'id': 5, 'label': '<Node (5)>'}, {'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'children': [{'children': [{'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'children': [{'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {'children': [{'children': [{'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'children': [{'id': 16, 'label': '<Node (16)>'}, {'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'children': [{'children': [{'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'children': [{'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
+
+    def test_get_json_tree_with_custom_field(self):
+        def fields(node):
+            return {'visible': node.visible}
+        tree = Tree.get_tree(self.session, json=True, json_fields=fields)
+        self.assertEqual(tree, [{'visible': None, 'children': [{'visible': True, 'children': [{'visible': True, 'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'visible': True, 'children': [{'visible': True, 'id': 5, 'label': '<Node (5)>'}, {'visible': True, 'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'visible': True, 'children': [{'visible': True, 'children': [{'visible': None, 'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'visible': None, 'children': [{'visible': None, 'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'visible': None, 'children': [{'visible': None, 'id': 16, 'label': '<Node (16)>'}, {'visible': None, 'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'visible': None, 'children': [{'visible': None, 'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])

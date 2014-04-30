@@ -80,12 +80,14 @@ class BaseNestedSets(object):
         session.add(self)
 
     @classmethod
-    def get_tree(self, session, json=False):
+    def get_tree(self, session, json=False, json_fields=None):
         def recursive_node_to_dict(node):
             result = {'node': node}
             if json:
                 # jqTree or jsTree format
                 result = {'id': node.id, 'label': str(node)}
+                if json_fields:
+                    result.update(json_fields(node))
             children = [recursive_node_to_dict(c) for c in node.children]
             if children:
                 result['children'] = children

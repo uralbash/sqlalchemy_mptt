@@ -25,6 +25,9 @@ class Tree(Base, BaseNestedSets):
 
     id = Column(Integer, primary_key=True)
 
+    def __repr__(self):
+        return "<Node (%s)>" % self.id
+
 Tree.register_tree()
 
 
@@ -781,3 +784,12 @@ class TestTree(unittest.TestCase):
                           (20, 14, 15, 4, 19, 12),
                           (21, 17, 20, 3, 18, 12),
                           (22, 18, 19, 4, 21, 12)], self.result.all())
+
+    def test_get_tree(self):
+        tree = Tree.get_tree(self.session)
+        self.assertEqual(str(tree),
+                         "[{'node': <Node (1)>, 'children': [{'node': <Node (2)>, 'children': [{'node': <Node (3)>}]}, {'node': <Node (4)>, 'children': [{'node': <Node (5)>}, {'node': <Node (6)>}]}, {'node': <Node (7)>, 'children': [{'node': <Node (8)>, 'children': [{'node': <Node (9)>}]}, {'node': <Node (10)>, 'children': [{'node': <Node (11)>}]}]}]}, {'node': <Node (12)>, 'children': [{'node': <Node (13)>, 'children': [{'node': <Node (14)>}]}, {'node': <Node (15)>, 'children': [{'node': <Node (16)>}, {'node': <Node (17)>}]}, {'node': <Node (18)>, 'children': [{'node': <Node (19)>, 'children': [{'node': <Node (20)>}]}, {'node': <Node (21)>, 'children': [{'node': <Node (22)>}]}]}]}]")
+
+    def test_get_json_tree(self):
+        tree = Tree.get_tree(self.session, json=True)
+        self.assertEqual(tree, [{'children': [{'children': [{'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'children': [{'id': 5, 'label': '<Node (5)>'}, {'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'children': [{'children': [{'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'children': [{'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {'children': [{'children': [{'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'children': [{'id': 16, 'label': '<Node (16)>'}, {'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'children': [{'children': [{'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'children': [{'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])

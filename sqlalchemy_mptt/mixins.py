@@ -87,3 +87,23 @@ class BaseNestedSets(object):
         self.parent_id = self.parent_id
         self.mptt_move_after = node_id
         session.add(self)
+
+    @classmethod
+    def get_tree(self, session, json=False):
+        def recursive_node_to_dict(node):
+            result = {'node': node}
+            if json:
+                # jqTree or jsTree format
+                result = {'id': node.id, 'label': str(node)}
+            children = [recursive_node_to_dict(c) for c in node.children]
+            if children:
+                result['children'] = children
+            return result
+
+        nodes = session.query(self).filter_by(parent_id=None)\
+            .order_by(self.id).all()
+        tree = []
+        for i, node in enumerate(nodes):
+            tree.append(recursive_node_to_dict(node))
+
+        return tree

@@ -107,6 +107,7 @@ def add_mptt_tree(session):
 
 
 class TestTree(unittest.TestCase):
+
     def setUp(self):
         self.engine = create_engine('sqlite:///:memory:')
         Session = sessionmaker(bind=self.engine)
@@ -519,9 +520,6 @@ class TestTree(unittest.TestCase):
                           (21, 17, 20, 3, 18, 2),
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
-    def test_move_to_uplevel(self):
-        pass
-
     def test_move_between_tree(self):
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         node.parent_id = 15
@@ -673,6 +671,120 @@ class TestTree(unittest.TestCase):
                           (20, 14, 15, 4, 19, 2),
                           (21, 17, 20, 3, 18, 2),
                           (22, 18, 19, 4, 21, 2)], self.result.all())
+
+    def test_move_to_toplevel_where_much_trees_from_right_side(self):
+        """ Move 15 after 1 and then 20 after 1
+        """
+        node = self.session.query(Tree).filter(Tree.id == 15).one()
+        node.move_after("1")
+        """ level           tree_id = 1
+            1                    1(1)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(2)5           6(4)11             12(7)21
+                   |               ^                   ^
+            3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                  |          |
+            4                                  14(9)15   18(11)19
+
+            level           tree_id = 2
+            1                     1(15)6
+                                     ^
+            2                 2(16)3   4(17)5
+
+            level           tree_id = 3
+            1                    1(12)16
+                     _______________|
+                    |               |
+            2    2(13)5          6(18)15
+                    |               ^
+            3    3(14)4     7(19)10   11(21)14
+                               |          |
+            4               8(20)9    12(22)13
+
+        """
+        self.assertEqual([(1,   1, 22, 1, None, 1),
+                          (2,   2,  5, 2,  1, 1),
+                          (3,   3,  4, 3,  2, 1),
+                          (4,   6, 11, 2,  1, 1),
+                          (5,   7,  8, 3,  4, 1),
+                          (6,   9, 10, 3,  4, 1),
+                          (7,  12, 21, 2,  1, 1),
+                          (8,  13, 16, 3,  7, 1),
+                          (9,  14, 15, 4,  8, 1),
+                          (10, 17, 20, 3,  7, 1),
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12, 1, 16, 1, None, 3),
+                          (13, 2,  5, 2, 12,   3),
+                          (14, 3,  4, 3, 13,   3),
+
+                          (15, 1, 6, 1, None, 2),
+                          (16, 2, 3, 2, 15,   2),
+                          (17, 4, 5, 2, 15,   2),
+
+                          (18,  6, 15, 2, 12, 3),
+                          (19,  7, 10, 3, 18, 3),
+                          (20,  8,  9, 4, 19, 3),
+                          (21, 11, 14, 3, 18, 3),
+                          (22, 12, 13, 4, 21, 3)], self.result.all())
+
+        node = self.session.query(Tree).filter(Tree.id == 20).one()
+        node.move_after("1")
+        """ level           tree_id = 1
+            1                    1(1)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(2)5           6(4)11             12(7)21
+                   |               ^                   ^
+            3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                  |          |
+            4                                  14(9)15   18(11)19
+
+            level           tree_id = 2
+            1                   1(20)2
+
+            level           tree_id = 3
+            1                     1(15)6
+                                     ^
+            2                 2(16)3   4(17)5
+
+            level           tree_id = 4
+            1                    1(12)14
+                     _______________|
+                    |               |
+            2    2(13)5          6(18)13
+                    |               ^
+            3    3(14)4     7(19)8     9(21)12
+                                          |
+            4                         10(22)11
+
+        """
+        self.assertEqual([(1,   1, 22, 1, None, 1),
+                          (2,   2,  5, 2,  1, 1),
+                          (3,   3,  4, 3,  2, 1),
+                          (4,   6, 11, 2,  1, 1),
+                          (5,   7,  8, 3,  4, 1),
+                          (6,   9, 10, 3,  4, 1),
+                          (7,  12, 21, 2,  1, 1),
+                          (8,  13, 16, 3,  7, 1),
+                          (9,  14, 15, 4,  8, 1),
+                          (10, 17, 20, 3,  7, 1),
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12, 1, 14, 1, None, 4),
+                          (13, 2,  5, 2, 12,   4),
+                          (14, 3,  4, 3, 13,   4),
+
+                          (15, 1, 6, 1, None, 3),
+                          (16, 2, 3, 2, 15,   3),
+                          (17, 4, 5, 2, 15,   3),
+
+                          (18,  6, 13, 2, 12, 4),
+                          (19,  7,  8, 3, 18, 4),
+                          (20,  1,  2, 1, None, 2),
+                          (21,  9, 12, 3, 18, 4),
+                          (22, 10, 11, 4, 21, 4)], self.result.all())
 
     def test_move_to_toplevel(self):
         """ level           Nested sets example
@@ -881,10 +993,12 @@ class TestTree(unittest.TestCase):
 
     def test_get_json_tree(self):
         tree = Tree.get_tree(self.session, json=True)
-        self.assertEqual(tree, [{'children': [{'children': [{'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'children': [{'id': 5, 'label': '<Node (5)>'}, {'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'children': [{'children': [{'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'children': [{'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {'children': [{'children': [{'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'children': [{'id': 16, 'label': '<Node (16)>'}, {'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'children': [{'children': [{'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'children': [{'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
+        self.assertEqual(tree, [{'children': [{'children': [{'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'children': [{'id': 5, 'label': '<Node (5)>'}, {'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'children': [{'children': [{'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'children': [{'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {
+                         'children': [{'children': [{'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'children': [{'id': 16, 'label': '<Node (16)>'}, {'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'children': [{'children': [{'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'children': [{'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
 
     def test_get_json_tree_with_custom_field(self):
         def fields(node):
             return {'visible': node.visible}
         tree = Tree.get_tree(self.session, json=True, json_fields=fields)
-        self.assertEqual(tree, [{'visible': None, 'children': [{'visible': True, 'children': [{'visible': True, 'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'visible': True, 'children': [{'visible': True, 'id': 5, 'label': '<Node (5)>'}, {'visible': True, 'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'visible': True, 'children': [{'visible': True, 'children': [{'visible': None, 'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'visible': None, 'children': [{'visible': None, 'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'visible': None, 'children': [{'visible': None, 'id': 16, 'label': '<Node (16)>'}, {'visible': None, 'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'visible': None, 'children': [{'visible': None, 'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
+        self.assertEqual(tree, [{'visible': None, 'children': [{'visible': True, 'children': [{'visible': True, 'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'visible': True, 'children': [{'visible': True, 'id': 5, 'label': '<Node (5)>'}, {'visible': True, 'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'visible': True, 'children': [{'visible': True, 'children': [{'visible': None, 'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'visible': None, 'children': [{'visible': None, 'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {
+                         'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'visible': None, 'children': [{'visible': None, 'id': 16, 'label': '<Node (16)>'}, {'visible': None, 'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'visible': None, 'children': [{'visible': None, 'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])

@@ -230,7 +230,7 @@ def mptt_before_update(mapper, connection, instance):
             tree_id = left_sibling_tree_id + 1
             connection.execute(
                 table.update(table.c.tree_id > left_sibling_tree_id)
-                .values(tree_id=tree_id+1)
+                .values(tree_id=table.c.tree_id+1)
             )
         # if just insert
         else:

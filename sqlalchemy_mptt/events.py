@@ -190,7 +190,7 @@ def mptt_before_update(mapper, connection, instance):
     ).fetchone()
 
     # if instance just update w/o move
-    if not left_sibling and node_parent_id == instance.parent_id:
+    if not left_sibling and str(node_parent_id) == str(instance.parent_id):
         return
 
     # delete from old tree

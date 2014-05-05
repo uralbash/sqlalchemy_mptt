@@ -198,6 +198,47 @@ class TestTree(unittest.TestCase):
                           (21, 17, 20, 3, 18, 2),
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
+    def test_update_wo_move_like_sacrud_save(self):
+        """ level           Nested sets example
+            1                    1(1)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(2)5           6(4)11             12(7)21
+                   |               ^                   ^
+            3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                  |          |
+            4                                  14(9)15   18(11)19
+
+                        id lft rgt lvl parent tree
+        """
+        node = self.session.query(Tree).filter(Tree.id == 4).one()
+        node.parent_id = '1'
+        node.visible = True
+        self.session.add(node)
+        self.assertEqual([(1,   1, 22, 1, None, 1),
+                          (2,   2,  5, 2,  1, 1),
+                          (3,   3,  4, 3,  2, 1),
+                          (4,   6, 11, 2,  1, 1),
+                          (5,   7,  8, 3,  4, 1),
+                          (6,   9, 10, 3,  4, 1),
+                          (7,  12, 21, 2,  1, 1),
+                          (8,  13, 16, 3,  7, 1),
+                          (9,  14, 15, 4,  8, 1),
+                          (10, 17, 20, 3,  7, 1),
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12,  1, 22, 1, None, 2),
+                          (13,  2,  5, 2, 12, 2),
+                          (14,  3,  4, 3, 13, 2),
+                          (15,  6, 11, 2, 12, 2),
+                          (16,  7,  8, 3, 15, 2),
+                          (17,  9, 10, 3, 15, 2),
+                          (18, 12, 21, 2, 12, 2),
+                          (19, 13, 16, 3, 18, 2),
+                          (20, 14, 15, 4, 19, 2),
+                          (21, 17, 20, 3, 18, 2),
+                          (22, 18, 19, 4, 21, 2)], self.result.all())
+
     def test_insert_node(self):
         node = Tree(parent_id=6)
         self.session.add(node)

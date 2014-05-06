@@ -85,7 +85,7 @@ class BaseNestedSets(object):
             result = {'node': node}
             if json:
                 # jqTree or jsTree format
-                result = {'id': node.id, 'label': str(node)}
+                result = {'id': node.id, 'label': node.__repr__()}
                 if json_fields:
                     result.update(json_fields(node))
             children = [recursive_node_to_dict(c) for c in node.children]

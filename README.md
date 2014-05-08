@@ -3,3 +3,5 @@
 [![Stories in Ready](https://badge.waffle.io/itcase/sqlalchemy_mptt.png?label=ready&title=Ready)](https://waffle.io/itcase/sqlalchemy_mptt)
 
 soon... 
+
+![ScreenShot](https://raw.githubusercontent.com/ITCase/sqlalchemy_mptt/master/docs/img/1_sqlalchemy_mptt_example.svg)

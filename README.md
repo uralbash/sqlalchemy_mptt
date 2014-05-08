@@ -5,4 +5,4 @@
 soon...
 
 ![ScreenShot](https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/1_sqlalchemy_mptt_example.svg)
-![ScreenShot](https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/1_sqlalchemy_mptt_traversal.svg)
+![ScreenShot](https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg)

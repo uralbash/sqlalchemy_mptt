@@ -143,6 +143,8 @@ Move node (support multitree)
 
 ![Nested sets multitree](https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/3_sqlalchemy_mptt_multitree.svg)
 
+Move inside
+
 ```python
 node = session.query(Tree).filter(Tree.id == 4).one()
 node.move_inside("15")
@@ -167,7 +169,10 @@ node.move_inside("15")
             3    3(14)4    7(4)12 13(16)14  15(17)16  19(19)22  23(21)26
                              ^                            |         |
             4          8(5)9  10(6)11                 20(20)21  24(22)25
-            
+    
+    
+Move after
+        
 ```python
 node = session.query(Tree).filter(Tree.id == 8).one()
 node.move_after("5")

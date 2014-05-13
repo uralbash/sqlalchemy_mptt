@@ -1,13 +1,6 @@
 from sqlalchemy_mptt import __version__
 from setuptools import setup
 
-try:
-    from pypandoc import convert
-    read_md = lambda f: convert(f, 'rst')
-except ImportError:
-    print("warning: pypandoc module not found, could not convert Markdown to RST")
-    read_md = lambda f: open(f, 'r').read()
-
 setup(
     name='sqlalchemy_mptt',
     version=__version__,
@@ -21,7 +14,10 @@ setup(
     test_suite="nose.collector",
     license="GPL",
     description='SQLAlchemy MPTT mixins (Nested Sets)',
-    long_description=read_md('README.md'),
+    package_data={
+        '': ['*.txt', '*.rst', '*.md'],
+    },
+    long_description="http://github.com/ITCase/sqlalchemy_mptt/",
     install_requires=[
         "sqlalchemy",
     ],

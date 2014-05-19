@@ -173,7 +173,7 @@ def mptt_before_update(mapper, connection, instance):
                     table.c.tree_id == instance.tree_id))
         .order_by(table.c.lft)
     ).fetchall()
-    subtree = map(lambda x: x[0], subtree)
+    subtree = [x[0] for x in subtree]
 
     """ step 0: Initialize parameters.
 

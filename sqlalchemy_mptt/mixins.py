@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 
-from events import mptt_before_delete, mptt_before_insert, mptt_before_update
+from .events import mptt_before_delete, mptt_before_insert, mptt_before_update
 
 
 class BaseNestedSets(object):

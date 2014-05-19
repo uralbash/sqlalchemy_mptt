@@ -1050,3 +1050,78 @@ class TestTree(unittest.TestCase):
         tree = Tree.get_tree(self.session, json=True, json_fields=fields)
         self.assertEqual(tree, [{'visible': None, 'children': [{'visible': True, 'children': [{'visible': True, 'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'visible': True, 'children': [{'visible': True, 'id': 5, 'label': '<Node (5)>'}, {'visible': True, 'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'visible': True, 'children': [{'visible': True, 'children': [{'visible': None, 'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'visible': None, 'children': [{'visible': None, 'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {
                          'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'visible': None, 'children': [{'visible': None, 'id': 16, 'label': '<Node (16)>'}, {'visible': None, 'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'visible': None, 'children': [{'visible': None, 'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
+
+    def test_rebuild(self):
+        """ level           Nested sets tree1
+            1                    1(1)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(2)5           6(4)11             12(7)21
+                   |               ^                   ^
+            3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                  |          |
+            4                                  14(9)15   18(11)19
+
+            level           Nested sets tree2
+            1                    1(12)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(13)5         6(15)11             12(18)21
+                   |               ^                    ^
+            3    3(14)4     7(16)8   9(17)10   13(19)16   17(21)20
+                                                   |          |
+            4                                  14(20)15   18(22)19
+
+        """
+        self.session.query(Tree).update({'lft': 0, 'rgt': 0, 'level': 0})
+        Tree.rebuild(self.session, 1)
+        self.assertEqual(self.result.all(),
+                         [(1,   1, 22, 1, None, 1),
+                          (2,   2,  5, 2, 1,  1),
+                          (3,   3,  4, 3, 2,  1),
+                          (4,   6, 11, 2, 1,  1),
+                          (5,   7,  8, 3, 4,  1),
+                          (6,   9, 10, 3, 4,  1),
+                          (7,  12, 21, 2, 1,  1),
+                          (8,  13, 16, 3, 7,  1),
+                          (9,  14, 15, 4, 8,  1),
+                          (10, 17, 20, 3, 7,  1),
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12, 0, 0, 0, None, 2),
+                          (13, 0, 0, 0, 12, 2),
+                          (14, 0, 0, 0, 13, 2),
+                          (15, 0, 0, 0, 12, 2),
+                          (16, 0, 0, 0, 15, 2),
+                          (17, 0, 0, 0, 15, 2),
+                          (18, 0, 0, 0, 12, 2),
+                          (19, 0, 0, 0, 18, 2),
+                          (20, 0, 0, 0, 19, 2),
+                          (21, 0, 0, 0, 18, 2),
+                          (22, 0, 0, 0, 21, 2)])
+
+        Tree.rebuild(self.session)
+        self.assertEqual(self.result.all(),
+                         [(1,   1, 22, 1, None, 1),
+                          (2,   2,  5, 2, 1,  1),
+                          (3,   3,  4, 3, 2,  1),
+                          (4,   6, 11, 2, 1,  1),
+                          (5,   7,  8, 3, 4,  1),
+                          (6,   9, 10, 3, 4,  1),
+                          (7,  12, 21, 2, 1,  1),
+                          (8,  13, 16, 3, 7,  1),
+                          (9,  14, 15, 4, 8,  1),
+                          (10, 17, 20, 3, 7,  1),
+                          (11, 18, 19, 4, 10, 1),
+
+                          (12,  1, 22, 1, None, 2),
+                          (13,  2,  5, 2, 12, 2),
+                          (14,  3,  4, 3, 13, 2),
+                          (15,  6, 11, 2, 12, 2),
+                          (16,  7,  8, 3, 15, 2),
+                          (17,  9, 10, 3, 15, 2),
+                          (18, 12, 21, 2, 12, 2),
+                          (19, 13, 16, 3, 18, 2),
+                          (20, 14, 15, 4, 19, 2),
+                          (21, 17, 20, 3, 18, 2),
+                          (22, 18, 19, 4, 21, 2)])

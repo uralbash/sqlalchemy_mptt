@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 
-from events import mptt_before_delete, mptt_before_insert, mptt_before_update
+from .events import mptt_before_delete, mptt_before_insert, mptt_before_update
 
 
 class BaseNestedSets(object):
@@ -80,7 +80,7 @@ class BaseNestedSets(object):
         session.add(self)
 
     @classmethod
-    def get_tree(self, session, json=False, json_fields=None):
+    def get_tree(cls, session, json=False, json_fields=None):
         def recursive_node_to_dict(node):
             result = {'node': node}
             if json:
@@ -93,10 +93,55 @@ class BaseNestedSets(object):
                 result['children'] = children
             return result
 
-        nodes = session.query(self).filter_by(parent_id=None)\
-            .order_by(self.tree_id).all()
+        nodes = session.query(cls).filter_by(parent_id=None)\
+            .order_by(cls.tree_id).all()
         tree = []
-        for i, node in enumerate(nodes):
+        for node in nodes:
             tree.append(recursive_node_to_dict(node))
 
         return tree
+
+    @classmethod
+    def rebuild_tree(cls, session, tree_id):
+        session.query(cls).filter_by(tree_id=tree_id)\
+            .update({cls.left: 0, cls.right: 0, cls.level: 0})
+        top = session.query(cls).filter_by(parent_id=None)\
+            .filter_by(tree_id=tree_id).one()
+        top.left = left = 1
+        top.right = right = 2
+        top.level = level = 1
+
+        def reqursive(children, left, right, level):
+            level = level + 1
+            for i, node in enumerate(children):
+                same_level_right = children[i-1].right
+                left = left + 1
+
+                if i > 0:
+                    left = left + 1
+                if same_level_right:
+                    left = same_level_right + 1
+
+                right = left + 1
+                node.left = left
+                node.right = right
+                parent = node.parent
+
+                j = 0
+                while parent:
+                    parent.right = right + 1 + j
+                    parent = parent.parent
+                    j += 1
+
+                node.level = level
+                reqursive(node.children, left, right, level)
+
+        reqursive(top.children, left, right, level)
+
+    @classmethod
+    def rebuild(cls, session, tree_id=None):
+        trees = session.query(cls).filter_by(parent_id=None)
+        if tree_id:
+            trees = trees.filter_by(tree_id=tree_id)
+        for tree in trees:
+            cls.rebuild_tree(session, tree.tree_id)

@@ -18,3 +18,5 @@ TODO
 TODO.txt
 nohup.out
 .cache
+.tox
+__pycache__

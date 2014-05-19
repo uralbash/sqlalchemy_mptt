@@ -14,11 +14,17 @@ notifications:
 python:
   - "2.7"
 
+env:
+  - TOXENV=py27
+  - TOXENV=py33
+
 install:
   - pip install nose coverage coveralls
   - pip install -r requirements.txt
+  - pip install tox
 
 script:
+  - tox
   - nosetests --with-coverage --cover-package=sqlalchemy_mptt --cover-erase --with-doctest
 
 after_success:

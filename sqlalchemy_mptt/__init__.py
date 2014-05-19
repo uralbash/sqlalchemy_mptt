@@ -5,7 +5,7 @@
 # Copyright © 2014 uralbash <root@uralbash.ru>
 #
 # Distributed under terms of the MIT license.
-from mixins import BaseNestedSets
+from .mixins import BaseNestedSets
 
 __version__ = "0.0.1"
 __mixins__ = [BaseNestedSets]

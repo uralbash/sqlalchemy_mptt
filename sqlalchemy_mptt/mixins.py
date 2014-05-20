@@ -39,7 +39,8 @@ class BaseNestedSets(object):
     @declared_attr
     def parent_id(cls):
         return Column("parent_id", Integer,
-                      ForeignKey('%s.id' % cls.__tablename__))
+                      ForeignKey('%s.id' % cls.__tablename__,
+                                 ondelete='CASCADE'))
 
     @declared_attr
     def parent(cls):

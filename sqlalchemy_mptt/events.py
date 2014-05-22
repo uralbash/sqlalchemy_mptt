@@ -193,6 +193,11 @@ def mptt_before_update(mapper, connection, instance):
     if not left_sibling and str(node_parent_id) == str(instance.parent_id):
         return
 
+    # fix tree shorting
+    if instance.parent_id and not node_parent_id and node_tree_id == instance.tree_id:
+        instance.parent_id = None
+        return
+
     # delete from old tree
     mptt_before_delete(mapper, connection, instance, False)
 

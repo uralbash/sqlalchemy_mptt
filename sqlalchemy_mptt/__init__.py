@@ -7,5 +7,5 @@
 # Distributed under terms of the MIT license.
 from .mixins import BaseNestedSets
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __mixins__ = [BaseNestedSets]

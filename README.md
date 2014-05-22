@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/ITCase/sqlalchemy_mptt.svg?branch=master)](https://travis-ci.org/ITCase/sqlalchemy_mptt)
 [![Coverage Status](https://coveralls.io/repos/ITCase/sqlalchemy_mptt/badge.png)](https://coveralls.io/r/ITCase/sqlalchemy_mptt)
 [![Stories in progress](https://badge.waffle.io/itcase/sqlalchemy_mptt.png?label=in progress&title=In Progress)](https://waffle.io/itcase/sqlalchemy_mptt)
-[![PyPI](http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg)](http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg)
+[![PyPI](http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg)](https://pypi.python.org/pypi/sqlalchemy_mptt)
 
 Library for implementing Modified Preorder Tree Traversal with your SQLAlchemy Models and working with trees of Model instances, like django-mptt.
 

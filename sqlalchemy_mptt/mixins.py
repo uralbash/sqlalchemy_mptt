@@ -112,7 +112,7 @@ class BaseNestedSets(object):
         top.right = right = 2
         top.level = level = 1
 
-        def reqursive(children, left, right, level):
+        def recursive(children, left, right, level):
             level = level + 1
             for i, node in enumerate(children):
                 same_level_right = children[i-1].right
@@ -135,9 +135,9 @@ class BaseNestedSets(object):
                     j += 1
 
                 node.level = level
-                reqursive(node.children, left, right, level)
+                recursive(node.children, left, right, level)
 
-        reqursive(top.children, left, right, level)
+        recursive(top.children, left, right, level)
 
     @classmethod
     def rebuild(cls, session, tree_id=None):

@@ -85,8 +85,18 @@ class BaseNestedSets(object):
         session = Session.object_session(self)
         node = session.query(self.__table__).filter_by(id=node_id).one()
         self.parent_id = node.parent_id
-        self.mptt_move_after = node_id
+        self.mptt_move_before = node_id
         session.add(self)
+
+    def leftsibling_in_level(self):
+        table = self.__table__
+        session = Session.object_session(self)
+        current_lvl_nodes = session.query(table)\
+            .filter_by(level=self.level).filter_by(tree_id=self.tree_id)\
+            .filter(table.c.lft < self.left).order_by(table.c.lft).all()
+        if current_lvl_nodes:
+            return current_lvl_nodes[-1]
+        return None
 
     @classmethod
     def get_tree(cls, session, json=False, json_fields=None):

@@ -8,7 +8,7 @@ setup(
     author='Svintsov Dmitry',
     author_email='root@uralbash.ru',
 
-    packages=['sqlalchemy_mptt'],
+    packages=['sqlalchemy_mptt', ],
     include_package_data=True,
     zip_safe=False,
     test_suite="nose.collector",

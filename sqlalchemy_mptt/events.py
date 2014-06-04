@@ -144,8 +144,11 @@ def mptt_before_update(mapper, connection, instance):
     table = mapper.mapped_table
     node_id = instance.id
 
+    mptt_move_inside = None
     left_sibling = None
     left_sibling_tree_id = None
+    if hasattr(instance, 'mptt_move_inside'):
+        mptt_move_inside = instance.mptt_move_inside
     # if placed after a particular node
     if hasattr(instance, 'mptt_move_after'):
         (left_sibling_left,
@@ -190,7 +193,7 @@ def mptt_before_update(mapper, connection, instance):
     ).fetchone()
 
     # if instance just update w/o move
-    if not left_sibling and str(node_parent_id) == str(instance.parent_id):
+    if not left_sibling and str(node_parent_id) == str(instance.parent_id) and not mptt_move_inside:
         return
 
     # fix tree shorting

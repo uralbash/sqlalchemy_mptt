@@ -72,11 +72,19 @@ class BaseNestedSets(object):
     def move_inside(self, parent_id):
         session = Session.object_session(self)
         self.parent_id = parent_id
+        self.mptt_move_inside = parent_id
         session.add(self)
 
     def move_after(self, node_id):
         session = Session.object_session(self)
         self.parent_id = self.parent_id
+        self.mptt_move_after = node_id
+        session.add(self)
+
+    def move_before(self, node_id):
+        session = Session.object_session(self)
+        node = session.query(self.__table__).filter_by(id=node_id).one()
+        self.parent_id = node.parent_id
         self.mptt_move_after = node_id
         session.add(self)
 

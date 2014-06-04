@@ -223,7 +223,8 @@ def mptt_before_update(mapper, connection, instance):
 
     # if instance just update w/o move
     if not left_sibling and str(node_parent_id) == str(instance.parent_id) and not mptt_move_inside:
-        return
+        if left_sibling_tree_id is None:
+            return
 
     # fix tree shorting
     if instance.parent_id and not node_parent_id and node_tree_id == instance.tree_id:

@@ -11,7 +11,7 @@ test tree
 """
 import unittest
 
-from sqlalchemy import Column, create_engine, Integer, Boolean
+from sqlalchemy import Boolean, Column, create_engine, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -1329,6 +1329,34 @@ class TestTree(unittest.TestCase):
                           (20, 14, 15, 4, 19, 2),
                           (21, 17, 20, 3, 18, 2),
                           (22, 18, 19, 4, 21, 2)], self.result.all())
+
+    def test_move_one_tree_before_other_tree(self):
+        node = self.session.query(Tree).filter(Tree.id == 12).one()
+        node.move_before("1")
+        self.maxDiff = None
+        self.assertEqual([(1,   1, 22, 1, None, 2),
+                          (2,   2,  5, 2,  1, 2),
+                          (3,   3,  4, 3,  2, 2),
+                          (4,   6, 11, 2,  1, 2),
+                          (5,   7,  8, 3,  4, 2),
+                          (6,   9, 10, 3,  4, 2),
+                          (7,  12, 21, 2,  1, 2),
+                          (8,  13, 16, 3,  7, 2),
+                          (9,  14, 15, 4,  8, 2),
+                          (10, 17, 20, 3,  7, 2),
+                          (11, 18, 19, 4, 10, 2),
+
+                          (12,  1, 22, 1, None, 1),
+                          (13,  2,  5, 2, 12, 1),
+                          (14,  3,  4, 3, 13, 1),
+                          (15,  6, 11, 2, 12, 1),
+                          (16,  7,  8, 3, 15, 1),
+                          (17,  9, 10, 3, 15, 1),
+                          (18, 12, 21, 2, 12, 1),
+                          (19, 13, 16, 3, 18, 1),
+                          (20, 14, 15, 4, 19, 1),
+                          (21, 17, 20, 3, 18, 1),
+                          (22, 18, 19, 4, 21, 1)], self.result.all())
 
     def test_move_before_to_other_tree(self):
         """ level           Move 8 before 15

@@ -17,6 +17,7 @@ python:
 env:
   - TOXENV=py27
   - TOXENV=py33
+  - TOXENV=py34
 
 install:
   - pip install nose coverage coveralls

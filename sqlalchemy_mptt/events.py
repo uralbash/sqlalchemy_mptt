@@ -144,8 +144,40 @@ def mptt_before_update(mapper, connection, instance):
     table = mapper.mapped_table
     node_id = instance.id
 
+    mptt_move_inside = None
     left_sibling = None
     left_sibling_tree_id = None
+    if hasattr(instance, 'mptt_move_inside'):
+        mptt_move_inside = instance.mptt_move_inside
+    if hasattr(instance, 'mptt_move_before'):
+        (right_sibling_left,
+         right_sibling_right,
+         right_sibling_parent,
+         right_sibling_level,
+         right_sibling_tree_id) = connection.execute(
+            select([table.c.lft, table.c.rgt, table.c.parent_id,
+                    table.c.level, table.c.tree_id]).
+            where(table.c.id == instance.mptt_move_before)
+        ).fetchone()
+        current_lvl_nodes = connection.execute(
+            select([table.c.lft, table.c.rgt, table.c.parent_id,
+                    table.c.tree_id]).
+            where(and_(table.c.level == right_sibling_level,
+                       table.c.tree_id == right_sibling_tree_id,
+                       table.c.lft < right_sibling_left))
+        ).fetchall()
+        if current_lvl_nodes:
+            (left_sibling_left,
+             left_sibling_right,
+             left_sibling_parent,
+             left_sibling_tree_id) = current_lvl_nodes[-1]
+            instance.parent_id = left_sibling_parent
+            left_sibling = {'lft': left_sibling_left, 'rgt': left_sibling_right,
+                            'is_parent': False}
+        # if move_before to top level
+        elif not right_sibling_parent:
+            left_sibling_tree_id = right_sibling_tree_id - 1
+
     # if placed after a particular node
     if hasattr(instance, 'mptt_move_after'):
         (left_sibling_left,
@@ -190,7 +222,13 @@ def mptt_before_update(mapper, connection, instance):
     ).fetchone()
 
     # if instance just update w/o move
-    if not left_sibling and str(node_parent_id) == str(instance.parent_id):
+    if not left_sibling and str(node_parent_id) == str(instance.parent_id) and not mptt_move_inside:
+        if left_sibling_tree_id is None:
+            return
+
+    # fix tree shorting
+    if instance.parent_id and not node_parent_id and node_tree_id == instance.tree_id:
+        instance.parent_id = None
         return
 
     # delete from old tree
@@ -226,7 +264,7 @@ def mptt_before_update(mapper, connection, instance):
                         parent_tree_id, parent_level, node_level, left_sibling)
     else:
         # if insert after
-        if left_sibling_tree_id:
+        if left_sibling_tree_id or left_sibling_tree_id == 0:
             tree_id = left_sibling_tree_id + 1
             connection.execute(
                 table.update(table.c.tree_id > left_sibling_tree_id)

@@ -72,6 +72,7 @@ class BaseNestedSets(object):
     def move_inside(self, parent_id):
         session = Session.object_session(self)
         self.parent_id = parent_id
+        self.mptt_move_inside = parent_id
         session.add(self)
 
     def move_after(self, node_id):
@@ -79,6 +80,23 @@ class BaseNestedSets(object):
         self.parent_id = self.parent_id
         self.mptt_move_after = node_id
         session.add(self)
+
+    def move_before(self, node_id):
+        session = Session.object_session(self)
+        node = session.query(self.__table__).filter_by(id=node_id).one()
+        self.parent_id = node.parent_id
+        self.mptt_move_before = node_id
+        session.add(self)
+
+    def leftsibling_in_level(self):
+        table = self.__table__
+        session = Session.object_session(self)
+        current_lvl_nodes = session.query(table)\
+            .filter_by(level=self.level).filter_by(tree_id=self.tree_id)\
+            .filter(table.c.lft < self.left).order_by(table.c.lft).all()
+        if current_lvl_nodes:
+            return current_lvl_nodes[-1]
+        return None
 
     @classmethod
     def get_tree(cls, session, json=False, json_fields=None):
@@ -112,7 +130,7 @@ class BaseNestedSets(object):
         top.right = right = 2
         top.level = level = 1
 
-        def reqursive(children, left, right, level):
+        def recursive(children, left, right, level):
             level = level + 1
             for i, node in enumerate(children):
                 same_level_right = children[i-1].right
@@ -135,9 +153,9 @@ class BaseNestedSets(object):
                     j += 1
 
                 node.level = level
-                reqursive(node.children, left, right, level)
+                recursive(node.children, left, right, level)
 
-        reqursive(top.children, left, right, level)
+        recursive(top.children, left, right, level)
 
     @classmethod
     def rebuild(cls, session, tree_id=None):

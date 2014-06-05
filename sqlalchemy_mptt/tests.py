@@ -1333,7 +1333,6 @@ class TestTree(unittest.TestCase):
     def test_move_one_tree_before_other_tree(self):
         node = self.session.query(Tree).filter(Tree.id == 12).one()
         node.move_before("1")
-        self.maxDiff = None
         self.assertEqual([(1,   1, 22, 1, None, 2),
                           (2,   2,  5, 2,  1, 2),
                           (3,   3,  4, 3,  2, 2),

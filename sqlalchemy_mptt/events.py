@@ -143,7 +143,6 @@ def mptt_before_update(mapper, connection, instance):
     """
     table = mapper.mapped_table
     node_id = instance.id
-
     mptt_move_inside = None
     left_sibling = None
     left_sibling_tree_id = None
@@ -227,9 +226,20 @@ def mptt_before_update(mapper, connection, instance):
             return
 
     # fix tree shorting
-    if instance.parent_id and not node_parent_id and node_tree_id == instance.tree_id:
-        instance.parent_id = None
-        return
+    if instance.parent_id:
+        (parent_id,
+         parent_pos_right,
+         parent_pos_left,
+         parent_tree_id,
+         parent_level) = connection.execute(
+            select([table.c.id, table.c.rgt, table.c.lft, table.c.tree_id,
+                    table.c.level])
+            .where(table.c.id == instance.parent_id)
+        ).fetchone()
+        if not node_parent_id and node_tree_id == parent_tree_id:
+            instance.parent_id = None
+            # print "%s - %s" % (parent_tree_id, instance.tree_id)
+            return
 
     # delete from old tree
     mptt_before_delete(mapper, connection, instance, False)
@@ -247,7 +257,6 @@ def mptt_before_update(mapper, connection, instance):
                     table.c.level])
             .where(table.c.id == instance.parent_id)
         ).fetchone()
-
         # 'size' of moving node (including all it's sub nodes)
         node_size = node_pos_right - node_pos_left + 1
 

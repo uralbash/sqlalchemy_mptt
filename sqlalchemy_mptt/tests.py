@@ -244,8 +244,6 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_insert_node(self):
-        node = Tree(parent_id=6)
-        self.session.add(node)
         """ level           Nested sets example
             1                    1(1)22
                     _______________|___________________
@@ -269,6 +267,8 @@ class TestTree(unittest.TestCase):
 
                         id lft rgt lvl parent tree
         """
+        node = Tree(parent_id=6)
+        self.session.add(node)
         self.assertEqual([(1,   1, 24, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -296,8 +296,6 @@ class TestTree(unittest.TestCase):
                           (23, 10, 11, 4, 6, 1)], self.result.all())
 
     def test_insert_node_near_subtree(self):
-        node = Tree(parent_id=4)
-        self.session.add(node)
         """ level           Nested sets example
             1                    1(1)22
                     _______________|___________________
@@ -321,6 +319,8 @@ class TestTree(unittest.TestCase):
 
                         id lft rgt lvl parent tree
         """
+        node = Tree(parent_id=4)
+        self.session.add(node)
         self.assertEqual([(1,   1, 24, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -351,7 +351,7 @@ class TestTree(unittest.TestCase):
         pass
 
     def test_delete_node(self):
-        """ level           Nested sets example
+        """ level           Test delete node
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -397,7 +397,7 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_update_node(self):
-        """ level           Nested sets example
+        """ level           Test update node
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -566,9 +566,6 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_move_between_tree(self):
-        node = self.session.query(Tree).filter(Tree.id == 4).one()
-        node.parent_id = 15
-        self.session.add(node)
         """         4 -> 15
             level           Nested sets tree1
             1                    1(1)16
@@ -591,6 +588,9 @@ class TestTree(unittest.TestCase):
             4          8(5)9  10(6)11                 20(20)21  24(22)25
 
         """
+        node = self.session.query(Tree).filter(Tree.id == 4).one()
+        node.parent_id = 15
+        self.session.add(node)
         self.assertEqual([(1,   1, 16, 1, None, 1),
                           (2,   2,  5, 2,   1,  1),
                           (3,   3,  4, 3,   2,  1),
@@ -617,6 +617,51 @@ class TestTree(unittest.TestCase):
                           (21, 23, 26, 3, 18, 2),
                           (22, 24, 25, 4, 21, 2)], self.result.all())
 
+    def test_move_tree_to_another_tree(self):
+        """ level           Move tree2 to tree1
+            1                    1(1)44
+                     _______________|_________________________________
+                    |               |                                 |
+            2     2(2)5           6(4)11                            12(7)43
+                    |            ___|___                             __|_____________________________________
+                    |           |       |                           |                             |          |
+            3     3(3)4       7(5)8   9(6)10                    13(12)34                       35(8)38   39(10)42
+                                                    _______________|___________________           |          |
+                                                   |               |                   |       36(9)37   40(11)41
+            4                                   14(13)17        18(15)23             24(18)33
+                                                    |               ^                    ^
+            5                                   15(14)16   19(16)20   21(17)22   25(19)28  29(21)32
+                                                                                     |         |
+            6                                                                    26(20)27  30(22)31
+
+                          id lft rgt lvl parent tree
+        """
+        node = self.session.query(Tree).filter(Tree.id == 12).one()
+        node.parent_id = 7
+        self.session.add(node)
+        self.assertEqual([(1, 1, 44, 1, None, 1),
+                          (2, 2, 5, 2, 1, 1),
+                          (3, 3, 4, 3, 2, 1),
+                          (4, 6, 11, 2, 1, 1),
+                          (5, 7, 8, 3, 4, 1),
+                          (6, 9, 10, 3, 4, 1),
+                          (7, 12, 43, 2, 1, 1),
+                          (8, 35, 38, 3, 7, 1),
+                          (9, 36, 37, 4, 8, 1),
+                          (10, 39, 42, 3, 7, 1),
+                          (11, 40, 41, 4, 10, 1),
+                          (12, 13, 34, 3, 7, 1),
+                          (13, 14, 17, 4, 12, 1),
+                          (14, 15, 16, 5, 13, 1),
+                          (15, 18, 23, 4, 12, 1),
+                          (16, 19, 20, 5, 15, 1),
+                          (17, 21, 22, 5, 15, 1),
+                          (18, 24, 33, 4, 12, 1),
+                          (19, 25, 28, 5, 18, 1),
+                          (20, 26, 27, 6, 19, 1),
+                          (21, 29, 32, 5, 18, 1),
+                          (22, 30, 31, 6, 21, 1)], self.result.all())
+
     def test_move_inside_function(self):
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         node.move_inside("15")
@@ -641,6 +686,7 @@ class TestTree(unittest.TestCase):
                              ^                            |         |
             4          8(5)9  10(6)11                 20(20)21  24(22)25
 
+                          id lft rgt lvl parent tree
         """
         self.assertEqual([(1,   1, 16, 1, None, 1),
                           (2,   2,  5, 2,   1,  1),

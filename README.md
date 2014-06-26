@@ -4,6 +4,7 @@
 [![PyPI](http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg)](https://pypi.python.org/pypi/sqlalchemy_mptt)
 
 Library for implementing Modified Preorder Tree Traversal with your SQLAlchemy Models and working with trees of Model instances, like django-mptt.
+Docs http://sqlalchemy-mptt.readthedocs.org/
 
 ![Nested sets traversal](https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg)
 
@@ -15,7 +16,7 @@ Installing
 Install from github:
 
     pip install git+http://github.com/ITCase/sqlalchemy_mptt.git
-    
+
 PyPi:
 
     pip install sqlalchemy_mptt
@@ -53,8 +54,8 @@ Now you can add, move and delete obj
 
 Insert node
 -----------
-        
-```python      
+
+```python
 node = Tree(parent_id=6)
 session.add(node)
 ```
@@ -107,7 +108,7 @@ session.delete(node)
             3    3(3)4            7(8)10   11(10)14
                                     |          |
             4                     8(9)9    12(11)13
-            
+
 Update node
 -----------
 
@@ -170,10 +171,10 @@ node.move_inside("15")
             3    3(14)4    7(4)12 13(16)14  15(17)16  19(19)22  23(21)26
                              ^                            |         |
             4          8(5)9  10(6)11                 20(20)21  24(22)25
-    
-    
+
+
 Move after
-        
+
 ```python
 node = session.query(Tree).filter(Tree.id == 8).one()
 node.move_after("5")
@@ -198,7 +199,7 @@ node.move_after("5")
                 3     3(3)4    7(5)8  9(8)12  13(6)14   17(10)20
                                         |                  |
                 4                    10(9)11            18(11)19
-                
+
 Move to top level
 
 ```python

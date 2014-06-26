@@ -17,6 +17,9 @@ def _insert_subtree(table, connection, node_size,
                     node_pos_left, node_pos_right,
                     parent_pos_left, parent_pos_right, subtree,
                     parent_tree_id, parent_level, node_level, left_sibling):
+    """
+        Hello World
+    """
     # step 1: rebuild inserted subtree
     delta_lft = left_sibling['lft'] + 1
     if not left_sibling['is_parent']:
@@ -51,7 +54,7 @@ def _insert_subtree(table, connection, node_size,
 
 
 def mptt_before_insert(mapper, connection, instance):
-    """ https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
+    """ Based on this example https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
     """
     table = mapper.mapped_table
     if not instance.parent_id:

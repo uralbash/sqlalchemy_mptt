@@ -19,6 +19,32 @@ from .events import mptt_before_delete, mptt_before_insert, mptt_before_update
 
 
 class BaseNestedSets(object):
+    """ Base mixin for MPTT model.
+
+    Example:
+
+    .. code::
+
+        from sqlalchemy import Boolean, Column, create_engine, Integer
+        from sqlalchemy.ext.declarative import declarative_base
+        from sqlalchemy.orm import sessionmaker
+
+        from sqlalchemy_mptt.mixins import BaseNestedSets
+
+        Base = declarative_base()
+
+
+        class Tree(Base, BaseNestedSets):
+            __tablename__ = "tree"
+
+            id = Column(Integer, primary_key=True)
+            visible = Column(Boolean)
+
+            def __repr__(self):
+                return "<Node (%s)>" % self.id
+
+        Tree.register_tree()
+    """
     @declared_attr
     def __table_args__(cls):
         return (
@@ -65,23 +91,53 @@ class BaseNestedSets(object):
 
     @classmethod
     def register_tree(cls):
+        """ Register for MPTT model next events:
+
+        * :mod:`sqlalchemy_mptt.events.mptt_before_insert`
+        * :mod:`sqlalchemy_mptt.events.mptt_before_update`
+        * :mod:`sqlalchemy_mptt.events.mptt_before_delete`
+
+        .. code-block:: python
+            :linenos:
+
+            MyMPTTmodel.register_tree()
+        """
         event.listen(cls, "before_insert", mptt_before_insert)
         event.listen(cls, "before_update", mptt_before_update)
         event.listen(cls, "before_delete", mptt_before_delete)
 
     def move_inside(self, parent_id):
+        """ Moving one node of tree inside another
+
+        For example see:
+
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_inside_function`
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_inside_to_the_same_parent_function`
+        """
         session = Session.object_session(self)
         self.parent_id = parent_id
         self.mptt_move_inside = parent_id
         session.add(self)
 
     def move_after(self, node_id):
+        """ Moving one node of tree after another
+
+        For example see :mod:`sqlalchemy_mptt.tests.TestTree.test_move_after_function`
+        """
         session = Session.object_session(self)
         self.parent_id = self.parent_id
         self.mptt_move_after = node_id
         session.add(self)
 
     def move_before(self, node_id):
+        """ Moving one node of tree before another
+
+        For example see:
+
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_function`
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_to_other_tree`
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_to_top_level`
+        """
         session = Session.object_session(self)
         node = session.query(self.__table__).filter_by(id=node_id).one()
         self.parent_id = node.parent_id
@@ -89,6 +145,10 @@ class BaseNestedSets(object):
         session.add(self)
 
     def leftsibling_in_level(self):
+        """ Node to the left of the current node at the same level
+
+        For example see :mod:`sqlalchemy_mptt.tests.TestTree.test_leftsibling_in_level`
+        """
         table = self.__table__
         session = Session.object_session(self)
         current_lvl_nodes = session.query(table)\
@@ -100,6 +160,21 @@ class BaseNestedSets(object):
 
     @classmethod
     def get_tree(cls, session, json=False, json_fields=None):
+        """ This function generate tree of current node in dict or json format.
+
+        Args:
+            session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session
+
+        Kwargs:
+            json (bool): if True return JSON jqTree format
+            json_fields (function): append custom fields in JSON
+
+        Example:
+
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_tree`
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree`
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree_with_custom_field`
+        """
         def recursive_node_to_dict(node):
             result = {'node': node}
             if json:
@@ -122,6 +197,16 @@ class BaseNestedSets(object):
 
     @classmethod
     def rebuild_tree(cls, session, tree_id):
+        """ This function rebuid tree.
+
+        Args:
+            session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session
+            tree_id (int or str): id of tree
+
+        Example:
+
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_rebuild`
+        """
         session.query(cls).filter_by(tree_id=tree_id)\
             .update({cls.left: 0, cls.right: 0, cls.level: 0})
         top = session.query(cls).filter_by(parent_id=None)\
@@ -159,6 +244,19 @@ class BaseNestedSets(object):
 
     @classmethod
     def rebuild(cls, session, tree_id=None):
+        """ This function rebuid tree.
+
+        Args:
+            session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session
+
+        Kwargs:
+            tree_id (int or str): id of tree, default None
+
+        Example:
+
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_rebuild`
+        """
+
         trees = session.query(cls).filter_by(parent_id=None)
         if tree_id:
             trees = trees.filter_by(tree_id=tree_id)

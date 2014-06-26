@@ -36,35 +36,41 @@ def add_fixture(model, fixtures, session):
     """
     Add fixtures to database.
 
-    Example::
+    Example:
 
-    hashes = ({'foo': {'foo': 'bar', '1': '2'}}, {'foo': {'test': 'data'}})
-    add_fixture(TestHSTORE, hashes)
+    .. code::
+
+        hashes = ({'foo': {'foo': 'bar', '1': '2'}}, {'foo': {'test': 'data'}})
+        add_fixture(TestHSTORE, hashes)
     """
     for fixture in fixtures:
         session.add(model(**fixture))
 
 
 def add_mptt_tree(session):
-    """ level           Nested sets tree1
-          1                    1(1)22
-                  _______________|___________________
-                 |               |                   |
-          2    2(2)5           6(4)11             12(7)21
-                 |               ^                   ^
-          3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
-                                                |          |
-          4                                  14(9)15   18(11)19
+    """ Init mptt tree
 
-        level           Nested sets tree2
-          1                    1(12)22
-                  _______________|___________________
-                 |               |                   |
-          2    2(13)5         6(15)11             12(18)21
-                 |               ^                    ^
-          3    3(14)4     7(16)8   9(17)10   13(19)16   17(21)20
-                                                 |          |
-          4                                  14(20)15   18(22)19
+    .. code::
+
+        level           Nested sets tree1
+            1                    1(1)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(2)5           6(4)11             12(7)21
+                   |               ^                   ^
+            3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                  |          |
+            4                                  14(9)15   18(11)19
+
+            level           Nested sets tree2
+            1                    1(12)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(13)5         6(15)11             12(18)21
+                   |               ^                    ^
+            3    3(14)4     7(16)8   9(17)10   13(19)16   17(21)20
+                                                   |          |
+            4                                  14(20)15   18(22)19
 
     """
     session.query(Tree).delete()
@@ -126,7 +132,11 @@ class TestTree(unittest.TestCase):
         Base.metadata.drop_all(self.engine)
 
     def test_tree_initialize(self):
-        """ level           Nested sets example
+        """ Initial state of the trees
+
+        .. code::
+
+            level               Tree 1
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -136,8 +146,19 @@ class TestTree(unittest.TestCase):
                                                   |          |
             4                                  14(9)15   18(11)19
 
-                        id lft rgt lvl parent tree
+
+            level               Tree 2
+            1                    1(12)22
+                    _______________|___________________
+                   |               |                   |
+            2    2(13)5         6(15)11              12(18)21
+                   |               ^                    ^
+            3    3(14)4     7(16)8   9(17)10   13(19)16   17(21)20
+                                                   |          |
+            4                                  14(20)15   18(22)19
+
         """
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -163,7 +184,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_update_wo_move(self):
-        """ level           Nested sets example
+        """ Update node w/o move
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -173,11 +200,11 @@ class TestTree(unittest.TestCase):
                                                   |          |
             4                                  14(9)15   18(11)19
 
-                        id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         node.visible = True
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -203,7 +230,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_update_wo_move_like_sacrud_save(self):
-        """ level           Nested sets example
+        """ Just change attr from node w/o move
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -213,12 +246,12 @@ class TestTree(unittest.TestCase):
                                                   |          |
             4                                  14(9)15   18(11)19
 
-                        id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         node.parent_id = '1'
         node.visible = True
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -244,7 +277,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_insert_node(self):
-        """ level           Nested sets example
+        """ Insert node with parent==6
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -265,10 +304,10 @@ class TestTree(unittest.TestCase):
                                        |        |         |
             4                      10(23)11  16(9)17  20(11)21
 
-                        id lft rgt lvl parent tree
         """
         node = Tree(parent_id=6)
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 24, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -296,7 +335,13 @@ class TestTree(unittest.TestCase):
                           (23, 10, 11, 4, 6, 1)], self.result.all())
 
     def test_insert_node_near_subtree(self):
-        """ level           Nested sets example
+        """ Insert node with parent==4
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -317,10 +362,10 @@ class TestTree(unittest.TestCase):
                                                       |         |
             4                                      16(9)17   20(11)21
 
-                        id lft rgt lvl parent tree
         """
         node = Tree(parent_id=4)
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 24, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -351,7 +396,13 @@ class TestTree(unittest.TestCase):
         pass
 
     def test_delete_node(self):
-        """ level           Test delete node
+        """ Delete node(4)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Test delete node
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -371,10 +422,10 @@ class TestTree(unittest.TestCase):
                                     |          |
             4                     8(9)9    12(11)13
 
-                        id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         self.session.delete(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 16, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -397,7 +448,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_update_node(self):
-        """ level           Test update node
+        """ Set parent_id==5 for node(8)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Test update node
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -419,11 +476,11 @@ class TestTree(unittest.TestCase):
                                    |
                 5                9(9)10
 
-                          id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.parent_id = 5
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1, 1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -475,11 +532,11 @@ class TestTree(unittest.TestCase):
                      |
                 6  6(9)7
 
-                          id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         node.parent_id = 2
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2, 15, 2,  1, 1),
                           (3,  13, 14, 3,  2, 1),
@@ -535,12 +592,12 @@ class TestTree(unittest.TestCase):
 
 
 
-                          id lft rgt lvl parent tree
         """
 
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.parent_id = 10
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2, 11, 2,  1, 1),
                           (3,   9, 10, 3,  2, 1),
@@ -566,7 +623,12 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_move_between_tree(self):
-        """         4 -> 15
+        """ Move node(4) to other tree
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
             level           Nested sets tree1
             1                    1(1)16
                     _______________|_____________________
@@ -591,6 +653,7 @@ class TestTree(unittest.TestCase):
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         node.parent_id = 15
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 16, 1, None, 1),
                           (2,   2,  5, 2,   1,  1),
                           (3,   3,  4, 3,   2,  1),
@@ -618,7 +681,13 @@ class TestTree(unittest.TestCase):
                           (22, 24, 25, 4, 21, 2)], self.result.all())
 
     def test_move_tree_to_another_tree(self):
-        """ level           Move tree2 to tree1
+        """ Move tree(2) inside tree(1)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Move tree2 to tree1
             1                    1(1)44
                      _______________|_________________________________
                     |               |                                 |
@@ -634,11 +703,11 @@ class TestTree(unittest.TestCase):
                                                                                      |         |
             6                                                                    26(20)27  30(22)31
 
-                          id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 12).one()
         node.parent_id = 7
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1, 1, 44, 1, None, 1),
                           (2, 2, 5, 2, 1, 1),
                           (3, 3, 4, 3, 2, 1),
@@ -663,9 +732,12 @@ class TestTree(unittest.TestCase):
                           (22, 30, 31, 6, 21, 1)], self.result.all())
 
     def test_move_inside_function(self):
-        node = self.session.query(Tree).filter(Tree.id == 4).one()
-        node.move_inside("15")
-        """         4 -> 15
+        """ For example move node(4) inside node(15)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
             level           Nested sets tree1
             1                    1(1)16
                     _______________|_____________________
@@ -686,8 +758,10 @@ class TestTree(unittest.TestCase):
                              ^                            |         |
             4          8(5)9  10(6)11                 20(20)21  24(22)25
 
-                          id lft rgt lvl parent tree
         """
+        node = self.session.query(Tree).filter(Tree.id == 4).one()
+        node.move_inside("15")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 16, 1, None, 1),
                           (2,   2,  5, 2,   1,  1),
                           (3,   3,  4, 3,   2,  1),
@@ -715,30 +789,36 @@ class TestTree(unittest.TestCase):
                           (22, 24, 25, 4, 21, 2)], self.result.all())
 
     def test_move_after_function(self):
-        """ level           Nested sets example
-                1                    1(1)22
-                        _______________|___________________
-                       |               |                   |
-                2    2(2)5           6(4)11             12(7)21
-                       |               ^                   ^
-                3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
-                                                      |          |
-                4                                  14(9)15   18(11)19
+        """ For example move node(8) after node(5)
 
-            level               Move 8 after 5
-                1                     1(1)22
-                         _______________|__________________
-                        |               |                  |
-                2     2(2)5           6(4)15            16(7)21
-                        |               ^                  |
-                3     3(3)4    7(5)8  9(8)12  13(6)14   17(10)20
-                                        |                  |
-                4                    10(9)11            18(11)19
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
 
-                          id lft rgt lvl parent tree
+        .. code::
+
+                level               Initial state
+                    1                    1(1)22
+                            _______________|___________________
+                           |               |                   |
+                    2    2(2)5           6(4)11             12(7)21
+                           |               ^                   ^
+                    3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                          |          |
+                    4                                  14(9)15   18(11)19
+
+                level               Move 8 after 5
+                    1                     1(1)22
+                            _______________|__________________
+                           |               |                  |
+                    2     2(2)5           6(4)15            16(7)21
+                            |               ^                  |
+                    3     3(3)4    7(5)8  9(8)12  13(6)14   17(10)20
+                                            |                  |
+                    4                    10(9)11            18(11)19
+
         """
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.move_after("5")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -764,11 +844,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_move_to_toplevel_where_much_trees_from_right_side(self):
-        """ Move 15 after 1 and then 20 after 1
-        """
-        node = self.session.query(Tree).filter(Tree.id == 15).one()
-        node.move_after("1")
-        """ level           tree_id = 1
+        """ Move 15 after 1
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           tree_id = 1
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -794,6 +876,9 @@ class TestTree(unittest.TestCase):
             4               8(20)9    12(22)13
 
         """
+        node = self.session.query(Tree).filter(Tree.id == 15).one()
+        node.move_after("1")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -851,6 +936,7 @@ class TestTree(unittest.TestCase):
             4                         10(22)11
 
         """
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -878,7 +964,13 @@ class TestTree(unittest.TestCase):
                           (22, 10, 11, 4, 21, 4)], self.result.all())
 
     def test_move_to_toplevel(self):
-        """ level           Nested sets example
+        """ Move node(8) to top level after node(1)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -898,10 +990,10 @@ class TestTree(unittest.TestCase):
                                                        |
                 4                                  14(11)15
 
-                          id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.move_after("1")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 18, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -929,7 +1021,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 3)], self.result.all())
 
     def test_move_to_toplevel2(self):
-        """ level           Nested sets example
+        """ Move node(8) to top level after node(1)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -954,6 +1052,7 @@ class TestTree(unittest.TestCase):
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.parent_id = None
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 18, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -981,7 +1080,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_move_to_toplevel_big_subtree(self):
-        """ level           Nested sets example
+        """ Move node(7) (big subtree) to top level after node(1)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -1004,6 +1109,7 @@ class TestTree(unittest.TestCase):
         node = self.session.query(Tree).filter(Tree.id == 7).one()
         node.parent_id = None
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 12, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -1030,7 +1136,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_move_after_between_tree(self):
-        """ level           Nested sets example
+        """ Move node(7) (big subtree) to top level after node(1) and before node(12)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -1052,6 +1164,7 @@ class TestTree(unittest.TestCase):
         """
         node = self.session.query(Tree).filter(Tree.id == 7).one()
         node.move_after("1")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 12, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -1078,6 +1191,16 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 3)], self.result.all())
 
     def test_get_tree(self):
+        """.. note::
+
+            See [source] for full example
+
+        Return tree as list of dict
+
+        .. code::
+
+            tree = Tree.get_tree(self.session)
+        """
         tree = Tree.get_tree(self.session)
 
         def go(id):
@@ -1086,11 +1209,35 @@ class TestTree(unittest.TestCase):
                          [{'node': go(1), 'children': [{'node': go(2), 'children': [{'node': go(3)}]}, {'node': go(4), 'children': [{'node': go(5)}, {'node': go(6)}]}, {'node': go(7), 'children': [{'node': go(8), 'children': [{'node': go(9)}]}, {'node': go(10), 'children': [{'node': go(11)}]}]}]}, {'node': go(12), 'children': [{'node': go(13), 'children': [{'node': go(14)}]}, {'node': go(15), 'children': [{'node': go(16)}, {'node': go(17)}]}, {'node': go(18), 'children': [{'node': go(19), 'children': [{'node': go(20)}]}, {'node': go(21), 'children': [{'node': go(22)}]}]}]}])
 
     def test_get_json_tree(self):
+        """.. note::
+
+            See [source] for full example
+
+        Return tree as JSON of jqTree format
+
+        .. code::
+
+            tree = Tree.get_tree(self.session, json=True)
+        """
         tree = Tree.get_tree(self.session, json=True)
         self.assertEqual(tree, [{'children': [{'children': [{'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'children': [{'id': 5, 'label': '<Node (5)>'}, {'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'children': [{'children': [{'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'children': [{'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {
                          'children': [{'children': [{'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'children': [{'id': 16, 'label': '<Node (16)>'}, {'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'children': [{'children': [{'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'children': [{'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
 
     def test_get_json_tree_with_custom_field(self):
+        """.. note::
+
+            See [source] for full example
+
+        Return tree as JSON of jqTree format with additional field
+
+        .. code-block:: python
+            :linenos:
+
+            def fields(node):
+                return {'visible': node.visible}
+
+            tree = Tree.get_tree(self.session, json=True, json_fields=fields)
+        """
         def fields(node):
             return {'visible': node.visible}
         tree = Tree.get_tree(self.session, json=True, json_fields=fields)
@@ -1098,29 +1245,34 @@ class TestTree(unittest.TestCase):
                          'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'visible': None, 'children': [{'visible': None, 'id': 16, 'label': '<Node (16)>'}, {'visible': None, 'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'visible': None, 'children': [{'visible': None, 'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
 
     def test_rebuild(self):
-        """ level           Nested sets tree1
-            1                    1(1)22
-                    _______________|___________________
-                   |               |                   |
-            2    2(2)5           6(4)11             12(7)21
-                   |               ^                   ^
-            3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
-                                                  |          |
-            4                                  14(9)15   18(11)19
+        """ Rebuild tree with tree_id==1
 
-            level           Nested sets tree2
-            1                    1(12)22
-                    _______________|___________________
-                   |               |                   |
-            2    2(13)5         6(15)11             12(18)21
-                   |               ^                    ^
-            3    3(14)4     7(16)8   9(17)10   13(19)16   17(21)20
-                                                   |          |
-            4                                  14(20)15   18(22)19
+        .. code::
 
+            level      Nested sets w/o left & right (or broken left & right)
+                1                     (1)
+                        _______________|___________________
+                       |               |                   |
+                2     (2)             (4)                 (7)
+                       |               ^                   ^
+                3     (3)          (5)   (6)           (8)   (10)
+                                                        |      |
+                4                                      (9)   (11)
+
+
+                level           Nested sets after rebuild
+                1                    1(1)22
+                        _______________|___________________
+                       |               |                   |
+                2    2(2)5           6(4)11             12(7)21
+                       |               ^                   ^
+                3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
+                                                      |          |
+                4                                  14(9)15   18(11)19
         """
         self.session.query(Tree).update({'lft': 0, 'rgt': 0, 'level': 0})
         Tree.rebuild(self.session, 1)
+        #                 id lft rgt lvl parent tree
         self.assertEqual(self.result.all(),
                          [(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2, 1,  1),
@@ -1147,6 +1299,7 @@ class TestTree(unittest.TestCase):
                           (22, 0, 0, 0, 21, 2)])
 
         Tree.rebuild(self.session)
+        #                 id lft rgt lvl parent tree
         self.assertEqual(self.result.all(),
                          [(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2, 1,  1),
@@ -1173,7 +1326,11 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)])
 
     def test_tree_shorting(self):
-        """ level           Nested sets example
+        """ Try to move top level node(1) inside tree
+
+        .. code::
+
+            level           Nested sets example
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -1197,11 +1354,11 @@ class TestTree(unittest.TestCase):
             4                                  14(9)15   18(11)19    |
                                                             ↑        |
                                                             ↑________|
-                        id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 1).one()
         node.parent_id = 11
         self.session.add(node)
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -1227,7 +1384,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_move_inside_to_the_same_parent_function(self):
-        """ level           Nested sets example
+        """ For example move node(6) inside node(4)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level               Initial state
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -1247,10 +1410,10 @@ class TestTree(unittest.TestCase):
                                                       |          |
                 4                                  14(9)15   18(11)19
 
-                          id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 6).one()
         node.move_inside("4")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -1276,7 +1439,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 2)], self.result.all())
 
     def test_move_before_to_top_level(self):
-        """ level           Nested sets example
+        """ For example move node(4) before node(1)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
                 1                    1(1)22
                         _______________|___________________
                        |               |                   |
@@ -1296,11 +1465,10 @@ class TestTree(unittest.TestCase):
                                                   |          |
                 4                               8(9)9    12(11)13
 
-                          id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 4).one()
         node.move_before("1")
-        self.maxDiff = None
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 16, 1, None, 2),
                           (2,   2,  5, 2,  1, 2),
                           (3,   3,  4, 3,  2, 2),
@@ -1327,8 +1495,14 @@ class TestTree(unittest.TestCase):
                           (21, 17, 20, 3, 18, 3),
                           (22, 18, 19, 4, 21, 3)], self.result.all())
 
-    def test_move_before(self):
-        """ level           Nested sets example
+    def test_move_before_function(self):
+        """ For example move node(8) before node(4)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Nested sets example
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -1348,10 +1522,10 @@ class TestTree(unittest.TestCase):
                                                        |
             4                                      18(11)19
 
-                        id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.move_before("4")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -1379,6 +1553,7 @@ class TestTree(unittest.TestCase):
     def test_move_one_tree_before_other_tree(self):
         node = self.session.query(Tree).filter(Tree.id == 12).one()
         node.move_before("1")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 2),
                           (2,   2,  5, 2,  1, 2),
                           (3,   3,  4, 3,  2, 2),
@@ -1404,7 +1579,13 @@ class TestTree(unittest.TestCase):
                           (22, 18, 19, 4, 21, 1)], self.result.all())
 
     def test_move_before_to_other_tree(self):
-        """ level           Move 8 before 15
+        """ For example move node(8) before node(15)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+
+            level           Move 8 before 15
             1                    1(1)18
                      _______________|___________________
                     |               |                   |
@@ -1424,10 +1605,10 @@ class TestTree(unittest.TestCase):
                                                               |          |
             4                                             18(20)19   22(22)23
 
-                        id lft rgt lvl parent tree
         """
         node = self.session.query(Tree).filter(Tree.id == 8).one()
         node.move_before("15")
+        #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 18, 1, None, 1),
                           (2,   2,  5, 2,  1, 1),
                           (3,   3,  4, 3,  2, 1),
@@ -1455,7 +1636,11 @@ class TestTree(unittest.TestCase):
                           (22, 22, 23, 4, 21, 2)], self.result.all())
 
     def test_leftsibling_in_level(self):
-        """ level           Nested sets example
+        """ Node to the left of the current node at the same level
+
+        .. code::
+
+            level           Nested sets example
             1                    1(1)22
                     _______________|___________________
                    |               |                   |
@@ -1464,6 +1649,17 @@ class TestTree(unittest.TestCase):
             3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20
                                                   |          |
             4                                  14(9)15   18(11)19
+
+            level1 = [1]
+            level2 = [2, 4, 7]
+            level3 = [3, 5, 6, 8, 10]
+            level4 = [9, 11]
+
+            leftsibling_in_level_of_node_3 = None
+            leftsibling_in_level_of_node_5 = 3
+            leftsibling_in_level_of_node_6 = 5
+            leftsibling_in_level_of_node_8 = 6
+            leftsibling_in_level_of_node_11 = 9
         """
         node3 = self.session.query(Tree).filter(Tree.id == 3).one()
         node5 = self.session.query(Tree).filter(Tree.id == 5).one()

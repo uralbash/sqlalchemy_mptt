@@ -15,7 +15,7 @@ from sqlalchemy import Boolean, Column, create_engine, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from .mixins import BaseNestedSets
+from ..mixins import BaseNestedSets
 
 Base = declarative_base()
 
@@ -32,14 +32,6 @@ class Tree(Base, BaseNestedSets):
         return "<Node (%s)>" % self.ppk
 
 Tree.register_tree()
-
-
-class Tree2(Base, BaseNestedSets):
-    __tablename__ = "tree2"
-
-    id = Column(Integer, primary_key=True)
-
-Tree2.register_tree()
 
 
 def add_fixture(model, fixtures, session):
@@ -140,9 +132,6 @@ class TestTree(unittest.TestCase):
 
     def tearDown(self):
         Base.metadata.drop_all(self.engine)
-
-    def test_foo(self):
-        Tree2.parent_id
 
     def test_tree_initialize(self):
         """ Initial state of the trees

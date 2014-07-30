@@ -58,23 +58,43 @@ class BaseNestedSets(object):
                         # instance before going to the next.
     }
 
+    @classmethod
+    def get_pk(cls):
+        return getattr(cls, 'sqlalchemy_mptt_pk_name', 'id')
+
+    @classmethod
+    def get_db_pk(cls):
+        pk = getattr(cls, cls.get_pk())
+        return pk.name
+
+    @classmethod
+    def get_class_pk(cls):
+        pk = cls.get_pk()
+        return '%s.%s' % (cls.__name__, pk)
+
     @declared_attr
     def tree_id(cls):
         return Column("tree_id", Integer)
 
     @declared_attr
     def parent_id(cls):
+        pk_name = cls.get_pk()
+        pk = getattr(cls, pk_name)
+        if not pk.name:
+            pk.name = pk_name
+
         return Column("parent_id", Integer,
-                      ForeignKey('%s.id' % cls.__tablename__,
+                      ForeignKey('%s.%s' % (cls.__tablename__, pk.name),
                                  ondelete='CASCADE'))
 
     @declared_attr
     def parent(cls):
-        return relationship(cls, primaryjoin=lambda: cls.id == cls.parent_id,
+        pk = getattr(cls, cls.get_pk())
+        return relationship(cls, primaryjoin=lambda: pk == cls.parent_id,
                             order_by=lambda: cls.left,
                             backref=backref('children', cascade="all,delete",
                                             order_by=lambda: cls.left),
-                            remote_side=[cls.id],  # for show in sacrud relation
+                            remote_side=cls.get_class_pk(),  # for show in sacrud relation
                             )
 
     @declared_attr
@@ -139,7 +159,9 @@ class BaseNestedSets(object):
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_to_top_level`
         """
         session = Session.object_session(self)
-        node = session.query(self.__table__).filter_by(id=node_id).one()
+        table = self.__table__
+        pk = getattr(table.c, self.get_db_pk())
+        node = session.query(table).filter(pk == node_id).one()
         self.parent_id = node.parent_id
         self.mptt_move_before = node_id
         session.add(self)
@@ -177,9 +199,10 @@ class BaseNestedSets(object):
         """
         def recursive_node_to_dict(node):
             result = {'node': node}
+            pk = getattr(node, node.get_pk())
             if json:
                 # jqTree or jsTree format
-                result = {'id': node.id, 'label': node.__repr__()}
+                result = {'id': pk, 'label': node.__repr__()}
                 if json_fields:
                     result.update(json_fields(node))
             children = [recursive_node_to_dict(c) for c in node.children]

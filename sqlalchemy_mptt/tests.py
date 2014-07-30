@@ -34,6 +34,14 @@ class Tree(Base, BaseNestedSets):
 Tree.register_tree()
 
 
+class Tree2(Base, BaseNestedSets):
+    __tablename__ = "tree2"
+
+    id = Column(Integer, primary_key=True)
+
+Tree2.register_tree()
+
+
 def add_fixture(model, fixtures, session):
     """
     Add fixtures to database.
@@ -132,6 +140,9 @@ class TestTree(unittest.TestCase):
 
     def tearDown(self):
         Base.metadata.drop_all(self.engine)
+
+    def test_foo(self):
+        Tree2.parent_id
 
     def test_tree_initialize(self):
         """ Initial state of the trees

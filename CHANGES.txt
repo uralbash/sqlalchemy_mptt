@@ -1,0 +1,7 @@
+0.0.6 (2014-07-31)
+==================
+
+Bug Fixes
+---------
+
+-  Allow the primary key to not be named "id" #20. See https://github.com/ITCase/sqlalchemy_mptt/issues/20

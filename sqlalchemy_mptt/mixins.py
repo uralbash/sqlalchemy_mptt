@@ -65,7 +65,7 @@ class BaseNestedSets(object):
     @classmethod
     def get_db_pk(cls):
         pk = getattr(cls, cls.get_pk())
-        return pk.name
+        return pk.name or cls.get_pk()
 
     @classmethod
     def get_class_pk(cls):

@@ -21,3 +21,4 @@ nohup.out
 .tox
 __pycache__
 _build
+.ropeproject

@@ -22,7 +22,7 @@ setup(
         "sqlalchemy",
     ],
     classifiers=[
-        'Development Status :: Production',
+        'Development Status :: Production/Stable',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',

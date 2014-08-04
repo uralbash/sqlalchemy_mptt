@@ -12,7 +12,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     test_suite="nose.collector",
-    license="GPL",
+    license="MIT",
     description='SQLAlchemy MPTT mixins (Nested Sets)',
     package_data={
         '': ['*.txt', '*.rst', '*.md'],
@@ -22,7 +22,7 @@ setup(
         "sqlalchemy",
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: Production',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
@@ -40,6 +40,6 @@ setup(
         "Framework :: Flask",
         "Topic :: Internet",
         "Topic :: Database",
-        "License :: Repoze Public License",
+        'License :: OSI Approved :: MIT License',
     ],
 )

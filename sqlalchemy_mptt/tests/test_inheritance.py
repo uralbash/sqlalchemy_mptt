@@ -5,6 +5,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from ..mixins import BaseNestedSets
+from .tree_testing_base import TestTreeMixin
+
 
 Base = declarative_base()
 
@@ -12,8 +14,11 @@ Base = declarative_base()
 class GenericTree(Base, BaseNestedSets):
     __tablename__ = "generic"
 
-    id = sa.Column(sa.Integer, primary_key=True)
+    ppk = sa.Column('idd', sa.Integer, primary_key=True)
     type = sa.Column(sa.Integer, default=0)
+    visible = sa.Column(sa.Boolean)
+
+    sqlalchemy_mptt_pk_name = 'ppk'
 
     __mapper_args__ = {
         'polymorphic_identity': 0,
@@ -21,7 +26,7 @@ class GenericTree(Base, BaseNestedSets):
     }
 
     def __repr__(self):
-        return "<Node (%s)>" % self.id
+        return "<Node (%s)>" % self.ppk
 
     @classmethod
     def __declare_last__(cls):
@@ -31,7 +36,8 @@ class GenericTree(Base, BaseNestedSets):
 class SpecializedTree(GenericTree):
     __tablename__ = "specialized"
 
-    id = sa.Column(sa.Integer, sa.ForeignKey(GenericTree.id), primary_key=True)
+    ppk = sa.Column('idd', sa.Integer, sa.ForeignKey(GenericTree.ppk),
+                    primary_key=True)
 
     __mapper_args__ = {
         'polymorphic_identity': 1,
@@ -51,35 +57,35 @@ class TestTree(unittest.TestCase):
         Base.metadata.drop_all(self.engine)
 
     def test_create_generic(self):
-        self.session.add(GenericTree(id=1))
+        self.session.add(GenericTree(ppk=1))
         self.session.commit()
 
         tree = self.session.query(GenericTree).get(1)
-        self.assertEqual(tree.id, 1)
+        self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
     def test_create_spec(self):
-        self.session.add(SpecializedTree(id=1))
+        self.session.add(SpecializedTree(ppk=1))
         self.session.commit()
 
         tree = self.session.query(SpecializedTree).get(1)
-        self.assertEqual(tree.id, 1)
+        self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
     def test_create_delete(self):
-        parent = SpecializedTree(id=1)
+        parent = SpecializedTree(ppk=1)
 
-        child1 = SpecializedTree(id=2, parent=parent)
-        child2 = GenericTree(id=3, parent=parent)
+        child1 = SpecializedTree(ppk=2, parent=parent)
+        child2 = GenericTree(ppk=3, parent=parent)
 
-        GenericTree(id=4, parent=child2)
-        SpecializedTree(id=5, parent=child2)
+        GenericTree(ppk=4, parent=child2)
+        SpecializedTree(ppk=5, parent=child2)
 
         self.session.add(parent)
         self.session.commit()
 
         tree = self.session.query(SpecializedTree).get(1)
-        self.assertEqual(tree.id, 1)
+        self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
         self.session.delete(child1)
@@ -93,3 +99,22 @@ class TestTree(unittest.TestCase):
         self.assertEquals(None, self.session.query(SpecializedTree).get(3))
         self.assertEquals(None, self.session.query(SpecializedTree).get(4))
         self.assertEquals(None, self.session.query(SpecializedTree).get(5))
+
+
+class TestGenericTree(TestTreeMixin, unittest.TestCase):
+    base = Base
+    model = GenericTree
+
+
+class TestSpecializedTree(TestTreeMixin, unittest.TestCase):
+    base = Base
+    model = SpecializedTree
+
+    @unittest.expectedFailure
+    def test_rebuild(self):
+        # See the following URL for caveats when using update on mapped
+        # hierarchies:
+        # http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update
+        #
+        # tl;dr: This test will always fail on specialized classes.
+        super(TestSpecializedTree, self).test_rebuild()

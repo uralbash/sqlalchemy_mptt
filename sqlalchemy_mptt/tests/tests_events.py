@@ -16,7 +16,7 @@ from sqlalchemy import Boolean, Column, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
 from ..mixins import BaseNestedSets
-from .tree_testing_base import TestTreeMixin
+from .tree_testing_base import TreeTestingMixin
 
 
 Base = declarative_base()
@@ -36,6 +36,6 @@ class Tree(Base, BaseNestedSets):
 Tree.register_tree()
 
 
-class TestTree(TestTreeMixin, unittest.TestCase):
+class TestTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = Tree

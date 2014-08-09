@@ -95,7 +95,7 @@ def get_obj(session, model, id):
     return session.query(model).filter_by(ppk=id).one()
 
 
-class TestTreeMixin(object):
+class TreeTestingMixin(object):
 
     base = None
     model = None

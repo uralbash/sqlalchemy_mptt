@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from ..mixins import BaseNestedSets
-from .tree_testing_base import TestTreeMixin
+from .tree_testing_base import TreeTestingMixin
 
 
 Base = declarative_base()
@@ -101,20 +101,25 @@ class TestTree(unittest.TestCase):
         self.assertEquals(None, self.session.query(SpecializedTree).get(5))
 
 
-class TestGenericTree(TestTreeMixin, unittest.TestCase):
+class TestGenericTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = GenericTree
 
 
-class TestSpecializedTree(TestTreeMixin, unittest.TestCase):
+class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = SpecializedTree
 
-    @unittest.expectedFailure
     def test_rebuild(self):
         # See the following URL for caveats when using update on mapped
         # hierarchies:
         # http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update
         #
         # tl;dr: This test will always fail on specialized classes.
-        super(TestSpecializedTree, self).test_rebuild()
+        try:
+            super(TestSpecializedTree, self).test_rebuild()
+        except Exception:
+            import nose
+            raise nose.SkipTest()
+        else:
+            raise AssertionError('Failure expected')

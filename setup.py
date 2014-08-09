@@ -3,7 +3,7 @@ import re
 from setuptools import setup
 
 
-with open(os.path.join('sqlalchemy_mptt', '__init__.py'), 'rb') as fh:
+with open(os.path.join('sqlalchemy_mptt', '__init__.py'), 'r') as fh:
     __version__ = (re.search(r'__version__\s*=\s*u?"([^"]+)"', fh.read())
                    .group(1).strip())
 

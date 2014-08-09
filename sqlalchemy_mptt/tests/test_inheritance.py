@@ -122,4 +122,4 @@ class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
             import nose
             raise nose.SkipTest()
         else:
-            raise AssertionError('Failure expected')
+            raise AssertionError('Failure expected')  # pragma: no cover

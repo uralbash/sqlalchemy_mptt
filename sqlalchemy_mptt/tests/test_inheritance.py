@@ -23,9 +23,7 @@ class GenericTree(Base, BaseNestedSets):
     def __repr__(self):
         return "<Node (%s)>" % self.id
 
-    @classmethod
-    def __declare_last__(cls):
-        cls.register_tree()
+GenericTree.register_tree()
 
 
 class SpecializedTree(GenericTree):

@@ -51,10 +51,14 @@ def _insert_subtree(table, connection, node_size,
     )
 
 
+def _get_tree_table(mapper):
+    return mapper.tables[0]
+
+
 def mptt_before_insert(mapper, connection, instance):
     """ Based on this example https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
     """
-    table = mapper.mapped_table
+    table = _get_tree_table(mapper)
     db_pk = instance.get_db_pk()
     table_pk = getattr(table.c, db_pk)
 
@@ -99,7 +103,7 @@ def mptt_before_insert(mapper, connection, instance):
 
 
 def mptt_before_delete(mapper, connection, instance, delete=True):
-    table = mapper.mapped_table
+    table = _get_tree_table(mapper)
     tree_id = instance.tree_id
     pk = getattr(instance, instance.get_pk())
     db_pk = instance.get_db_pk()
@@ -149,7 +153,7 @@ def mptt_before_update(mapper, connection, instance):
         http://stackoverflow.com/questions/889527/move-node-in-nested-set
     """
     node_id = getattr(instance, instance.get_pk())
-    table = mapper.mapped_table
+    table = _get_tree_table(mapper)
     db_pk = instance.get_db_pk()
     table_pk = getattr(table.c, db_pk)
     mptt_move_inside = None

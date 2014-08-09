@@ -53,10 +53,9 @@ class BaseNestedSets(object):
             Index('%s_level_idx' % cls.__tablename__, "level"),
         )
 
-    __mapper_args__ = {
-        'batch': False  # allows extension to fire for each
-                        # instance before going to the next.
-    }
+    @classmethod
+    def __declare_first__(cls):
+        cls.__mapper__.batch = False
 
     @classmethod
     def get_pk(cls):

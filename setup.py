@@ -1,5 +1,12 @@
-from sqlalchemy_mptt import __version__
+import os
+import re
 from setuptools import setup
+
+
+with open(os.path.join('sqlalchemy_mptt', '__init__.py'), 'rb') as fh:
+    __version__ = (re.search(r'__version__\s*=\s*u?"([^"]+)"', fh.read())
+                   .group(1).strip())
+
 
 setup(
     name='sqlalchemy_mptt',

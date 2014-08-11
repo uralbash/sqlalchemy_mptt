@@ -16,6 +16,7 @@ from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import Session
 
 from .events import mptt_before_delete, mptt_before_insert, mptt_before_update
+from .events import _get_tree_table
 
 
 class BaseNestedSets(object):
@@ -53,10 +54,9 @@ class BaseNestedSets(object):
             Index('%s_level_idx' % cls.__tablename__, "level"),
         )
 
-    __mapper_args__ = {
-        'batch': False  # allows extension to fire for each
-                        # instance before going to the next.
-    }
+    @classmethod
+    def __declare_first__(cls):
+        cls.__mapper__.batch = False
 
     @classmethod
     def get_pk(cls):
@@ -159,7 +159,7 @@ class BaseNestedSets(object):
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_to_top_level`
         """
         session = Session.object_session(self)
-        table = self.__table__
+        table = _get_tree_table(self.__mapper__)
         pk = getattr(table.c, self.get_db_pk())
         node = session.query(table).filter(pk == node_id).one()
         self.parent_id = node.parent_id
@@ -171,7 +171,7 @@ class BaseNestedSets(object):
 
         For example see :mod:`sqlalchemy_mptt.tests.TestTree.test_leftsibling_in_level`
         """
-        table = self.__table__
+        table = _get_tree_table(self.__mapper__)
         session = Session.object_session(self)
         current_lvl_nodes = session.query(table)\
             .filter_by(level=self.level).filter_by(tree_id=self.tree_id)\

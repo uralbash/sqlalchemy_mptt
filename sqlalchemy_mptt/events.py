@@ -66,7 +66,7 @@ def mptt_before_insert(mapper, connection, instance):
         instance.left = 1
         instance.right = 2
         instance.level = 1
-        tree_id = connection.scalar(select([table.c.tree_id + 1])) or 1
+        tree_id = connection.scalar(select([func.max(table.c.tree_id) + 1])) or 1
         instance.tree_id = tree_id
     else:
         (parent_pos_left,

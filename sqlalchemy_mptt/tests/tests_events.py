@@ -118,6 +118,26 @@ def get_obj(session, id):
     return session.query(Tree).filter_by(ppk=id).one()
 
 
+class TestMultipleTrees(unittest.TestCase):
+    def setUp(self):
+        self.engine = create_engine('sqlite:///:memory:')
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
+        Base.metadata.create_all(self.engine)
+
+    def tearDown(self):
+        Base.metadata.drop_all(self.engine)
+
+    def test_more_trees(self):
+        self.session.add(Tree(ppk=10))
+        self.session.add(Tree(ppk=20))
+        self.session.add(Tree(ppk=30))
+        self.session.commit()
+        self.assertEqual(self.session.query(Tree).get(10).tree_id, 1)
+        self.assertEqual(self.session.query(Tree).get(20).tree_id, 2)
+        self.assertEqual(self.session.query(Tree).get(30).tree_id, 3)
+
+
 class TestTree(unittest.TestCase):
 
     def setUp(self):

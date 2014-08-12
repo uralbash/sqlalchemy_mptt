@@ -12,7 +12,7 @@ SQLAlchemy nested sets mixin
 
 from sqlalchemy import Column, event, ForeignKey, Index, Integer
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, relationship, mapper
 from sqlalchemy.orm.session import Session
 
 from .events import mptt_before_delete, mptt_before_insert, mptt_before_update
@@ -285,3 +285,24 @@ class BaseNestedSets(object):
             trees = trees.filter_by(tree_id=tree_id)
         for tree in trees:
             cls.rebuild_tree(session, tree.tree_id)
+
+
+class TreesManager(object):
+    def __init__(self, base_class):
+        self.base_class = base_class
+        self.classes = set()
+
+    def register(self, mapper):
+        event.listen(mapper, 'instrument_class', self.class_instrumented)
+        event.listen(mapper, 'after_configured', self.after_configured)
+
+    def class_instrumented(self, mapper, cls):
+        if issubclass(cls, self.base_class):
+            self.classes.add(cls)
+
+    def after_configured(self):
+        while self.classes:
+            self.classes.pop().register_tree()
+
+
+TreesManager(BaseNestedSets).register(mapper)

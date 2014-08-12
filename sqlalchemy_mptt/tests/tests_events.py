@@ -33,8 +33,6 @@ class Tree(Base, BaseNestedSets):
     def __repr__(self):
         return "<Node (%s)>" % self.ppk
 
-Tree.register_tree()
-
 
 class TestTree(TreeTestingMixin, unittest.TestCase):
     base = Base

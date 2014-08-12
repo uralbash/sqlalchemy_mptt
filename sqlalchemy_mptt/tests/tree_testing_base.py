@@ -113,6 +113,51 @@ class TreeTestingMixin(object):
     def tearDown(self):
         self.base.metadata.drop_all(self.engine)
 
+    def test_tree_orm_initialize(self):
+        #t0 = self.model(ppk=30)
+        #t1 = self.model(ppk=31, parent=t0)
+        #t2 = self.model(ppk=32, parent=t1)
+        #t3 = self.model(ppk=33, parent=t1)
+
+        #self.session.add(t0)
+        #self.session.flush()
+
+        #self.assertEqual(t0.left, 1)
+        #self.assertEqual(t0.right, 8)
+
+        #self.assertEqual(t1.left, 2)
+        #self.assertEqual(t1.right, 7)
+
+        #self.assertEqual(t2.left, 3)
+        #self.assertEqual(t2.right, 4)
+
+        #self.assertEqual(t3.left, 5)
+        #self.assertEqual(t3.right, 6)
+
+        print '---'
+
+        t0 = self.model(ppk=40)
+        t1 = self.model(ppk=41, parent=t0)
+        t2 = self.model(ppk=42, parent=t1)
+        t3 = self.model(ppk=43, parent=t2)
+        t4 = self.model(ppk=44, parent=t3)
+        t5 = self.model(ppk=45, parent=t4)
+
+        self.session.add_all([t5])
+        self.session.flush()
+
+        self.assertEqual(t0.left, 1)
+        self.assertEqual(t0.right, 8)
+
+        self.assertEqual(t1.left, 2)
+        self.assertEqual(t1.right, 7)
+
+        self.assertEqual(t2.left, 3)
+        self.assertEqual(t2.right, 6)
+
+        self.assertEqual(t3.left, 4)
+        self.assertEqual(t3.right, 5)
+
     def test_tree_initialize(self):
         """ Initial state of the trees
 

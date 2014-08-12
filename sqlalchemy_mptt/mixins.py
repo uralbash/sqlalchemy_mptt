@@ -125,6 +125,7 @@ class BaseNestedSets(object):
         event.listen(cls, "before_insert", mptt_before_insert)
         event.listen(cls, "before_update", mptt_before_update)
         event.listen(cls, "before_delete", mptt_before_delete)
+        #event.listen(cls, "after_insert", mptt_after_insert)
 
     def move_inside(self, parent_id):
         """ Moving one node of tree inside another

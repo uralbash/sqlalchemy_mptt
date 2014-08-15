@@ -12,6 +12,7 @@ Base events
     .. autofunction:: mptt_before_insert
     .. autofunction:: mptt_before_delete
     .. autofunction:: mptt_before_update
+    .. autoclass:: TreesManager
 
 Hidden method
 ~~~~~~~~~~~~~

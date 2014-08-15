@@ -9,6 +9,8 @@
 """
 SQLAlchemy events extension
 """
+import weakref
+
 from sqlalchemy import and_, case, select, event, inspection
 from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.sql import func
@@ -309,6 +311,20 @@ def mptt_before_update(mapper, connection, instance):
         )
 
 
+class _WeakDictBasedSet(weakref.WeakKeyDictionary, object):
+    # In absence of a default weakset implementation, provide our own dict
+    # based solution.
+
+    def add(self, obj):
+        self[obj] = None
+
+    def discard(self, obj):
+        super(_WeakDictBasedSet, self).pop(obj, None)
+
+    def pop(self):
+        return self.popitem()[0]
+
+
 class TreesManager(object):
     """
     Manages events dispatching for all subclasses of a given class.
@@ -316,7 +332,7 @@ class TreesManager(object):
     def __init__(self, base_class):
         self.base_class = base_class
         self.classes = set()
-        self.instances = set()
+        self.instances = _WeakDictBasedSet()
 
     def register_mapper(self, mapper):
         for e, h in (

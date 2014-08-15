@@ -103,38 +103,6 @@ def mptt_before_insert(mapper, connection, instance):
         instance.left = parent_pos_right
         instance.right = parent_pos_right + 1
 
-        ParentExpirer.register(instance)
-
-
-class ParentExpirer(object):
-    def __init__(self, instance, parent):
-        self.instance = instance
-        self.parent = parent
-
-    def __call__(self, session, context):
-        #self.expire(session, self.parent)
-        print 'rem', self.instance
-        #event.remove(session, 'after_flush_postexec', self.__call__)
-
-    @classmethod
-    def register(cls, instance):
-        parent = cls.get_parent(instance)
-        if parent != NO_VALUE:
-            print 'reg', instance
-            session = object_session(parent)
-            event.listen(session, 'after_flush_postexec', cls(instance, parent).__call__)
-
-    @staticmethod
-    def get_parent(instance):
-        return inspection.inspect(instance).attrs.parent.loaded_value
-
-    def expire(self, session, parent):
-        print 'called', self.parent
-        while parent != NO_VALUE:
-            print 'expire', parent, self.parent
-            session.expire(parent, ['left', 'right'])
-            parent = self.get_parent(parent)
-
 
 def mptt_before_delete(mapper, connection, instance, delete=True):
     table = _get_tree_table(mapper)

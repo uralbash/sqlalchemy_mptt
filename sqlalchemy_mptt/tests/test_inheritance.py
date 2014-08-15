@@ -28,10 +28,6 @@ class GenericTree(Base, BaseNestedSets):
     def __repr__(self):
         return "<Node (%s)>" % self.ppk
 
-    @classmethod
-    def __declare_last__(cls):
-        cls.register_tree()
-
 
 class SpecializedTree(GenericTree):
     __tablename__ = "specialized"

@@ -9,6 +9,7 @@
 """
 SQLAlchemy nested sets mixin
 """
+import warnings
 
 from sqlalchemy import Column, event, ForeignKey, Index, Integer
 from sqlalchemy.ext.declarative import declared_attr
@@ -122,10 +123,7 @@ class BaseNestedSets(object):
 
             MyMPTTmodel.register_tree()
         """
-        event.listen(cls, "before_insert", mptt_before_insert)
-        event.listen(cls, "before_update", mptt_before_update)
-        event.listen(cls, "before_delete", mptt_before_delete)
-        #event.listen(cls, "after_insert", mptt_after_insert)
+        warnings.warn('Trees are registered automatically', DeprecationWarning)
 
     def move_inside(self, parent_id):
         """ Moving one node of tree inside another
@@ -294,16 +292,11 @@ class TreesManager(object):
         self.classes = set()
 
     def register(self, mapper):
-        event.listen(mapper, 'instrument_class', self.class_instrumented)
-        event.listen(mapper, 'after_configured', self.after_configured)
+        for e, h in (
+            ('before_insert', mptt_before_insert),
+            ('before_update', mptt_before_update),
+            ('before_delete', mptt_before_delete),
+        ):
+            event.listen(self.base_class, e, h, propagate=True)
 
-    def class_instrumented(self, mapper, cls):
-        if issubclass(cls, self.base_class):
-            self.classes.add(cls)
-
-    def after_configured(self):
-        while self.classes:
-            self.classes.pop().register_tree()
-
-
-TreesManager(BaseNestedSets).register(mapper)
+manager = TreesManager(BaseNestedSets).register(mapper)

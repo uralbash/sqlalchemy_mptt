@@ -10,7 +10,6 @@
 SQLAlchemy events extension
 """
 from sqlalchemy import and_, case, select, event, inspection
-from sqlalchemy.orm import object_session
 from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.sql import func
 
@@ -308,3 +307,49 @@ def mptt_before_update(mapper, connection, instance):
                 tree_id=tree_id
             )
         )
+
+
+class TreesManager(object):
+    def __init__(self, base_class):
+        self.base_class = base_class
+        self.classes = set()
+        self.instances = set()
+
+    def register_mapper(self, mapper):
+        for e, h in (
+            ('before_insert', self.before_insert),
+            ('before_update', self.before_update),
+            ('before_delete', self.before_delete),
+        ):
+            event.listen(self.base_class, e, h, propagate=True)
+        return self
+
+    def register_factory(self, sessionmaker):
+        event.listen(sessionmaker, 'after_flush_postexec',
+                     self.after_flush_postexec)
+        return sessionmaker
+
+    def before_insert(self, mapper, connection, instance):
+        self.instances.add(instance)
+        mptt_before_insert(mapper, connection, instance)
+
+    def before_update(self, mapper, connection, instance):
+        self.instances.add(instance)
+        mptt_before_update(mapper, connection, instance)
+
+    def before_delete(self, mapper, connection, instance):
+        self.instances.discard(instance)
+        mptt_before_delete(mapper, connection, instance)
+
+    def after_flush_postexec(self, session, context):
+        while self.instances:
+            instance = self.instances.pop()
+            parent = self.get_parent_value(instance)
+            while parent != NO_VALUE and parent is not None:
+                self.instances.discard(parent)
+                session.expire(parent, ['left', 'right'])
+                parent = self.get_parent_value(parent)
+
+    @staticmethod
+    def get_parent_value(instance):
+        return inspection.inspect(instance).attrs.parent.loaded_value

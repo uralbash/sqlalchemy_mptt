@@ -1,3 +1,21 @@
+0.0.8 (2014-08-15)
+==================
+
+- Add CONTRIBUTORS.txt
+
+Features
+--------
+
+- Automatically register tree classes enhancement (#28)
+- Added support polymorphic tree models (#24)
+
+Bug Fixes
+---------
+
+- Fix expire left/right attributes of parent somewhen after the `before_insert` event (#30) 
+- Fix tree_id is incorrectly set to an existing tree if no parent is set (#23)
+- Fix package is not installable if sqlalchemy is not (yet) installed (#22)
+
 0.0.7 (2014-08-04)
 ==================
 

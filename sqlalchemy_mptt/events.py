@@ -9,7 +9,10 @@
 """
 SQLAlchemy events extension
 """
-from sqlalchemy import and_, case, select
+import weakref
+
+from sqlalchemy import and_, case, select, event, inspection
+from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.sql import func
 
 
@@ -306,3 +309,106 @@ def mptt_before_update(mapper, connection, instance):
                 tree_id=tree_id
             )
         )
+
+
+class _WeakDictBasedSet(weakref.WeakKeyDictionary, object):
+    # In absence of a default weakset implementation, provide our own dict
+    # based solution.
+
+    def add(self, obj):
+        self[obj] = None
+
+    def discard(self, obj):
+        super(_WeakDictBasedSet, self).pop(obj, None)
+
+    def pop(self):
+        return self.popitem()[0]
+
+
+class TreesManager(object):
+    """
+    Manages events dispatching for all subclasses of a given class.
+    """
+    def __init__(self, base_class):
+        self.base_class = base_class
+        self.classes = set()
+        self.instances = _WeakDictBasedSet()
+
+    def register_mapper(self, mapper):
+        for e, h in (
+            ('before_insert', self.before_insert),
+            ('before_update', self.before_update),
+            ('before_delete', self.before_delete),
+        ):
+            event.listen(self.base_class, e, h, propagate=True)
+        return self
+
+    def register_factory(self, sessionmaker):
+        """
+        Registers this TreesManager instance to respond on
+        `after_flush_postexec` events on the given session or session factory.
+        This method returns the original argument, so that it can be used by
+        wrapping an already exisiting instance:
+
+        .. code-block:: python
+            :linenos:
+
+            from sqlalchemy import create_engine
+            from sqlalchemy.orm import sessionmaker, mapper
+            from sqlalchemy_mptt.mixins import BaseNestedSets
+
+            engine = create_engine('...')
+
+            trees_manager = TreesManager(BaseNestedSets)
+            trees_manager.register_mapper(mapper)
+
+            Session = tree_manager.register_factory(
+                sessionmaker(bind=engine)
+            )
+
+        A reference to this method, bound to a default instance of this class
+        and already registered to a mapper, is importable directly from
+        `sqlalchemy_mptt`:
+
+        .. code-block:: python
+            :linenos:
+
+            from sqlalchemy import create_engine
+            from sqlalchemy.orm import sessionmaker
+            from sqlalchemy_mptt import mptt_sessionmaker
+
+            engine = create_engine('...')
+            Session = mptt_sessionmaker(sessionmaker(bind=engine))
+        """
+        event.listen(sessionmaker, 'after_flush_postexec',
+                     self.after_flush_postexec)
+        return sessionmaker
+
+    def before_insert(self, mapper, connection, instance):
+        self.instances.add(instance)
+        mptt_before_insert(mapper, connection, instance)
+
+    def before_update(self, mapper, connection, instance):
+        self.instances.add(instance)
+        mptt_before_update(mapper, connection, instance)
+
+    def before_delete(self, mapper, connection, instance):
+        self.instances.discard(instance)
+        mptt_before_delete(mapper, connection, instance)
+
+    def after_flush_postexec(self, session, context):
+        """
+        Event listener to recursively expire `left` and `right` attributes the
+        parents of all modified instances part of this flush.
+        """
+        while self.instances:
+            instance = self.instances.pop()
+            parent = self.get_parent_value(instance)
+            while parent != NO_VALUE and parent is not None:
+                self.instances.discard(parent)
+                session.expire(parent, ['left', 'right'])
+                parent = self.get_parent_value(parent)
+
+    @staticmethod
+    def get_parent_value(instance):
+        return inspection.inspect(instance).attrs.parent.loaded_value

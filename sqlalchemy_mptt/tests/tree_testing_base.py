@@ -9,6 +9,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy_mptt import mptt_sessionmaker
 
 
 def add_fixture(model, fixtures, session):
@@ -102,7 +103,7 @@ class TreeTestingMixin(object):
 
     def setUp(self):
         self.engine = create_engine('sqlite:///:memory:')
-        Session = sessionmaker(bind=self.engine)
+        Session = mptt_sessionmaker(sessionmaker(bind=self.engine))
         self.session = Session()
         self.base.metadata.create_all(self.engine)
         add_mptt_tree(self.session, self.model)
@@ -113,37 +114,18 @@ class TreeTestingMixin(object):
     def tearDown(self):
         self.base.metadata.drop_all(self.engine)
 
+    # TODO: assertWarns was added to python > 3.2
+    # def test_explicit_registration(self):
+    #     with self.assertWarns(DeprecationWarning):
+    #         self.model.register_tree()
+
     def test_tree_orm_initialize(self):
-        #t0 = self.model(ppk=30)
-        #t1 = self.model(ppk=31, parent=t0)
-        #t2 = self.model(ppk=32, parent=t1)
-        #t3 = self.model(ppk=33, parent=t1)
+        t0 = self.model(ppk=30)
+        t1 = self.model(ppk=31, parent=t0)
+        t2 = self.model(ppk=32, parent=t1)
+        t3 = self.model(ppk=33, parent=t1)
 
-        #self.session.add(t0)
-        #self.session.flush()
-
-        #self.assertEqual(t0.left, 1)
-        #self.assertEqual(t0.right, 8)
-
-        #self.assertEqual(t1.left, 2)
-        #self.assertEqual(t1.right, 7)
-
-        #self.assertEqual(t2.left, 3)
-        #self.assertEqual(t2.right, 4)
-
-        #self.assertEqual(t3.left, 5)
-        #self.assertEqual(t3.right, 6)
-
-        print '---'
-
-        t0 = self.model(ppk=40)
-        t1 = self.model(ppk=41, parent=t0)
-        t2 = self.model(ppk=42, parent=t1)
-        t3 = self.model(ppk=43, parent=t2)
-        t4 = self.model(ppk=44, parent=t3)
-        t5 = self.model(ppk=45, parent=t4)
-
-        self.session.add_all([t5])
+        self.session.add(t0)
         self.session.flush()
 
         self.assertEqual(t0.left, 1)
@@ -153,10 +135,38 @@ class TreeTestingMixin(object):
         self.assertEqual(t1.right, 7)
 
         self.assertEqual(t2.left, 3)
-        self.assertEqual(t2.right, 6)
+        self.assertEqual(t2.right, 4)
+
+        self.assertEqual(t3.left, 5)
+        self.assertEqual(t3.right, 6)
+
+        t0 = self.model(ppk=40)
+        t1 = self.model(ppk=41, parent=t0)
+        t2 = self.model(ppk=42, parent=t1)
+        t3 = self.model(ppk=43, parent=t2)
+        t4 = self.model(ppk=44, parent=t3)
+        t5 = self.model(ppk=45, parent=t4)
+
+        self.session.add(t3)
+        self.session.flush()
+
+        self.assertEqual(t0.left, 1)
+        self.assertEqual(t0.right, 12)
+
+        self.assertEqual(t1.left, 2)
+        self.assertEqual(t1.right, 11)
+
+        self.assertEqual(t2.left, 3)
+        self.assertEqual(t2.right, 10)
 
         self.assertEqual(t3.left, 4)
-        self.assertEqual(t3.right, 5)
+        self.assertEqual(t3.right, 9)
+
+        self.assertEqual(t4.left, 5)
+        self.assertEqual(t4.right, 8)
+
+        self.assertEqual(t5.left, 6)
+        self.assertEqual(t5.right, 7)
 
     def test_tree_initialize(self):
         """ Initial state of the trees
@@ -1299,7 +1309,11 @@ class TreeTestingMixin(object):
                 4                                  14(9)15   18(11)19
         """
 
-        self.session.query(self.model).update({'lft': 0, 'rgt': 0, 'level': 0})
+        self.session.query(self.model).update({
+            self.model.left: 0,
+            self.model.right: 0,
+            self.model.level: 0
+        })
         self.model.rebuild(self.session, 1)
         #                 id lft rgt lvl parent tree
         self.assertEqual(self.result.all(),

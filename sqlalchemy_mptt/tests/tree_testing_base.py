@@ -114,10 +114,10 @@ class TreeTestingMixin(object):
     def tearDown(self):
         self.base.metadata.drop_all(self.engine)
 
-    # TODO: assertWarns was added to python > 3.2
-    # def test_explicit_registration(self):
-    #     with self.assertWarns(DeprecationWarning):
-    #         self.model.register_tree()
+    def test_explicit_registration(self):
+        # TODO: assertWarns was added to python > 3.2
+        # with self.assertWarns(DeprecationWarning):
+        self.model.register_tree()
 
     def test_tree_orm_initialize(self):
         t0 = self.model(ppk=30)

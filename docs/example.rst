@@ -20,9 +20,6 @@ Create model with MPTT mixin and register events
         def __repr__(self):
             return "<Node (%s)>" % self.id
 
-    # register events for UPDATE, DELETE and INSERT
-    Tree.register_tree()
-
 Fill table with records, for example, as shown in the picture
 
 .. image:: img/2_sqlalchemy_mptt_traversal.svg
@@ -173,3 +170,17 @@ After delete
 For more example see :mod:`sqlalchemy_mptt.tests.TestTree`
 
 
+SESSION
+~~~~~~~
+
+To work correctly after flush you should use :mod:`sqlalchemy_mptt.mptt_sessionmaker`
+
+.. code-block:: python
+    :linenos:
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy_mptt import mptt_sessionmaker
+
+    engine = create_engine('...')
+    Session = mptt_sessionmaker(sessionmaker(bind=engine))

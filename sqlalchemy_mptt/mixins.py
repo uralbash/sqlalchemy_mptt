@@ -43,8 +43,6 @@ class BaseNestedSets(object):
 
             def __repr__(self):
                 return "<Node (%s)>" % self.id
-
-        Tree.register_tree()
     """
     @declared_attr
     def __table_args__(cls):
@@ -116,6 +114,10 @@ class BaseNestedSets(object):
         * :mod:`sqlalchemy_mptt.events.mptt_before_insert`
         * :mod:`sqlalchemy_mptt.events.mptt_before_update`
         * :mod:`sqlalchemy_mptt.events.mptt_before_delete`
+
+        .. note::
+
+            Deprecated from 0.0.8 version, now it register automatically
 
         .. code-block:: python
             :linenos:

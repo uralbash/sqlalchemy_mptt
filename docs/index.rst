@@ -11,6 +11,12 @@ sqlalchemy_mptt
     :alt: MPTT (nested sets) INSERT
     :align: right
 
+Library for implementing Modified Preorder Tree Traversal with your
+`SQLAlchemy` Models and working with trees of Model instances, like
+`django-mptt`.
+The nested set model is a particular technique for representing nested
+sets (also known as trees or hierarchies) in relational databases.
+
 API:
 ----
 
@@ -22,16 +28,17 @@ API:
 Project uses sqlalchemy_mptt
 ----------------------------
 
-* sacrud_pages_
+* pyramid_sacrud_pages_
 
 .. raw:: html
 
     <br clear="all" />
 
-Example
--------
-
 .. include:: example.rst
+
+A lot of examples and logic in :py:mod:`sqlalchemy_mptt.tests.tree_testing_base`
+
+.. include:: contribute.rst
 
 Indices and tables
 ==================
@@ -41,4 +48,4 @@ Indices and tables
 * :ref:`search`
 
 
-.. _sacrud_pages: https://github.com/ITCase/sacrud_pages
+.. _pyramid_sacrud_pages: https://github.com/ITCase/pyramid_sacrud_pages

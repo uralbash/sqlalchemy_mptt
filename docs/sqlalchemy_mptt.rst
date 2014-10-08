@@ -1,8 +1,8 @@
 :mod:`sqlalchemy_mptt` package
-=======================
+==============================
 
 Events
------------------------------
+------
 
 Base events
 ~~~~~~~~~~~
@@ -20,7 +20,7 @@ Hidden method
     .. autofunction:: _insert_subtree
 
 Mixins
------------------------------
+------
 
 .. automodule:: sqlalchemy_mptt.mixins
 
@@ -35,9 +35,27 @@ Mixins
         .. automethod:: level
 
 Tests
-----------------------------
+-----
 
-.. automodule:: sqlalchemy_mptt.tests
+.. automodule:: sqlalchemy_mptt.tests.test_events
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: sqlalchemy_mptt.tests.test_inheritance
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: sqlalchemy_mptt.tests.test_mixins
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Base tests
+~~~~~~~~~~
+
+.. automodule:: sqlalchemy_mptt.tests.tree_testing_base
     :members:
     :undoc-members:
     :show-inheritance:

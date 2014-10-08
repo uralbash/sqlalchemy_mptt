@@ -1,28 +1,34 @@
-[![Build Status](https://travis-ci.org/ITCase/sqlalchemy_mptt.svg?branch=master)](https://travis-ci.org/ITCase/sqlalchemy_mptt)
-[![Coverage Status](https://coveralls.io/repos/ITCase/sqlalchemy_mptt/badge.png)](https://coveralls.io/r/ITCase/sqlalchemy_mptt)
-[![Stories in progress](https://badge.waffle.io/itcase/sqlalchemy_mptt.png?label=in progress&title=In Progress)](https://waffle.io/itcase/sqlalchemy_mptt)
-[![PyPI](http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg)](https://pypi.python.org/pypi/sqlalchemy_mptt)
-[![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1148440)](https://www.bountysource.com/trackers/1148440-sqlalchemy_mptt?utm_source=1148440&utm_medium=shield&utm_campaign=TRACKER_BADGE)
+|Build Status| |Coverage Status| |Stories in progress| |PyPI|
+|Bountysource|
 
-Library for implementing Modified Preorder Tree Traversal with your SQLAlchemy Models and working with trees of Model instances, like django-mptt.
-Docs http://sqlalchemy-mptt.readthedocs.org/
+Library for implementing Modified Preorder Tree Traversal with your
+SQLAlchemy Models and working with trees of Model instances, like
+django-mptt. Docs http://sqlalchemy-mptt.readthedocs.org/
 
-![Nested sets traversal](https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg)
+.. figure:: https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg
+   :alt: Nested sets traversal
 
-The nested set model is a particular technique for representing nested sets (also known as trees or hierarchies) in relational databases.
+The nested set model is a particular technique for representing nested
+sets (also known as trees or hierarchies) in relational databases.
 
 Installing
 ----------
 
 Install from github:
 
+.. code-block:: bash
+
     pip install git+http://github.com/ITCase/sqlalchemy_mptt.git
 
 PyPi:
 
+.. code-block:: bash
+
     pip install sqlalchemy_mptt
 
 Source:
+
+.. code-block:: bash
 
     python setup.py install
 
@@ -31,35 +37,38 @@ Usage
 
 Add mixin to model
 
-```python
-from sqlalchemy import Column, Integer, Boolean
-from sqlalchemy.ext.declarative import declarative_base
+.. code-block:: python
 
-from sqlalchemy_mptt.mixins import BaseNestedSets
+    from sqlalchemy import Column, Integer, Boolean
+    from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+    from sqlalchemy_mptt.mixins import BaseNestedSets
+
+    Base = declarative_base()
 
 
-class Tree(Base, BaseNestedSets):
-    __tablename__ = "tree"
+    class Tree(Base, BaseNestedSets):
+        __tablename__ = "tree"
 
-    id = Column(Integer, primary_key=True)
-    visible = Column(Boolean)
+        id = Column(Integer, primary_key=True)
+        visible = Column(Boolean)
 
-    def __repr__(self):
-        return "<Node (%s)>" % self.id
+        def __repr__(self):
+            return "<Node (%s)>" % self.id
 
-Tree.register_tree()
-```
+    Tree.register_tree()
+
 Now you can add, move and delete obj
 
 Insert node
 -----------
 
-```python
-node = Tree(parent_id=6)
-session.add(node)
-```
+.. code-block:: python
+
+    node = Tree(parent_id=6)
+    session.add(node)
+
+::
 
             level           Nested sets example
             1                    1(1)22
@@ -85,10 +94,12 @@ session.add(node)
 Delete node
 -----------
 
-```python
-node = session.query(Tree).filter(Tree.id == 4).one()
-session.delete(node)
-```
+.. code:: python
+
+    node = session.query(Tree).filter(Tree.id == 4).one()
+    session.delete(node)
+
+::
 
             level           Nested sets example
             1                    1(1)22
@@ -113,11 +124,13 @@ session.delete(node)
 Update node
 -----------
 
-```python
-node = session.query(Tree).filter(Tree.id == 8).one()
-node.parent_id = 5
-session.add(node)
-```
+.. code:: python
+
+    node = session.query(Tree).filter(Tree.id == 8).one()
+    node.parent_id = 5
+    session.add(node)
+
+::
 
             level           Nested sets example
                 1                    1(1)22
@@ -144,14 +157,20 @@ session.add(node)
 Move node (support multitree)
 -----------------------------
 
-![Nested sets multitree](https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/3_sqlalchemy_mptt_multitree.svg)
+.. figure:: https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/3_sqlalchemy_mptt_multitree.svg
+   :alt: Nested sets multitree
+
+   Nested sets multitree
 
 Move inside
 
-```python
-node = session.query(Tree).filter(Tree.id == 4).one()
-node.move_inside("15")
-```
+.. code:: python
+
+    node = session.query(Tree).filter(Tree.id == 4).one()
+    node.move_inside("15")
+
+::
+
                      4 -> 15
             level           Nested sets tree1
             1                    1(1)16
@@ -173,13 +192,14 @@ node.move_inside("15")
                              ^                            |         |
             4          8(5)9  10(6)11                 20(20)21  24(22)25
 
-
 Move after
 
-```python
-node = session.query(Tree).filter(Tree.id == 8).one()
-node.move_after("5")
-```
+.. code:: python
+
+    node = session.query(Tree).filter(Tree.id == 8).one()
+    node.move_after("5")
+
+::
 
            level           Nested sets example
                 1                    1(1)22
@@ -203,10 +223,12 @@ node.move_after("5")
 
 Move to top level
 
-```python
-node = session.query(Tree).filter(Tree.id == 15).one()
-node.move_after("1")
-```
+.. code:: python
+
+    node = session.query(Tree).filter(Tree.id == 15).one()
+    node.move_after("1")
+
+::
 
             level           tree_id = 1
             1                    1(1)22
@@ -232,3 +254,31 @@ node.move_after("1")
             3    3(14)4     7(19)10   11(21)14
                                |          |
             4               8(20)9    12(22)13
+
+
+Support and Development
+=======================
+
+To report bugs, use the `issue tracker <https://github.com/ITCase/sqlalchemy_mptt/issues>`_
+or `waffle board <https://waffle.io/ITCase/sqlalchemy_mptt>`_.
+
+We welcome any contribution: suggestions, ideas, commits with new futures, bug fixes, refactoring, docs, tests, translations etc
+
+If you have question, contact me sacrud@uralbash.ru
+
+License
+=======
+
+The project is licensed under the MIT license.
+
+.. |Build Status| image:: https://travis-ci.org/ITCase/sqlalchemy_mptt.svg?branch=master
+   :target: https://travis-ci.org/ITCase/sqlalchemy_mptt
+.. |Coverage Status| image:: https://coveralls.io/repos/ITCase/sqlalchemy_mptt/badge.png
+   :target: https://coveralls.io/r/ITCase/sqlalchemy_mptt
+.. |Stories in progress| image:: https://badge.waffle.io/itcase/sqlalchemy_mptt.png?label=in%20progress&title=In%20Progress
+   :target: https://waffle.io/itcase/sqlalchemy_mptt
+.. |PyPI| image:: http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg
+   :target: https://pypi.python.org/pypi/sqlalchemy_mptt
+.. |Bountysource| image:: https://www.bountysource.com/badge/tracker?tracker_id=1148440
+   :target: https://www.bountysource.com/trackers/1148440-sqlalchemy_mptt?utm_source=1148440&utm_medium=shield&utm_campaign=TRACKER_BADGE
+

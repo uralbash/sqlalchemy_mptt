@@ -1,3 +1,6 @@
+Example
+-------
+
 Create model with MPTT mixin and register events
 
 .. code-block:: python

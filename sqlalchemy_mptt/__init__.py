@@ -10,7 +10,7 @@ from sqlalchemy.orm import mapper
 from .mixins import BaseNestedSets
 from .events import TreesManager
 
-__version__ = "0.0.8"
+__version__ = "0.0.9"
 __mixins__ = [BaseNestedSets]
 __all__ = ['BaseNestedSets', 'mptt_sessionmaker']
 

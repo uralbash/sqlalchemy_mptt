@@ -5,7 +5,7 @@ Library for implementing Modified Preorder Tree Traversal with your
 SQLAlchemy Models and working with trees of Model instances, like
 django-mptt. Docs http://sqlalchemy-mptt.readthedocs.org/
 
-.. figure:: https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg
+.. image:: https://cdn.rawgit.com/ITCase/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg
    :alt: Nested sets traversal
 
 The nested set model is a particular technique for representing nested
@@ -157,8 +157,9 @@ Update node
 Move node (support multitree)
 -----------------------------
 
-.. figure:: https://rawgithub.com/ITCase/sqlalchemy_mptt/master/docs/img/3_sqlalchemy_mptt_multitree.svg
+.. figure:: https://cdn.rawgit.com/ITCase/sqlalchemy_mptt/master/docs/img/3_sqlalchemy_mptt_multitree.svg
    :alt: Nested sets multitree
+   :width: 600px
 
    Nested sets multitree
 

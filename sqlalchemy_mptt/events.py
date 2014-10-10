@@ -408,6 +408,8 @@ class TreesManager(object):
                 self.instances.discard(parent)
                 session.expire(parent, ['left', 'right'])
                 parent = self.get_parent_value(parent)
+            else:
+                session.expire(instance, ['tree_id', ])
 
     @staticmethod
     def get_parent_value(instance):

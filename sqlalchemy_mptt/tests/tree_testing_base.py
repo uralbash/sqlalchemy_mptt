@@ -1716,10 +1716,17 @@ class TreeTestingMixin(object):
         self.assertEqual(node6.leftsibling_in_level().idd, node5.ppk)
         self.assertEqual(node3.leftsibling_in_level(), None)
 
-    def test_session_expire(self):
+    def test_session_expire_for_move_after_to_new_tree(self):
         """https://github.com/ITCase/sqlalchemy_mptt/issues/33"""
         node = self.session.query(self.model).filter(self.model.ppk == 4).one()
         node.move_after('1')
         self.session.flush()
         self.assertEqual(node.tree_id, 2)
         self.assertEqual(node.parent_id, None)
+
+        children = self.session.query(self.model)\
+            .filter(self.model.ppk.in_((5, 6))).all()
+        self.assertEqual(children[0].tree_id, 2)
+        self.assertEqual(children[1].tree_id, 2)
+        self.assertEqual(children[0].parent_id, 4)
+        self.assertEqual(children[1].parent_id, 4)

@@ -8,6 +8,7 @@
 
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy_mptt import mptt_sessionmaker
@@ -168,6 +169,17 @@ class TreeTestingMixin(object):
 
         self.assertEqual(t5.left, 6)
         self.assertEqual(t5.right, 7)
+
+    def test_flush_with_transient_nodes_present(self):
+        transient_node = self.model(ppk=1, parent=None)
+        self.session.add(transient_node)
+        try:
+            self.session.flush()
+        except IntegrityError:
+            pass
+        self.session.rollback()
+        self.session.add(self.model(ppk=46, parent=None))
+        self.session.flush()
 
     def test_tree_initialize(self):
         """ Initial state of the trees
@@ -1726,6 +1738,7 @@ class TreeTestingMixin(object):
         self.session.flush()
 
         self.assertEqual(node.tree_id, 2)
+        self.assertEqual(node.level, 1)
         self.assertEqual(node.parent_id, None)
         self.assertEqual(children[0].tree_id, 2)
         self.assertEqual(children[1].tree_id, 2)

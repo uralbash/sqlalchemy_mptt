@@ -12,6 +12,7 @@ SQLAlchemy events extension
 import weakref
 
 from sqlalchemy import and_, case, select, event, inspection
+from sqlalchemy.orm import object_session
 from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.sql import func
 
@@ -325,6 +326,16 @@ class _WeakDictBasedSet(weakref.WeakKeyDictionary, object):
         return self.popitem()[0]
 
 
+class _WeakDefaultDict(weakref.WeakKeyDictionary, object):
+
+    def __getitem__(self, key):
+        try:
+            return super(_WeakDefaultDict, self).__getitem__(key)
+        except KeyError:
+            self[key] = value = _WeakDictBasedSet()
+            return value
+
+
 class TreesManager(object):
     """
     Manages events dispatching for all subclasses of a given class.
@@ -332,7 +343,7 @@ class TreesManager(object):
     def __init__(self, base_class):
         self.base_class = base_class
         self.classes = set()
-        self.instances = _WeakDictBasedSet()
+        self.instances = _WeakDefaultDict()
 
     def register_mapper(self, mapper):
         for e, h in (
@@ -385,15 +396,18 @@ class TreesManager(object):
         return sessionmaker
 
     def before_insert(self, mapper, connection, instance):
-        self.instances.add(instance)
+        session = object_session(instance)
+        self.instances[session].add(instance)
         mptt_before_insert(mapper, connection, instance)
 
     def before_update(self, mapper, connection, instance):
-        self.instances.add(instance)
+        session = object_session(instance)
+        self.instances[session].add(instance)
         mptt_before_update(mapper, connection, instance)
 
     def before_delete(self, mapper, connection, instance):
-        self.instances.discard(instance)
+        session = object_session(instance)
+        self.instances[session].discard(instance)
         mptt_before_delete(mapper, connection, instance)
 
     def after_flush_postexec(self, session, context):
@@ -401,13 +415,18 @@ class TreesManager(object):
         Event listener to recursively expire `left` and `right` attributes the
         parents of all modified instances part of this flush.
         """
-        while self.instances:
-            instance = self.instances.pop()
+        instances = self.instances[session]
+        while instances:
+            instance = instances.pop()
+            if instance not in session:
+                continue
             parent = self.get_parent_value(instance)
             while parent != NO_VALUE and parent is not None:
-                self.instances.discard(parent)
-                session.expire(parent, ['left', 'right', 'tree_id'])
+                instances.discard(parent)
+                session.expire(parent, ['left', 'right'])
                 parent = self.get_parent_value(parent)
+            else:
+                session.expire(instance, ['tree_id', 'level'])
 
     @staticmethod
     def get_parent_value(instance):

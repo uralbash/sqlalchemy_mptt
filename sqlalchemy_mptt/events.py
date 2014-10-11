@@ -313,8 +313,10 @@ def mptt_before_update(mapper, connection, instance):
 
 
 class _WeakDictBasedSet(weakref.WeakKeyDictionary, object):
-    # In absence of a default weakset implementation, provide our own dict
-    # based solution.
+    """
+    In absence of a default weakset implementation, provide our own dict
+    based solution.
+    """
 
     def add(self, obj):
         self[obj] = None

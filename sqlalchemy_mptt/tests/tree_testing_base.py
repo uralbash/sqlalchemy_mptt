@@ -1734,6 +1734,7 @@ class TreeTestingMixin(object):
         node.move_after('1')
         self.session.flush()
         self.assertEqual(node.tree_id, 2)
+        self.assertEqual(node.level, 1)
         self.assertEqual(node.parent_id, None)
 
         children = self.session.query(self.model)\

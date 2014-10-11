@@ -8,6 +8,7 @@
 
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_mptt import mptt_sessionmaker
 
@@ -167,6 +168,17 @@ class TreeTestingMixin(object):
 
         self.assertEqual(t5.left, 6)
         self.assertEqual(t5.right, 7)
+
+    def test_flush_with_transient_nodes_present(self):
+        transient_node = self.model(ppk=1, parent=None)
+        self.session.add(transient_node)
+        try:
+            self.session.flush()
+        except IntegrityError:
+            pass
+        self.session.rollback()
+        self.session.add(self.model(ppk=46, parent=None))
+        self.session.flush()
 
     def test_tree_initialize(self):
         """ Initial state of the trees
@@ -742,7 +754,7 @@ class TreeTestingMixin(object):
 
         """
         node = self.session.query(self.model).\
-                filter(self.model.ppk == 12).one()
+            filter(self.model.ppk == 12).one()
         node.parent_id = 7
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -1715,3 +1727,18 @@ class TreeTestingMixin(object):
         self.assertEqual(node8.leftsibling_in_level().idd, node6.ppk)
         self.assertEqual(node6.leftsibling_in_level().idd, node5.ppk)
         self.assertEqual(node3.leftsibling_in_level(), None)
+
+    def test_session_expire_for_move_after_to_new_tree(self):
+        """https://github.com/ITCase/sqlalchemy_mptt/issues/33"""
+        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node.move_after('1')
+        self.session.flush()
+        self.assertEqual(node.tree_id, 2)
+        self.assertEqual(node.parent_id, None)
+
+        children = self.session.query(self.model)\
+            .filter(self.model.ppk.in_((5, 6))).all()
+        self.assertEqual(children[0].tree_id, 2)
+        self.assertEqual(children[1].tree_id, 2)
+        self.assertEqual(children[0].parent_id, 4)
+        self.assertEqual(children[1].parent_id, 4)

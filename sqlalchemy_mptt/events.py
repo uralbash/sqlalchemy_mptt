@@ -406,10 +406,8 @@ class TreesManager(object):
             parent = self.get_parent_value(instance)
             while parent != NO_VALUE and parent is not None:
                 self.instances.discard(parent)
-                session.expire(parent, ['left', 'right'])
+                session.expire(parent, ['left', 'right', 'tree_id'])
                 parent = self.get_parent_value(parent)
-            else:
-                session.expire(instance, ['tree_id', ])
 
     @staticmethod
     def get_parent_value(instance):

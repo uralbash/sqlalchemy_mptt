@@ -9,6 +9,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from sqlalchemy_mptt import mptt_sessionmaker
 
 
@@ -1719,13 +1720,13 @@ class TreeTestingMixin(object):
     def test_session_expire_for_move_after_to_new_tree(self):
         """https://github.com/ITCase/sqlalchemy_mptt/issues/33"""
         node = self.session.query(self.model).filter(self.model.ppk == 4).one()
-        node.move_after('1')
-        self.session.flush()
-        self.assertEqual(node.tree_id, 2)
-        self.assertEqual(node.parent_id, None)
-
         children = self.session.query(self.model)\
             .filter(self.model.ppk.in_((5, 6))).all()
+        node.move_after('1')
+        self.session.flush()
+
+        self.assertEqual(node.tree_id, 2)
+        self.assertEqual(node.parent_id, None)
         self.assertEqual(children[0].tree_id, 2)
         self.assertEqual(children[1].tree_id, 2)
         self.assertEqual(children[0].parent_id, 4)

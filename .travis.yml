@@ -10,6 +10,7 @@ language: python
 
 notifications:
   email: "sacrud@uralbash.ru"
+  irc: "chat.freenode.net#sacrud"
 
 python:
   - "2.7"

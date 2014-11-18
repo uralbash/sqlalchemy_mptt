@@ -11,7 +11,7 @@ SQLAlchemy events extension
 """
 import weakref
 
-from sqlalchemy import and_, case, select, event, inspection
+from sqlalchemy import and_, case, event, inspection, select
 from sqlalchemy.orm import object_session
 from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.sql import func
@@ -423,13 +423,30 @@ class TreesManager(object):
             if instance not in session:
                 continue
             parent = self.get_parent_value(instance)
+
             while parent != NO_VALUE and parent is not None:
                 instances.discard(parent)
-                session.expire(parent, ['left', 'right'])
+                session.expire(parent, ['left', 'right', 'tree_id', 'level'])
                 parent = self.get_parent_value(parent)
             else:
-                session.expire(instance, ['tree_id', 'level'])
+                session.expire(instance, ['left', 'right', 'tree_id', 'level'])
+                self.expire_session_for_children(session, instance)
 
     @staticmethod
     def get_parent_value(instance):
         return inspection.inspect(instance).attrs.parent.loaded_value
+
+    @staticmethod
+    def expire_session_for_children(session, instance):
+        children = instance.children
+
+        def expire_recursively(node):
+            children = node.children
+            for item in children:
+                session.expire(item, ['left', 'right', 'tree_id', 'level'])
+                expire_recursively(item)
+
+        if children != NO_VALUE and children is not None:
+            for item in children:
+                session.expire(item, ['left', 'right', 'tree_id', 'level'])
+                expire_recursively(item)

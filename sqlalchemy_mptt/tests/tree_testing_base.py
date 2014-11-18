@@ -171,6 +171,7 @@ class TreeTestingMixin(object):
         self.assertEqual(t5.right, 7)
 
     def test_flush_with_transient_nodes_present(self):
+        """https://github.com/ITCase/sqlalchemy_mptt/issues/34"""
         transient_node = self.model(ppk=1, parent=None)
         self.session.add(transient_node)
         try:

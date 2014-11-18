@@ -2,3 +2,4 @@ Contributors
 ------------
 - Dmitry Svintsov, 2014/04/16
 - Jonathan Stoppani, 2014/08/11
+- Fayaz Yusuf Khan, 2014/10/10

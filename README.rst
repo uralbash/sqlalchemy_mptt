@@ -283,10 +283,3 @@ The project is licensed under the MIT license.
    :target: https://pypi.python.org/pypi/sqlalchemy_mptt
 .. |Bountysource| image:: https://www.bountysource.com/badge/tracker?tracker_id=1148440
    :target: https://www.bountysource.com/trackers/1148440-sqlalchemy_mptt?utm_source=1148440&utm_medium=shield&utm_campaign=TRACKER_BADGE
-
-
-
-.. image:: https://d2weczhvl823v0.cloudfront.net/ITCase/sqlalchemy_mptt/trend.png
-   :alt: Bitdeli badge
-   :target: https://bitdeli.com/free
-

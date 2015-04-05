@@ -60,7 +60,8 @@ def _get_tree_table(mapper):
 
 
 def mptt_before_insert(mapper, connection, instance):
-    """ Based on this example https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
+    """ Based on example
+    https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
     """
     table = _get_tree_table(mapper)
     db_pk = instance.get_db_pk()
@@ -70,7 +71,8 @@ def mptt_before_insert(mapper, connection, instance):
         instance.left = 1
         instance.right = 2
         instance.level = 1
-        tree_id = connection.scalar(select([func.max(table.c.tree_id) + 1])) or 1
+        tree_id = connection.scalar(
+            select([func.max(table.c.tree_id) + 1])) or 1
         instance.tree_id = tree_id
     else:
         (parent_pos_left,
@@ -188,7 +190,8 @@ def mptt_before_update(mapper, connection, instance):
              left_sibling_parent,
              left_sibling_tree_id) = current_lvl_nodes[-1]
             instance.parent_id = left_sibling_parent
-            left_sibling = {'lft': left_sibling_left, 'rgt': left_sibling_right,
+            left_sibling = {'lft': left_sibling_left,
+                            'rgt': left_sibling_right,
                             'is_parent': False}
         # if move_before to top level
         elif not right_sibling_parent:
@@ -238,7 +241,9 @@ def mptt_before_update(mapper, connection, instance):
     ).fetchone()
 
     # if instance just update w/o move
-    if not left_sibling and str(node_parent_id) == str(instance.parent_id) and not mptt_move_inside:
+    if not left_sibling\
+            and str(node_parent_id) == str(instance.parent_id)\
+            and not mptt_move_inside:
         if left_sibling_tree_id is None:
             return
 
@@ -299,7 +304,8 @@ def mptt_before_update(mapper, connection, instance):
             )
         # if just insert
         else:
-            tree_id = connection.scalar(select([func.max(table.c.tree_id) + 1]))
+            tree_id = connection.scalar(
+                select([func.max(table.c.tree_id) + 1]))
 
         connection.execute(
             table.update(table_pk.in_(subtree))

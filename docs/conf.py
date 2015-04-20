@@ -12,11 +12,17 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
+import shutil
+import sys
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if on_rtd and os.path.exists('_themes'):
+    shutil.rmtree('_themes')
 
 # Add and use Pylons theme
-if 'sphinx-build' in ' '.join(sys.argv): # protect against dumb importers
+if 'sphinx-build' in ' '.join(sys.argv) and 'nt' not in os.name:
     from subprocess import call, Popen, PIPE
 
     p = Popen('which git', shell=True, stdout=PIPE)
@@ -26,7 +32,7 @@ if 'sphinx-build' in ' '.join(sys.argv): # protect against dumb importers
 
     if not os.path.isdir(_themes):
         call([git, 'clone', 'git://github.com/ITCase/itcase_sphinx_theme.git',
-                '_themes'])
+              '_themes'])
     else:
         os.chdir(_themes)
         call([git, 'checkout', 'master'])
@@ -39,7 +45,6 @@ if 'sphinx-build' in ' '.join(sys.argv): # protect against dumb importers
     sys.path.append(os.path.abspath(parent))
     wd = os.getcwd()
     os.chdir(parent)
-    os.system('%s setup.py test -q' % sys.executable)
     os.chdir(wd)
 
     for item in os.listdir(parent):
@@ -351,3 +356,4 @@ epub_copyright = u'2014, Author'
 
 # If false, no index is generated.
 #epub_use_index = True
+

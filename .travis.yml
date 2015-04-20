@@ -35,3 +35,4 @@ script:
 
 after_success:
   coveralls
+  ./test.sh

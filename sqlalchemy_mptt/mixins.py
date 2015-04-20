@@ -88,12 +88,13 @@ class BaseNestedSets(object):
     @declared_attr
     def parent(cls):
         pk = getattr(cls, cls.get_pk())
-        return relationship(cls, primaryjoin=lambda: pk == cls.parent_id,
-                            order_by=lambda: cls.left,
-                            backref=backref('children', cascade="all,delete",
-                                            order_by=lambda: cls.left),
-                            remote_side=cls.get_class_pk(),  # for show in sacrud relation
-                            )
+        return relationship(
+            cls, primaryjoin=lambda: pk == cls.parent_id,
+            order_by=lambda: cls.left,
+            backref=backref('children', cascade="all,delete",
+                            order_by=lambda: cls.left),
+            remote_side=cls.get_class_pk(),  # for show in sacrud relation
+        )
 
     @declared_attr
     def left(cls):
@@ -133,7 +134,7 @@ class BaseNestedSets(object):
 
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_inside_function`
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_inside_to_the_same_parent_function`
-        """
+        """  # noqa
         session = Session.object_session(self)
         self.parent_id = parent_id
         self.mptt_move_inside = parent_id
@@ -143,7 +144,7 @@ class BaseNestedSets(object):
         """ Moving one node of tree after another
 
         For example see :mod:`sqlalchemy_mptt.tests.TestTree.test_move_after_function`
-        """
+        """  # noqa
         session = Session.object_session(self)
         self.parent_id = self.parent_id
         self.mptt_move_after = node_id
@@ -170,7 +171,7 @@ class BaseNestedSets(object):
         """ Node to the left of the current node at the same level
 
         For example see :mod:`sqlalchemy_mptt.tests.TestTree.test_leftsibling_in_level`
-        """
+        """  # noqa
         table = _get_tree_table(self.__mapper__)
         session = Session.object_session(self)
         current_lvl_nodes = session.query(table)\
@@ -179,6 +180,53 @@ class BaseNestedSets(object):
         if current_lvl_nodes:
             return current_lvl_nodes[-1]
         return None
+
+    @classmethod
+    def _get_tree_node(cls, node, json, json_fields):
+        """ Helper method for ``get_tree`` and ``get_tree_reqursively``.
+        """
+        if json:
+            pk = getattr(node, node.get_pk())
+            # jqTree or jsTree format
+            result = {'id': pk, 'label': node.__repr__()}
+            if json_fields:
+                result.update(json_fields(node))
+        else:
+            result = {'node': node}
+        return result
+
+    @classmethod
+    def get_tree_reqursively(cls, session, json=False, json_fields=None):
+        """ This function recursively generate tree of current node in dict or
+        json format.
+
+        Args:
+            session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session
+
+        Kwargs:
+            json (bool): if True return JSON jqTree format
+            json_fields (function): append custom fields in JSON
+
+        Example:
+
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_tree`
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree`
+        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree_with_custom_field`
+        """  # noqa
+        def recursive_node_to_dict(node):
+            result = cls._get_tree_node(node, json, json_fields)
+            children = [recursive_node_to_dict(c) for c in node.children]
+            if children:
+                result['children'] = children
+            return result
+
+        nodes = session.query(cls).filter_by(parent_id=None)\
+            .order_by(cls.tree_id).all()
+        tree = []
+        for node in nodes:
+            tree.append(recursive_node_to_dict(node))
+
+        return tree
 
     @classmethod
     def get_tree(cls, session, json=False, json_fields=None):
@@ -196,26 +244,30 @@ class BaseNestedSets(object):
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_tree`
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree`
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree_with_custom_field`
-        """
-        def recursive_node_to_dict(node):
-            result = {'node': node}
-            pk = getattr(node, node.get_pk())
-            if json:
-                # jqTree or jsTree format
-                result = {'id': pk, 'label': node.__repr__()}
-                if json_fields:
-                    result.update(json_fields(node))
-            children = [recursive_node_to_dict(c) for c in node.children]
-            if children:
-                result['children'] = children
-            return result
-
-        nodes = session.query(cls).filter_by(parent_id=None)\
-            .order_by(cls.tree_id).all()
+        """  # noqa
+        nodes = session.query(cls).order_by(cls.level).all()
         tree = []
-        for node in nodes:
-            tree.append(recursive_node_to_dict(node))
+        nodes_of_level = {}
 
+        def get_node_id(node):
+            return getattr(node, node.get_pk())
+
+        for node in nodes:
+            result = cls._get_tree_node(node, json, json_fields)
+            parent_id = node.parent_id
+            # Parent detect!
+            if parent_id:
+                # Find parent in tree list!
+                if parent_id in nodes_of_level.keys():
+                    if 'children' not in nodes_of_level[parent_id]:
+                        nodes_of_level[parent_id]['children'] = []
+                    # Append to parent!
+                    nl = nodes_of_level[parent_id]['children']
+                    nl.append(result)
+                    nodes_of_level[get_node_id(node)] = nl[-1]
+            else:
+                tree.append(result)
+                nodes_of_level[get_node_id(node)] = tree[-1]
         return tree
 
     @classmethod

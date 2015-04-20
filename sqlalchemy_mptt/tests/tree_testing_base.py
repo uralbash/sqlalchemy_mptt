@@ -7,7 +7,7 @@
 # Distributed under terms of the MIT license.
 
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 
@@ -102,6 +102,18 @@ class TreeTestingMixin(object):
 
     base = None
     model = None
+
+    def catch_queries(self, conn, cursor, statement, *args):
+        self.stmts.append(statement)
+
+    def start_query_counter(self):
+        self.stmts = []
+        event.listen(self.session.bind.engine, "before_cursor_execute",
+                     self.catch_queries)
+
+    def stop_query_counter(self):
+        event.remove(self.session.bind.engine, "before_cursor_execute",
+                     self.catch_queries)
 
     def setUp(self):
         self.engine = create_engine('sqlite:///:memory:')
@@ -754,7 +766,7 @@ class TreeTestingMixin(object):
                                                                                      |         |
             6                                                                    26(20)27  30(22)31
 
-        """
+        """  # noqa
         node = self.session.query(self.model).\
             filter(self.model.ppk == 12).one()
         node.parent_id = 7
@@ -928,7 +940,8 @@ class TreeTestingMixin(object):
             4               8(20)9    12(22)13
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 15).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.ppk == 15).one()
         node.move_after("1")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
@@ -957,7 +970,8 @@ class TreeTestingMixin(object):
                           (21, 11, 14, 3, 18, 3),
                           (22, 12, 13, 4, 21, 3)], self.result.all())
 
-        node = self.session.query(self.model).filter(self.model.ppk == 20).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.ppk == 20).one()
         node.move_after("1")
         """ level           tree_id = 1
             1                    1(1)22
@@ -1254,11 +1268,55 @@ class TreeTestingMixin(object):
             tree = Tree.get_tree(self.session)
         """
         tree = self.model.get_tree(self.session)
+        tree_reqursively = self.model.get_tree_reqursively(self.session)
 
         def go(id):
             return get_obj(self.session, self.model, id)
-        self.assertEqual(tree,
-                         [{'node': go(1), 'children': [{'node': go(2), 'children': [{'node': go(3)}]}, {'node': go(4), 'children': [{'node': go(5)}, {'node': go(6)}]}, {'node': go(7), 'children': [{'node': go(8), 'children': [{'node': go(9)}]}, {'node': go(10), 'children': [{'node': go(11)}]}]}]}, {'node': go(12), 'children': [{'node': go(13), 'children': [{'node': go(14)}]}, {'node': go(15), 'children': [{'node': go(16)}, {'node': go(17)}]}, {'node': go(18), 'children': [{'node': go(19), 'children': [{'node': go(20)}]}, {'node': go(21), 'children': [{'node': go(22)}]}]}]}])
+
+        reference_tree = [{'node': go(1), 'children': [{'node': go(2), 'children': [{'node': go(3)}]}, {'node': go(4), 'children': [{'node': go(5)}, {'node': go(6)}]}, {'node': go(7), 'children': [{'node': go(8), 'children': [{'node': go(9)}]}, {'node': go(10), 'children': [{'node': go(11)}]}]}]}, {'node': go(12), 'children': [{'node': go(13), 'children': [{'node': go(14)}]}, {'node': go(15), 'children': [{'node': go(16)}, {'node': go(17)}]}, {'node': go(18), 'children': [{'node': go(19), 'children': [{'node': go(20)}]}, {'node': go(21), 'children': [{'node': go(22)}]}]}]}]  # noqa
+
+        self.assertEqual(tree, reference_tree)
+        self.assertEqual(tree_reqursively, reference_tree)
+
+    def test_get_tree_count_query(self):
+        """
+        Count num of queries to the database.
+        See https://github.com/ITCase/sqlalchemy_mptt/issues/39
+
+
+        Use ``--nocapture`` option for show run time:
+
+        ::
+
+            nosetests sqlalchemy_mptt.tests.test_events:TestTree.test_get_tree_count_query --nocapture
+            Get tree:             0:00:00.001817
+            Get tree reqursively: 0:00:00.020615
+            .
+            ----------------------------------------------------------------------
+            Ran 1 test in 0.064s
+
+            OK
+        """  # noqa
+        from datetime import datetime
+        self.session.commit()
+
+        # Get tree by for cycle
+        self.start_query_counter()
+        self.assertEqual(0, len(self.stmts))
+        startTime = datetime.now()
+        self.model.get_tree(self.session)
+        print("Get tree: {!s:>26}".format(datetime.now() - startTime))
+        self.assertEqual(1, len(self.stmts))
+        self.stop_query_counter()
+
+        # Get tree by recursion
+        self.start_query_counter()
+        self.assertEqual(0, len(self.stmts))
+        startTime = datetime.now()
+        self.model.get_tree_reqursively(self.session)
+        print("Get tree reqursively: {}".format(datetime.now() - startTime))
+        self.assertEqual(23, len(self.stmts))
+        self.stop_query_counter()
 
     def test_get_json_tree(self):
         """.. note::
@@ -1271,9 +1329,13 @@ class TreeTestingMixin(object):
 
             tree = Tree.get_tree(self.session, json=True)
         """
+        reference_tree = [{'children': [{'children': [{'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'children': [{'id': 5, 'label': '<Node (5)>'}, {'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'children': [{'children': [{'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'children': [{'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {'children': [{'children': [{'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'children': [{'id': 16, 'label': '<Node (16)>'}, {'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'children': [{'children': [{'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'children': [{'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}]  # noqa
+
         tree = self.model.get_tree(self.session, json=True)
-        self.assertEqual(tree, [{'children': [{'children': [{'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'children': [{'id': 5, 'label': '<Node (5)>'}, {'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'children': [{'children': [{'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'children': [{'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {
-                         'children': [{'children': [{'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'children': [{'id': 16, 'label': '<Node (16)>'}, {'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'children': [{'children': [{'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'children': [{'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
+        tree_reqursively = self.model.get_tree_reqursively(self.session,
+                                                           json=True)
+        self.assertEqual(tree, reference_tree)
+        self.assertEqual(tree_reqursively, reference_tree)
 
     def test_get_json_tree_with_custom_field(self):
         """.. note::
@@ -1292,9 +1354,14 @@ class TreeTestingMixin(object):
         """
         def fields(node):
             return {'visible': node.visible}
+
+        reference_tree = [{'visible': None, 'children': [{'visible': True, 'children': [{'visible': True, 'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'visible': True, 'children': [{'visible': True, 'id': 5, 'label': '<Node (5)>'}, {'visible': True, 'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'visible': True, 'children': [{'visible': True, 'children': [{'visible': None, 'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'visible': None, 'children': [{'visible': None, 'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'visible': None, 'children': [{'visible': None, 'id': 16, 'label': '<Node (16)>'}, {'visible': None, 'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'visible': None, 'children': [{'visible': None, 'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}]  # noqa
+
         tree = self.model.get_tree(self.session, json=True, json_fields=fields)
-        self.assertEqual(tree, [{'visible': None, 'children': [{'visible': True, 'children': [{'visible': True, 'id': 3, 'label': '<Node (3)>'}], 'id': 2, 'label': '<Node (2)>'}, {'visible': True, 'children': [{'visible': True, 'id': 5, 'label': '<Node (5)>'}, {'visible': True, 'id': 6, 'label': '<Node (6)>'}], 'id': 4, 'label': '<Node (4)>'}, {'visible': True, 'children': [{'visible': True, 'children': [{'visible': None, 'id': 9, 'label': '<Node (9)>'}], 'id': 8, 'label': '<Node (8)>'}, {'visible': None, 'children': [{'visible': None, 'id': 11, 'label': '<Node (11)>'}], 'id': 10, 'label': '<Node (10)>'}], 'id': 7, 'label': '<Node (7)>'}], 'id': 1, 'label': '<Node (1)>'}, {
-                         'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 14, 'label': '<Node (14)>'}], 'id': 13, 'label': '<Node (13)>'}, {'visible': None, 'children': [{'visible': None, 'id': 16, 'label': '<Node (16)>'}, {'visible': None, 'id': 17, 'label': '<Node (17)>'}], 'id': 15, 'label': '<Node (15)>'}, {'visible': None, 'children': [{'visible': None, 'children': [{'visible': None, 'id': 20, 'label': '<Node (20)>'}], 'id': 19, 'label': '<Node (19)>'}, {'visible': None, 'children': [{'visible': None, 'id': 22, 'label': '<Node (22)>'}], 'id': 21, 'label': '<Node (21)>'}], 'id': 18, 'label': '<Node (18)>'}], 'id': 12, 'label': '<Node (12)>'}])
+        tree_reqursively = self.model.get_tree(self.session, json=True,
+                                               json_fields=fields)
+        self.assertEqual(tree, reference_tree)
+        self.assertEqual(tree_reqursively, reference_tree)
 
     def test_rebuild(self):
         """ Rebuild tree with tree_id==1

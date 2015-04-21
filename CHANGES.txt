@@ -1,3 +1,16 @@
+0.1.1 (2015-04-21)
+==================
+
+Features
+--------
+
+- Add test for rst docs and migrate on new itcase_sphinx_theme (#40)
+
+Bug Fixes
+---------
+
+- Remove recursion from BaseNestedSets.get_tree method (#39)
+
 0.1.0 (2014-11-18)
 ==================
 

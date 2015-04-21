@@ -27,7 +27,7 @@ setup(
     test_suite="nose.collector",
     license="MIT",
     description='SQLAlchemy MPTT mixins (Nested Sets)',
-    long_description=read('README.rst'),
+    long_description=read('README.rst') + '\n' + read('CHANGES.txt'),
     install_requires=read('requirements.txt'),
     classifiers=[
         'Development Status :: 5 - Production/Stable',

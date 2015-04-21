@@ -9,8 +9,6 @@
 """
 SQLAlchemy nested sets mixin
 """
-import warnings
-
 from sqlalchemy import Column, ForeignKey, Index, Integer
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import backref, relationship
@@ -108,25 +106,6 @@ class BaseNestedSets(object):
     def level(cls):
         return Column("level", Integer, nullable=False, default=0)
 
-    @classmethod
-    def register_tree(cls):
-        """ Register for MPTT model next events:
-
-        * :mod:`sqlalchemy_mptt.events.mptt_before_insert`
-        * :mod:`sqlalchemy_mptt.events.mptt_before_update`
-        * :mod:`sqlalchemy_mptt.events.mptt_before_delete`
-
-        .. note::
-
-            Deprecated from 0.0.8 version, now it register automatically
-
-        .. code-block:: python
-            :linenos:
-
-            MyMPTTmodel.register_tree()
-        """
-        warnings.warn('Trees are registered automatically', DeprecationWarning)
-
     def move_inside(self, parent_id):
         """ Moving one node of tree inside another
 
@@ -182,7 +161,7 @@ class BaseNestedSets(object):
         return None
 
     @classmethod
-    def _get_tree_node(cls, node, json, json_fields):
+    def _node_of_get_tree_method(cls, node, json, json_fields):
         """ Helper method for ``get_tree`` and ``get_tree_reqursively``.
         """
         if json:
@@ -194,39 +173,6 @@ class BaseNestedSets(object):
         else:
             result = {'node': node}
         return result
-
-    @classmethod
-    def get_tree_reqursively(cls, session, json=False, json_fields=None):
-        """ This function recursively generate tree of current node in dict or
-        json format.
-
-        Args:
-            session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session
-
-        Kwargs:
-            json (bool): if True return JSON jqTree format
-            json_fields (function): append custom fields in JSON
-
-        Example:
-
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_tree`
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree`
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree_with_custom_field`
-        """  # noqa
-        def recursive_node_to_dict(node):
-            result = cls._get_tree_node(node, json, json_fields)
-            children = [recursive_node_to_dict(c) for c in node.children]
-            if children:
-                result['children'] = children
-            return result
-
-        nodes = session.query(cls).filter_by(parent_id=None)\
-            .order_by(cls.tree_id).all()
-        tree = []
-        for node in nodes:
-            tree.append(recursive_node_to_dict(node))
-
-        return tree
 
     @classmethod
     def get_tree(cls, session, json=False, json_fields=None):
@@ -253,7 +199,7 @@ class BaseNestedSets(object):
             return getattr(node, node.get_pk())
 
         for node in nodes:
-            result = cls._get_tree_node(node, json, json_fields)
+            result = cls._node_of_get_tree_method(node, json, json_fields)
             parent_id = node.parent_id
             # Parent detect!
             if parent_id:

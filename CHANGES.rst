@@ -1,6 +1,12 @@
 0.1.2 (2015-??-??)
 ==================
 
+Deprecation
+-----------
+
+- Delete ``BaseNestedSets.register_tree`` method
+- Delete ``BaseNestedSets.get_tree_recursively`` method
+
 0.1.1 (2015-04-21)
 ==================
 

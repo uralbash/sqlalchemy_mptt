@@ -28,7 +28,7 @@ API:
 Project uses sqlalchemy_mptt
 ----------------------------
 
-* ps_pages_
+* pyramid_pages_
 
 .. raw:: html
 
@@ -47,4 +47,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _ps_pages: https://github.com/ITCase/ps_pages
+.. _ps_pages: https://github.com/ITCase/pyramid_pages

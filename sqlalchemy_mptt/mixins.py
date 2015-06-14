@@ -239,7 +239,7 @@ class BaseNestedSets(object):
         def recursive(children, left, right, level):
             level = level + 1
             for i, node in enumerate(children):
-                same_level_right = children[i-1].right
+                same_level_right = children[i - 1].right
                 left = left + 1
 
                 if i > 0:

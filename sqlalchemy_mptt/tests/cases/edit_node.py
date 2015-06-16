@@ -14,33 +14,35 @@ class Changes(object):
                                                   |          |
             4                                  14(9)15   18(11)19
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 4).one()
         node.visible = True
         self.session.add(node)
         #                 id lft rgt lvl parent tree
-        self.assertEqual([(1,   1, 22, 1, None, 1),
-                          (2,   2,  5, 2,  1, 1),
-                          (3,   3,  4, 3,  2, 1),
-                          (4,   6, 11, 2,  1, 1),
-                          (5,   7,  8, 3,  4, 1),
-                          (6,   9, 10, 3,  4, 1),
-                          (7,  12, 21, 2,  1, 1),
-                          (8,  13, 16, 3,  7, 1),
-                          (9,  14, 15, 4,  8, 1),
-                          (10, 17, 20, 3,  7, 1),
-                          (11, 18, 19, 4, 10, 1),
+        self.assertEqual(
+            [(1,   1, 22, 1, None, 1),
+             (2,   2,  5, 2,  1, 1),
+             (3,   3,  4, 3,  2, 1),
+             (4,   6, 11, 2,  1, 1),
+             (5,   7,  8, 3,  4, 1),
+             (6,   9, 10, 3,  4, 1),
+             (7,  12, 21, 2,  1, 1),
+             (8,  13, 16, 3,  7, 1),
+             (9,  14, 15, 4,  8, 1),
+             (10, 17, 20, 3,  7, 1),
+             (11, 18, 19, 4, 10, 1),
 
-                          (12,  1, 22, 1, None, 2),
-                          (13,  2,  5, 2, 12, 2),
-                          (14,  3,  4, 3, 13, 2),
-                          (15,  6, 11, 2, 12, 2),
-                          (16,  7,  8, 3, 15, 2),
-                          (17,  9, 10, 3, 15, 2),
-                          (18, 12, 21, 2, 12, 2),
-                          (19, 13, 16, 3, 18, 2),
-                          (20, 14, 15, 4, 19, 2),
-                          (21, 17, 20, 3, 18, 2),
-                          (22, 18, 19, 4, 21, 2)], self.result.all())
+             (12,  1, 22, 1, None, 2),
+             (13,  2,  5, 2, 12, 2),
+             (14,  3,  4, 3, 13, 2),
+             (15,  6, 11, 2, 12, 2),
+             (16,  7,  8, 3, 15, 2),
+             (17,  9, 10, 3, 15, 2),
+             (18, 12, 21, 2, 12, 2),
+             (19, 13, 16, 3, 18, 2),
+             (20, 14, 15, 4, 19, 2),
+             (21, 17, 20, 3, 18, 2),
+             (22, 18, 19, 4, 21, 2)], self.result.all())  # flake8: noqa
 
     def test_update_wo_move_like_sacrud_save(self):
         """ Just change attr from node w/o move
@@ -56,7 +58,8 @@ class Changes(object):
                                                   |          |
             4                                  14(9)15   18(11)19
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 4).one()
         node.parent_id = '1'
         node.visible = True
         self.session.add(node)
@@ -217,7 +220,8 @@ class Changes(object):
                                     |          |
             4                     8(9)9    12(11)13
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 4).one()
         self.session.delete(node)
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 16, 1, None, 1),
@@ -266,7 +270,8 @@ class Changes(object):
                                    |
                 5                9(9)10
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 8).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 8).one()
         node.parent_id = 5
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -320,7 +325,8 @@ class Changes(object):
                      |
                 6  6(9)7
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 4).one()
         node.parent_id = 2
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -377,7 +383,8 @@ class Changes(object):
                 5                                15(9)16
         """
 
-        node = self.session.query(self.model).filter(self.model.ppk == 8).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 8).one()
         node.parent_id = 10
         self.session.add(node)
         #                 id lft rgt lvl parent tree

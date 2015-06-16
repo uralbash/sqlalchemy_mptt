@@ -24,6 +24,16 @@ Base = declarative_base()
 class Tree(Base, BaseNestedSets):
     __tablename__ = "tree"
 
+    id = Column(Integer, primary_key=True)
+    visible = Column(Boolean)
+
+    def __repr__(self):
+        return "<Node (%s)>" % self.id
+
+
+class TreeWithCustomId(Base, BaseNestedSets):
+    __tablename__ = "tree2"
+
     ppk = Column('idd', Integer, primary_key=True)
     visible = Column(Boolean)
 
@@ -36,3 +46,8 @@ class Tree(Base, BaseNestedSets):
 class TestTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = Tree
+
+
+class TestTreeWithCustomId(TreeTestingMixin, unittest.TestCase):
+    base = Base
+    model = TreeWithCustomId

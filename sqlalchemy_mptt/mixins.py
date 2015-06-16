@@ -55,18 +55,17 @@ class BaseNestedSets(object):
         cls.__mapper__.batch = False
 
     @classmethod
-    def get_pk(cls):
+    def get_pk_name(cls):
         return getattr(cls, 'sqlalchemy_mptt_pk_name', 'id')
 
     @classmethod
-    def get_db_pk(cls):
-        pk = getattr(cls, cls.get_pk())
-        return pk.name or cls.get_pk()
+    def get_pk_column(cls):
+        return getattr(cls, cls.get_pk_name())
 
     @classmethod
-    def get_class_pk(cls):
-        pk = cls.get_pk()
-        return '%s.%s' % (cls.__name__, pk)
+    def get_pk_with_class_name(cls):
+        pk_name = cls.get_pk_name()
+        return '%s.%s' % (cls.__name__, pk_name)
 
     @declared_attr
     def tree_id(cls):
@@ -74,10 +73,9 @@ class BaseNestedSets(object):
 
     @declared_attr
     def parent_id(cls):
-        pk_name = cls.get_pk()
-        pk = getattr(cls, pk_name)
+        pk = cls.get_pk_column()
         if not pk.name:
-            pk.name = pk_name
+            pk.name = cls.get_pk_name()
 
         return Column("parent_id", Integer,
                       ForeignKey('%s.%s' % (cls.__tablename__, pk.name),
@@ -85,13 +83,13 @@ class BaseNestedSets(object):
 
     @declared_attr
     def parent(cls):
-        pk = getattr(cls, cls.get_pk())
+        pk = getattr(cls, cls.get_pk_name())
         return relationship(
             cls, primaryjoin=lambda: pk == cls.parent_id,
             order_by=lambda: cls.left,
             backref=backref('children', cascade="all,delete",
                             order_by=lambda: cls.left),
-            remote_side=cls.get_class_pk(),  # for show in sacrud relation
+            remote_side=cls.get_pk_with_class_name(),
         )
 
     @declared_attr
@@ -140,7 +138,7 @@ class BaseNestedSets(object):
         """
         session = Session.object_session(self)
         table = _get_tree_table(self.__mapper__)
-        pk = getattr(table.c, self.get_db_pk())
+        pk = getattr(table.c, self.get_pk_column().name)
         node = session.query(table).filter(pk == node_id).one()
         self.parent_id = node.parent_id
         self.mptt_move_before = node_id
@@ -165,9 +163,9 @@ class BaseNestedSets(object):
         """ Helper method for ``get_tree`` and ``get_tree_reqursively``.
         """
         if json:
-            pk = getattr(node, node.get_pk())
+            pk_name = node.get_pk_name()
             # jqTree or jsTree format
-            result = {'id': pk, 'label': node.__repr__()}
+            result = {'id': getattr(node, pk_name), 'label': node.__repr__()}
             if json_fields:
                 result.update(json_fields(node))
         else:
@@ -196,7 +194,7 @@ class BaseNestedSets(object):
         nodes_of_level = {}
 
         def get_node_id(node):
-            return getattr(node, node.get_pk())
+            return getattr(node, node.get_pk_name())
 
         for node in nodes:
             result = cls._node_of_get_tree_method(node, json, json_fields)

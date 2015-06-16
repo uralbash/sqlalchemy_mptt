@@ -31,9 +31,9 @@ def _insert_subtree(table, connection, node_size,
     connection.execute(
         table.update(table_pk.in_(subtree))
         .values(
-            lft=table.c.lft-node_pos_left+delta_lft,
-            rgt=table.c.rgt-node_pos_right+delta_rgt,
-            level=table.c.level-node_level+parent_level+1,
+            lft=table.c.lft - node_pos_left + delta_lft,
+            rgt=table.c.rgt - node_pos_right + delta_rgt,
+            level=table.c.level - node_level + parent_level + 1,
             tree_id=parent_tree_id
         )
     )
@@ -64,8 +64,8 @@ def mptt_before_insert(mapper, connection, instance):
     https://bitbucket.org/zzzeek/sqlalchemy/src/73095b353124/examples/nested_sets/nested_sets.py?at=master
     """
     table = _get_tree_table(mapper)
-    db_pk = instance.get_db_pk()
-    table_pk = getattr(table.c, db_pk)
+    db_pk = instance.get_pk_column()
+    table_pk = getattr(table.c, db_pk.name)
 
     if not instance.parent_id:
         instance.left = 1
@@ -111,9 +111,9 @@ def mptt_before_insert(mapper, connection, instance):
 def mptt_before_delete(mapper, connection, instance, delete=True):
     table = _get_tree_table(mapper)
     tree_id = instance.tree_id
-    pk = getattr(instance, instance.get_pk())
-    db_pk = instance.get_db_pk()
-    table_pk = getattr(table.c, db_pk)
+    pk = getattr(instance, instance.get_pk_name())
+    db_pk = instance.get_pk_column()
+    table_pk = getattr(table.c, db_pk.name)
     lft, rgt = connection.execute(
         select([table.c.lft, table.c.rgt]).where(table_pk == pk)
     ).fetchone()
@@ -158,10 +158,10 @@ def mptt_before_update(mapper, connection, instance):
     """ Based on this example:
         http://stackoverflow.com/questions/889527/move-node-in-nested-set
     """
-    node_id = getattr(instance, instance.get_pk())
+    node_id = getattr(instance, instance.get_pk_name())
     table = _get_tree_table(mapper)
-    db_pk = instance.get_db_pk()
-    table_pk = getattr(table.c, db_pk)
+    db_pk = instance.get_pk_column()
+    table_pk = getattr(table.c, db_pk.name)
     mptt_move_inside = None
     left_sibling = None
     left_sibling_tree_id = None
@@ -300,7 +300,7 @@ def mptt_before_update(mapper, connection, instance):
             tree_id = left_sibling_tree_id + 1
             connection.execute(
                 table.update(table.c.tree_id > left_sibling_tree_id)
-                .values(tree_id=table.c.tree_id+1)
+                .values(tree_id=table.c.tree_id + 1)
             )
         # if just insert
         else:
@@ -310,9 +310,9 @@ def mptt_before_update(mapper, connection, instance):
         connection.execute(
             table.update(table_pk.in_(subtree))
             .values(
-                lft=table.c.lft-node_pos_left+1,
-                rgt=table.c.rgt-node_pos_left+1,
-                level=table.c.level-node_level+1,
+                lft=table.c.lft - node_pos_left + 1,
+                rgt=table.c.rgt - node_pos_left + 1,
+                level=table.c.level - node_level + 1,
                 tree_id=tree_id
             )
         )

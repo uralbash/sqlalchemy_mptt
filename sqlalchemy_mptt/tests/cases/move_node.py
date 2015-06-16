@@ -37,34 +37,36 @@ class MoveBefore(object):
                 4                               8(9)9    12(11)13
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 4).one()
         node.move_before(1)
-        #                 id lft rgt lvl parent tree
-        self.assertEqual([(1,   1, 16, 1, None, 2),
-                          (2,   2,  5, 2,  1, 2),
-                          (3,   3,  4, 3,  2, 2),
+        #    id lft rgt lvl parent tree
+        self.assertEqual(
+            [(1,   1, 16, 1, None, 2),
+             (2,   2,  5, 2,  1, 2),
+             (3,   3,  4, 3,  2, 2),
 
-                          (4,   1,  6, 1,  None, 1),
-                          (5,   2,  3, 2,  4, 1),
-                          (6,   4,  5, 2,  4, 1),
+             (4,   1,  6, 1,  None, 1),
+             (5,   2,  3, 2,  4, 1),
+             (6,   4,  5, 2,  4, 1),
 
-                          (7,   6, 15, 2,  1, 2),
-                          (8,   7, 10, 3,  7, 2),
-                          (9,   8,  9, 4,  8, 2),
-                          (10, 11, 14, 3,  7, 2),
-                          (11, 12, 13, 4, 10, 2),
+             (7,   6, 15, 2,  1, 2),
+             (8,   7, 10, 3,  7, 2),
+             (9,   8,  9, 4,  8, 2),
+             (10, 11, 14, 3,  7, 2),
+             (11, 12, 13, 4, 10, 2),
 
-                          (12,  1, 22, 1, None, 3),
-                          (13,  2,  5, 2, 12, 3),
-                          (14,  3,  4, 3, 13, 3),
-                          (15,  6, 11, 2, 12, 3),
-                          (16,  7,  8, 3, 15, 3),
-                          (17,  9, 10, 3, 15, 3),
-                          (18, 12, 21, 2, 12, 3),
-                          (19, 13, 16, 3, 18, 3),
-                          (20, 14, 15, 4, 19, 3),
-                          (21, 17, 20, 3, 18, 3),
-                          (22, 18, 19, 4, 21, 3)], self.result.all())
+             (12,  1, 22, 1, None, 3),
+             (13,  2,  5, 2, 12, 3),
+             (14,  3,  4, 3, 13, 3),
+             (15,  6, 11, 2, 12, 3),
+             (16,  7,  8, 3, 15, 3),
+             (17,  9, 10, 3, 15, 3),
+             (18, 12, 21, 2, 12, 3),
+             (19, 13, 16, 3, 18, 3),
+             (20, 14, 15, 4, 19, 3),
+             (21, 17, 20, 3, 18, 3),
+             (22, 18, 19, 4, 21, 3)], self.result.all())  # flake8: noqa
 
     def test_move_one_tree_before_another(self):
         """ For example move node(12) before node(1)
@@ -96,7 +98,7 @@ class MoveBefore(object):
 
         """
         node = self.session.query(self.model)\
-            .filter(self.model.ppk == 12).one()
+            .filter(self.model.get_pk_column() == 12).one()
         node.move_before("1")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 2),
@@ -151,7 +153,8 @@ class MoveBefore(object):
             4                                      18(11)19
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 8).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 8).one()
         node.move_before("4")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
@@ -180,7 +183,7 @@ class MoveBefore(object):
 
     def test_move_one_tree_before_other_tree(self):
         node = self.session.query(self.model).\
-            filter(self.model.ppk == 12).one()
+            filter(self.model.get_pk_column() == 12).one()
         node.move_before("1")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 2),
@@ -235,7 +238,8 @@ class MoveBefore(object):
             4                                             18(20)19   22(22)23
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 8).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 8).one()
         node.move_before("15")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 18, 1, None, 1),
@@ -263,8 +267,6 @@ class MoveBefore(object):
                           (20, 18, 19, 4, 19, 2),
                           (21, 21, 24, 3, 18, 2),
                           (22, 22, 23, 4, 21, 2)], self.result.all())
-
-
 
 
 class MoveAfter(object):
@@ -297,7 +299,8 @@ class MoveAfter(object):
                     4                    10(9)11            18(11)19
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 8).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 8).one()
         node.move_after("5")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
@@ -358,7 +361,7 @@ class MoveAfter(object):
 
         """
         node = self.session.query(self.model)\
-            .filter(self.model.ppk == 15).one()
+            .filter(self.model.get_pk_column() == 15).one()
         node.move_after("1")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),
@@ -388,7 +391,7 @@ class MoveAfter(object):
                           (22, 12, 13, 4, 21, 3)], self.result.all())
 
         node = self.session.query(self.model)\
-            .filter(self.model.ppk == 20).one()
+            .filter(self.model.get_pk_column() == 20).one()
         node.move_after("1")
         """ level           tree_id = 1
             1                    1(1)22
@@ -474,7 +477,8 @@ class MoveAfter(object):
                 4                                  14(11)15
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 8).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 8).one()
         node.move_after("1")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 18, 1, None, 1),
@@ -532,7 +536,8 @@ class MoveAfter(object):
 
                           id lft rgt lvl parent tree
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 8).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 8).one()
         node.parent_id = None
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -589,7 +594,8 @@ class MoveAfter(object):
 
                           id lft rgt lvl parent tree
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 7).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 7).one()
         node.parent_id = None
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -645,7 +651,8 @@ class MoveAfter(object):
 
                           id lft rgt lvl parent tree
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 7).one()
+        node = self.session.query(self.model).\
+            filter(self.model.get_pk_column() == 7).one()
         node.move_after("1")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 12, 1, None, 1),
@@ -704,7 +711,8 @@ class MoveInside(object):
             4          8(5)9  10(6)11                 20(20)21  24(22)25
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 4).one()
         node.parent_id = 15
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -759,7 +767,7 @@ class MoveInside(object):
 
         """  # noqa
         node = self.session.query(self.model).\
-            filter(self.model.ppk == 12).one()
+            filter(self.model.get_pk_column() == 12).one()
         node.parent_id = 7
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -814,7 +822,8 @@ class MoveInside(object):
             4          8(5)9  10(6)11                 20(20)21  24(22)25
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 4).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 4).one()
         node.move_inside("15")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 16, 1, None, 1),
@@ -873,7 +882,8 @@ class MoveInside(object):
                                                             ↑        |
                                                             ↑________|
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 1).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 1).one()
         node.parent_id = 11
         self.session.add(node)
         #                 id lft rgt lvl parent tree
@@ -929,7 +939,8 @@ class MoveInside(object):
                 4                                  14(9)15   18(11)19
 
         """
-        node = self.session.query(self.model).filter(self.model.ppk == 6).one()
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 6).one()
         node.move_inside("4")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, 1),

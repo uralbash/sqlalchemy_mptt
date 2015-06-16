@@ -6,6 +6,7 @@
 #
 # Distributed under terms of the MIT license.
 
+
 class MoveBefore(object):
 
     def test_move_before_to_top_level(self):

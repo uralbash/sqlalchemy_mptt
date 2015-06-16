@@ -8,10 +8,10 @@
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
-from cases.edit_node import Changes
-from cases.initialize import Initialize
-from cases.move_node import MoveAfter, MoveBefore, MoveInside
-from cases.get_tree import Tree
+from .cases.edit_node import Changes
+from .cases.initialize import Initialize
+from .cases.move_node import MoveAfter, MoveBefore, MoveInside
+from .cases.get_tree import Tree
 from sqlalchemy_mptt import mptt_sessionmaker
 
 

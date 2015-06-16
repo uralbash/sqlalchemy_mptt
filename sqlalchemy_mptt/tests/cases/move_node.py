@@ -38,7 +38,7 @@ class MoveBefore(object):
 
         """
         node = self.session.query(self.model).filter(self.model.ppk == 4).one()
-        node.move_before("1")
+        node.move_before(1)
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 16, 1, None, 2),
                           (2,   2,  5, 2,  1, 2),
@@ -65,6 +65,63 @@ class MoveBefore(object):
                           (20, 14, 15, 4, 19, 3),
                           (21, 17, 20, 3, 18, 3),
                           (22, 18, 19, 4, 21, 3)], self.result.all())
+
+    def test_move_one_tree_before_another(self):
+        """ For example move node(12) before node(1)
+
+        initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
+
+        .. code::
+                                        <--------------------------------
+                                                                        |
+            level           Nested sets tree1                           |
+                1                    1(1)22                             |
+                        _______________|___________________             |
+                       |               |                   |            |
+                2    2(2)5           6(4)11             12(7)21         |
+                       |               ^                   ^            |
+                3    3(3)4       7(5)8   9(6)10    13(8)16   17(10)20   |
+                                                      |          |      |
+                4                                  14(9)15   18(11)19   |
+                                                                        |
+                level           Nested sets tree2                       |
+                1                    1(12)22 ----------------------------
+                        _______________|___________________
+                       |               |                   |
+                2    2(13)5         6(15)11             12(18)21
+                       |               ^                    ^
+                3    3(14)4     7(16)8   9(17)10   13(19)16   17(21)20
+                                                       |          |
+                4                                  14(20)15   18(22)19
+
+        """
+        node = self.session.query(self.model)\
+            .filter(self.model.ppk == 12).one()
+        node.move_before("1")
+        #                 id lft rgt lvl parent tree
+        self.assertEqual([(1,   1, 22, 1, None, 2),
+                          (2,   2,  5, 2,  1, 2),
+                          (3,   3,  4, 3,  2, 2),
+                          (4,   6, 11, 2,  1, 2),
+                          (5,   7,  8, 3,  4, 2),
+                          (6,   9, 10, 3,  4, 2),
+                          (7,  12, 21, 2,  1, 2),
+                          (8,  13, 16, 3,  7, 2),
+                          (9,  14, 15, 4,  8, 2),
+                          (10, 17, 20, 3,  7, 2),
+                          (11, 18, 19, 4, 10, 2),
+
+                          (12,  1, 22, 1, None, 1),
+                          (13,  2,  5, 2, 12, 1),
+                          (14,  3,  4, 3, 13, 1),
+                          (15,  6, 11, 2, 12, 1),
+                          (16,  7,  8, 3, 15, 1),
+                          (17,  9, 10, 3, 15, 1),
+                          (18, 12, 21, 2, 12, 1),
+                          (19, 13, 16, 3, 18, 1),
+                          (20, 14, 15, 4, 19, 1),
+                          (21, 17, 20, 3, 18, 1),
+                          (22, 18, 19, 4, 21, 1)], self.result.all())
 
     def test_move_before_function(self):
         """ For example move node(8) before node(4)

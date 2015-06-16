@@ -4,9 +4,8 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from . import TreeTestingMixin
 from ..mixins import BaseNestedSets
-from .tree_testing_base import TreeTestingMixin
-
 
 Base = declarative_base()
 

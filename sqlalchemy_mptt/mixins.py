@@ -189,7 +189,7 @@ class BaseNestedSets(object):
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree`
         * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree_with_custom_field`
         """  # noqa
-        nodes = session.query(cls).order_by(cls.level).all()
+        nodes = session.query(cls).order_by(cls.level, cls.left).all()
         tree = []
         nodes_of_level = {}
 

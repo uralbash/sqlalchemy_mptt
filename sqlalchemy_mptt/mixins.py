@@ -199,17 +199,17 @@ class BaseNestedSets(object):
         for node in nodes:
             result = cls._node_of_get_tree_method(node, json, json_fields)
             parent_id = node.parent_id
-            # Parent detect!
-            if parent_id:
-                # Find parent in tree list!
-                if parent_id in nodes_of_level.keys():
-                    if 'children' not in nodes_of_level[parent_id]:
-                        nodes_of_level[parent_id]['children'] = []
-                    # Append to parent!
-                    nl = nodes_of_level[parent_id]['children']
-                    nl.append(result)
-                    nodes_of_level[get_node_id(node)] = nl[-1]
-            else:
+            if parent_id:  # for nodes with parent
+                # Find parent in the tree
+                if parent_id not in nodes_of_level.keys():
+                    continue
+                if 'children' not in nodes_of_level[parent_id]:
+                    nodes_of_level[parent_id]['children'] = []
+                # Append node to parent
+                nl = nodes_of_level[parent_id]['children']
+                nl.append(result)
+                nodes_of_level[get_node_id(node)] = nl[-1]
+            else:  # for top level nodes
                 tree.append(result)
                 nodes_of_level[get_node_id(node)] = tree[-1]
         return tree

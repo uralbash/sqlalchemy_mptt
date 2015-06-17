@@ -88,8 +88,11 @@ class TreeTestingMixin(
         Session = mptt_sessionmaker(sessionmaker(bind=self.engine))
         self.session = Session()
         self.base.metadata.create_all(self.engine)
-        fixture = Fixtures(self.session)
-        fixture.add(self.model, 'fixtures/tree.json')
+        self.fixture = Fixtures(self.session)
+        self.fixture.add(
+            self.model,
+            os.path.join('fixtures', getattr(self, 'fixtures', 'tree.json'))
+        )
 
         self.result = self.session.query(
             self.model.get_pk_column(), self.model.left, self.model.right,

@@ -1,3 +1,16 @@
+0.1.3 (2015-06-17)
+==================
+
+- Add test for swap trees
+- rename ``get_pk`` method to ``get_pk_name``
+- rename ``get_db_pk`` method to ``get_pk_column``
+- rename ``get_class_pk`` method to ``get_pk_with_class_name``
+
+Bug Fixes
+---------
+
+- Fix order of elements in tree
+
 0.1.2 (2015-04-22)
 ==================
 

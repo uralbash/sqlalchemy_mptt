@@ -56,7 +56,9 @@ def _insert_subtree(table, connection, node_size,
 
 
 def _get_tree_table(mapper):
-    return mapper.tables[0]
+    for table in mapper.tables:
+        if all(key in table.c for key in ['level', ]):
+            return table
 
 
 def mptt_before_insert(mapper, connection, instance):

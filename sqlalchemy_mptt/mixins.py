@@ -62,11 +62,6 @@ class BaseNestedSets(object):
     def get_pk_column(cls):
         return getattr(cls, cls.get_pk_name())
 
-    @classmethod
-    def get_pk_with_class_name(cls):
-        pk_name = cls.get_pk_name()
-        return '%s.%s' % (cls.__name__, pk_name)
-
     @declared_attr
     def tree_id(cls):
         return Column("tree_id", Integer)
@@ -82,14 +77,14 @@ class BaseNestedSets(object):
                                  ondelete='CASCADE'))
 
     @declared_attr
-    def parent(cls):
-        pk = getattr(cls, cls.get_pk_name())
+    def parent(self):
         return relationship(
-            cls, primaryjoin=lambda: pk == cls.parent_id,
-            order_by=lambda: cls.left,
+            self,
+            order_by=lambda: self.left,
+            foreign_keys=[self.parent_id],
+            remote_side='{}.{}'.format(self.__name__, self.get_pk_name()),
             backref=backref('children', cascade="all,delete",
-                            order_by=lambda: cls.left),
-            remote_side=cls.get_pk_with_class_name(),
+                            order_by=lambda: self.left),
         )
 
     @declared_attr

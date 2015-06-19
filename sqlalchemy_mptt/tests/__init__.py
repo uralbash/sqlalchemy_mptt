@@ -57,6 +57,7 @@ class Fixtures(object):
             if hasattr(model, 'sqlalchemy_mptt_pk_name'):
                 fixture[model.sqlalchemy_mptt_pk_name] = fixture.pop('id')
             self.session.add(model(**fixture))
+            self.session.flush()
 
 
 class TreeTestingMixin(

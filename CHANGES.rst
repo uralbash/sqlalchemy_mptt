@@ -1,3 +1,13 @@
+0.1.4 (2015-06-19)
+==================
+
+- delete method ``get_pk_with_class_name``
+
+Bug Fixes
+---------
+
+- fix ``_get_tree_table`` function for inheritance models
+
 0.1.3 (2015-06-17)
 ==================
 

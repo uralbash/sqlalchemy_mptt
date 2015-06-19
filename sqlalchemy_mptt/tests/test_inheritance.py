@@ -110,9 +110,59 @@ class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
         # hierarchies:
         # http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update
         #
-        # tl;dr: This test will always fail on specialized classes.
+        # This test will always fail on specialized classes.
         try:
             super(TestSpecializedTree, self).test_rebuild()
+        except Exception:
+            import nose
+            raise nose.SkipTest()
+        else:
+            raise AssertionError('Failure expected')  # pragma: no cover
+
+
+Base2 = declarative_base()
+
+
+class BaseInheritance(Base2):
+    __tablename__ = "base_inheritance"
+
+    ppk = sa.Column('idd', sa.Integer, primary_key=True)
+    type = sa.Column(sa.Integer, default=0)
+    visible = sa.Column(sa.Boolean)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 0,
+        'polymorphic_on': type,
+    }
+
+    def __repr__(self):
+        return "<Node (%s)>" % self.ppk
+
+
+class InheritanceTree(BaseInheritance, BaseNestedSets):
+    __tablename__ = "inheriance_tree"
+
+    ppk = sa.Column('idd', sa.Integer, sa.ForeignKey(BaseInheritance.ppk),
+                    primary_key=True)
+    sqlalchemy_mptt_pk_name = 'ppk'
+
+    __mapper_args__ = {
+        'polymorphic_identity': 1,
+    }
+
+
+class TestInheritanceTree(TreeTestingMixin, unittest.TestCase):
+    base = Base2
+    model = InheritanceTree
+
+    def test_rebuild(self):
+        # See the following URL for caveats when using update on mapped
+        # hierarchies:
+        # http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update
+        #
+        # This test will always fail on specialized classes.
+        try:
+            super(TestInheritanceTree, self).test_rebuild()
         except Exception:
             import nose
             raise nose.SkipTest()

@@ -57,7 +57,7 @@ def _insert_subtree(table, connection, node_size,
 
 def _get_tree_table(mapper):
     for table in mapper.tables:
-        if all(key in table.c for key in ['level', ]):
+        if all(key in table.c for key in ['level', 'lft', 'rgt', 'parent_id']):
             return table
 
 

@@ -11,7 +11,7 @@ SQLAlchemy nested sets mixin
 """
 from sqlalchemy import Column, ForeignKey, Index, Integer
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import backref, relationship
+from sqlalchemy.orm import backref, object_session, relationship
 from sqlalchemy.orm.session import Session
 
 from .events import _get_tree_table
@@ -104,8 +104,8 @@ class BaseNestedSets(object):
 
         For example see:
 
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_inside_function`
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_inside_to_the_same_parent_function`
+        * :mod:`sqlalchemy_mptt.tests.cases.move_node.test_move_inside_function`
+        * :mod:`sqlalchemy_mptt.tests.cases.move_node.test_move_inside_to_the_same_parent_function`
         """  # noqa
         session = Session.object_session(self)
         self.parent_id = parent_id
@@ -115,7 +115,7 @@ class BaseNestedSets(object):
     def move_after(self, node_id):
         """ Moving one node of tree after another
 
-        For example see :mod:`sqlalchemy_mptt.tests.TestTree.test_move_after_function`
+        For example see :mod:`sqlalchemy_mptt.tests.cases.move_node.test_move_after_function`
         """  # noqa
         session = Session.object_session(self)
         self.parent_id = self.parent_id
@@ -127,10 +127,10 @@ class BaseNestedSets(object):
 
         For example see:
 
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_function`
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_to_other_tree`
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_move_before_to_top_level`
-        """
+        * :mod:`sqlalchemy_mptt.tests.cases.move_node.test_move_before_function`
+        * :mod:`sqlalchemy_mptt.tests.cases.move_node.test_move_before_to_other_tree`
+        * :mod:`sqlalchemy_mptt.tests.cases.move_node.test_move_before_to_top_level`
+        """  # noqa
         session = Session.object_session(self)
         table = _get_tree_table(self.__mapper__)
         pk = getattr(table.c, self.get_pk_column().name)
@@ -142,7 +142,7 @@ class BaseNestedSets(object):
     def leftsibling_in_level(self):
         """ Node to the left of the current node at the same level
 
-        For example see :mod:`sqlalchemy_mptt.tests.TestTree.test_leftsibling_in_level`
+        For example see :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_leftsibling_in_level`
         """  # noqa
         table = _get_tree_table(self.__mapper__)
         session = Session.object_session(self)
@@ -154,8 +154,8 @@ class BaseNestedSets(object):
         return None
 
     @classmethod
-    def _node_of_get_tree_method(cls, node, json, json_fields):
-        """ Helper method for ``get_tree`` and ``get_tree_reqursively``.
+    def _node_to_dict(cls, node, json, json_fields):
+        """ Helper method for ``get_tree``.
         """
         if json:
             pk_name = node.get_pk_name()
@@ -168,7 +168,7 @@ class BaseNestedSets(object):
         return result
 
     @classmethod
-    def get_tree(cls, session, json=False, json_fields=None):
+    def get_tree(cls, session=None, json=False, json_fields=None, query=None):
         """ This function generate tree of current node in dict or json format.
 
         Args:
@@ -177,25 +177,45 @@ class BaseNestedSets(object):
         Kwargs:
             json (bool): if True return JSON jqTree format
             json_fields (function): append custom fields in JSON
+            query (function): it takes :class:`sqlalchemy.orm.query.Query`
+            object as an argument, and returns in a modified form
+
+                ::
+
+                    def query(nodes):
+                        return nodes.filter(node.__class__.tree_id.is_(node.tree_id))
+
+                    node.get_tree(session=DBSession, json=True, query=query)
 
         Example:
 
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_tree`
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree`
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_get_json_tree_with_custom_field`
+        * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_get_tree`
+        * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_get_json_tree`
+        * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_get_json_tree_with_custom_field`
         """  # noqa
-        nodes = session.query(cls)\
-            .order_by(cls.tree_id, cls.level, cls.left).all()
         tree = []
         nodes_of_level = {}
+
+        # get orm session
+        if not session:
+            session = object_session(cls)
+
+        # handle custom query
+        nodes = session.query(cls)
+        if query:
+            nodes = query(nodes)
+        nodes = nodes.order_by(cls.tree_id, cls.level, cls.left).all()
+
+        # search minimal level of nodes.
+        min_level = min([node.level for node in nodes])
 
         def get_node_id(node):
             return getattr(node, node.get_pk_name())
 
         for node in nodes:
-            result = cls._node_of_get_tree_method(node, json, json_fields)
+            result = cls._node_to_dict(node, json, json_fields)
             parent_id = node.parent_id
-            if parent_id:  # for nodes with parent
+            if node.level != min_level:  # for cildren
                 # Find parent in the tree
                 if parent_id not in nodes_of_level.keys():
                     continue
@@ -210,6 +230,36 @@ class BaseNestedSets(object):
                 nodes_of_level[get_node_id(node)] = tree[-1]
         return tree
 
+    def drilldown_tree(self, session=None, json=False, json_fields=None):
+        """
+        node7.drilldown_tree()
+
+        .. code::
+
+            level           Nested sets example
+            1                    1(1)22       ---------------------
+                    _______________|_________|_________            |
+                   |               |         |         |           |
+            2    2(2)5           6(4)11      |      12(7)21        |
+                   |               ^         |         ^           |
+            3    3(3)4       7(5)8   9(6)10  | 13(8)16   17(10)20  |
+                                             |    |          |     |
+            4                                | 14(9)15   18(11)19  |
+                                             |                     |
+                                              ---------------------
+
+        Example:
+
+            * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_drilldown_tree`
+        """
+        def query(nodes):
+            table = self.__class__
+            return nodes.filter(table.tree_id == self.tree_id)\
+                .filter(table.left >= self.left)\
+                .filter(table.right <= self.right)
+        return self.get_tree(session, json=json, json_fields=json_fields,
+                             query=query)
+
     @classmethod
     def rebuild_tree(cls, session, tree_id):
         """ This function rebuid tree.
@@ -220,7 +270,7 @@ class BaseNestedSets(object):
 
         Example:
 
-        * :mod:`sqlalchemy_mptt.tests.TestTree.test_rebuild`
+        * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_rebuild`
         """
         session.query(cls).filter_by(tree_id=tree_id)\
             .update({cls.left: 0, cls.right: 0, cls.level: 0})

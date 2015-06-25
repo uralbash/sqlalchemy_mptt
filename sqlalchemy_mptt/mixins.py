@@ -169,7 +169,9 @@ class BaseNestedSets(object):
 
     @classmethod
     def get_tree(cls, session=None, json=False, json_fields=None, query=None):
-        """ This function generate tree of current node in dict or json format.
+        """ This method generate tree of current node table in dict or json
+        format. You can make custom query with attribute ``query``. By default
+        it return all nodes in table.
 
         Args:
             session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session
@@ -231,24 +233,28 @@ class BaseNestedSets(object):
         return tree
 
     def drilldown_tree(self, session=None, json=False, json_fields=None):
-        """
-        node7.drilldown_tree()
+        """ This method generate a branch from a tree, begining with current
+        node.
 
-        .. code::
+        For example:
 
-            level           Nested sets example
-            1                    1(1)22       ---------------------
-                    _______________|_________|_________            |
-                   |               |         |         |           |
-            2    2(2)5           6(4)11      |      12(7)21        |
-                   |               ^         |         ^           |
-            3    3(3)4       7(5)8   9(6)10  | 13(8)16   17(10)20  |
-                                             |    |          |     |
-            4                                | 14(9)15   18(11)19  |
-                                             |                     |
-                                              ---------------------
+            node7.drilldown_tree()
 
-        Example:
+            .. code::
+
+                level           Nested sets example
+                1                    1(1)22       ---------------------
+                        _______________|_________|_________            |
+                       |               |         |         |           |
+                2    2(2)5           6(4)11      |      12(7)21        |
+                       |               ^         |         ^           |
+                3    3(3)4       7(5)8   9(6)10  | 13(8)16   17(10)20  |
+                                                 |    |          |     |
+                4                                | 14(9)15   18(11)19  |
+                                                 |                     |
+                                                  ---------------------
+
+        Example in tests:
 
             * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_drilldown_tree`
         """
@@ -262,7 +268,7 @@ class BaseNestedSets(object):
 
     @classmethod
     def rebuild_tree(cls, session, tree_id):
-        """ This function rebuid tree.
+        """ This method rebuid tree.
 
         Args:
             session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session

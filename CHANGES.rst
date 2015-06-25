@@ -1,3 +1,9 @@
+0.1.5 (2015-06-25)
+==================
+
+- Add drilldown_tree method (see #41)
+- Add custom ``query`` atribute to ``get_tree`` method
+
 0.1.4 (2015-06-19)
 ==================
 

@@ -29,6 +29,7 @@ setup(
     description='SQLAlchemy MPTT mixins (Nested Sets)',
     long_description=read('README.rst') + '\n' + read('CHANGES.rst'),
     install_requires=read('requirements.txt'),
+    tests_require=read('requirements.txt') + read('requirements-test.txt'),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',

@@ -79,15 +79,16 @@ class Tree(object):
 
             OK
         """  # noqa
-        from datetime import datetime
+        # from datetime import datetime
         self.session.commit()
 
         # Get tree by for cycle
         self.start_query_counter()
         self.assertEqual(0, len(self.stmts))
-        startTime = datetime.now()
+        # startTime = datetime.now()
         self.model.get_tree(self.session)
-        print("Get tree: {!s:>26}".format(datetime.now() - startTime))
+        # delta = datetime.now() - startTime
+        # print("Get tree: {!s:>26}".format(delta))
         self.assertEqual(1, len(self.stmts))
         self.stop_query_counter()
 

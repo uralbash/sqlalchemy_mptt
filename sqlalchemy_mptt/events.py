@@ -262,7 +262,6 @@ def mptt_before_update(mapper, connection, instance):
         ).fetchone()
         if not node_parent_id and node_tree_id == parent_tree_id:
             instance.parent_id = None
-            # print "%s - %s" % (parent_tree_id, instance.tree_id)
             return
 
     # delete from old tree

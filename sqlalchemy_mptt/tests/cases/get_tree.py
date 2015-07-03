@@ -4,6 +4,23 @@ def get_obj(session, model, id):
 
 class Tree(object):
 
+    def test_get_empty_tree(self):
+        """
+            No rows in database.
+        """
+        self.session.query(self.model).delete()
+        self.session.flush()
+        tree = self.model.get_tree(self.session)
+        self.assertEqual(tree, [])
+
+    def test_get_empty_tree_with_custom_query(self):
+        """
+            No rows with id < 0.
+        """
+        query = lambda x: x.filter(self.model.get_pk_column() < 0)
+        tree = self.model.get_tree(self.session, query=query)
+        self.assertEqual(tree, [])
+
     def test_get_tree(self):
         """.. note::
 

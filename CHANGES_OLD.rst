@@ -1,0 +1,43 @@
+0.0.9 (2014-10-09)
+==================
+
+- Add MANIFEST.in
+- New docs
+- fixes in setup.py
+
+0.0.8 (2014-08-15)
+==================
+
+- Add CONTRIBUTORS.txt
+
+Features
+--------
+
+- Automatically register tree classes enhancement (#28)
+- Added support polymorphic tree models (#24)
+
+Bug Fixes
+---------
+
+- Fix expire left/right attributes of parent somewhen after the `before_insert` event (#30)
+- Fix tree_id is incorrectly set to an existing tree if no parent is set (#23)
+- Fix package is not installable if sqlalchemy is not (yet) installed (#22)
+
+0.0.7 (2014-08-04)
+==================
+
+- Add LICENSE.txt
+
+Bug Fixes
+---------
+
+- fix get_db_pk function
+
+
+0.0.6 (2014-07-31)
+==================
+
+Bug Fixes
+---------
+
+-  Allow the primary key to not be named "id" #20. See https://github.com/ITCase/sqlalchemy_mptt/issues/20

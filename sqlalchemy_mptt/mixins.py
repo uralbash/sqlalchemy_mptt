@@ -209,7 +209,7 @@ class BaseNestedSets(object):
         nodes = nodes.order_by(cls.tree_id, cls.level, cls.left).all()
 
         # search minimal level of nodes.
-        min_level = min([node.level for node in nodes])
+        min_level = min([node.level for node in nodes] or [None])
 
         def get_node_id(node):
             return getattr(node, node.get_pk_name())

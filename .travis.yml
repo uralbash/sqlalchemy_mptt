@@ -5,7 +5,7 @@
 # Copyright © 2014 uralbash <root@uralbash.ru>
 #
 # Distributed under terms of the MIT license.
-
+sudo: false
 language: python
 
 notifications:
@@ -27,7 +27,7 @@ install:
 
 script:
   - nosetests --with-coverage --cover-package=sqlalchemy_mptt --cover-erase --with-doctest
+  - ./test.sh
 
 after_success:
   coveralls
-  ./test.sh

@@ -47,4 +47,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _ps_pages: https://github.com/ITCase/pyramid_pages
+.. _pyramid_pages: https://github.com/ITCase/pyramid_pages

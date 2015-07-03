@@ -29,4 +29,5 @@ script:
   - ./test.sh
 
 after_success:
-  coveralls
+  - pip install coveralls
+  - coveralls

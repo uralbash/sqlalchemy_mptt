@@ -24,6 +24,7 @@ python:
 install:
   - pip install nose coverage coveralls
   - pip install -r requirements.txt
+  - pip install git+git://github.com/myint/rstcheck.git
 
 script:
   - nosetests --with-coverage --cover-package=sqlalchemy_mptt --cover-erase --with-doctest

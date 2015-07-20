@@ -1,12 +1,5 @@
 import os
-import re
 from setuptools import setup
-
-
-with open(os.path.join('sqlalchemy_mptt', '__init__.py'), 'r') as fh:
-    __version__ = (re.search(r'__version__\s*=\s*u?"([^"]+)"', fh.read())
-                   .group(1).strip())
-
 
 this = os.path.dirname(os.path.realpath(__file__))
 
@@ -17,7 +10,7 @@ def read(name):
 
 setup(
     name='sqlalchemy_mptt',
-    version=__version__,
+    version='0.1.7.dev1',
     url='http://github.com/ITCase/sqlalchemy_mptt/',
     author='Svintsov Dmitry',
     author_email='sacrud@uralbash.ru',

@@ -276,3 +276,44 @@ class Tree(object):
              }
         ]
         self.assertEqual(tree, reference_tree)
+
+    def test_path_to_root(self):
+        """Generate path from a leaf or intermediate node to the root.
+
+        For example:
+
+            node11.path_to_root()
+
+            .. code::
+
+                level           Nested sets example
+
+                                 -----------------------------------------
+                1               |    1(1)22                               |
+                        ________|______|_____________________             |
+                       |        |      |                     |            |
+                       |          -----+---------            |            |
+                2    2(2)5           6(4)11      | --     12(7)21         |
+                       |               ^             |    /     \         |
+                3    3(3)4       7(5)8   9(6)10      ---/----    \        |
+                                                    13(8)16 |  17(10)20   |
+                                                       |    |     |       |
+                4                                   14(9)15 | 18(11)19    |
+                                                            |             |
+                                                             -------------
+        """
+        def go(id):
+            return get_obj(self.session, self.model, id)
+
+        node11 = go(11)
+        node8 = go(8)
+        node6 = go(6)
+        node1 = go(1)
+        path_11_to_root = node11.path_to_root(self.session).all()
+        path_8_to_root = node8.path_to_root(self.session).all()
+        path_6_to_root = node6.path_to_root(self.session).all()
+        path_1_to_root = node1.path_to_root(self.session).all()
+        self.assertEqual(path_11_to_root, [go(1), go(7), go(10), go(11)])
+        self.assertEqual(path_8_to_root, [go(1), go(7), go(8)])
+        self.assertEqual(path_6_to_root, [go(1), go(4), go(6)])
+        self.assertEqual(path_1_to_root, [go(1)])

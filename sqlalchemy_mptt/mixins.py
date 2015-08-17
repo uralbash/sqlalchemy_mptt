@@ -168,6 +168,19 @@ class BaseNestedSets(object):
         return result
 
     @classmethod
+    def _base_query(cls, session=None):
+        # get orm session
+        if not session:
+            session = object_session(cls)
+
+        # handle custom query
+        return session.query(cls)
+
+    @classmethod
+    def _base_order(cls, query):
+        return query.order_by(cls.tree_id, cls.level, cls.left)
+
+    @classmethod
     def get_tree(cls, session=None, json=False, json_fields=None, query=None):
         """ This method generate tree of current node table in dict or json
         format. You can make custom query with attribute ``query``. By default
@@ -198,15 +211,11 @@ class BaseNestedSets(object):
         tree = []
         nodes_of_level = {}
 
-        # get orm session
-        if not session:
-            session = object_session(cls)
-
         # handle custom query
-        nodes = session.query(cls)
+        nodes = cls._base_query(session)
         if query:
             nodes = query(nodes)
-        nodes = nodes.order_by(cls.tree_id, cls.level, cls.left).all()
+        nodes = cls._base_order(nodes).all()
 
         # search minimal level of nodes.
         min_level = min([node.level for node in nodes] or [None])
@@ -265,6 +274,38 @@ class BaseNestedSets(object):
                 .filter(table.right <= self.right)
         return self.get_tree(session, json=json, json_fields=json_fields,
                              query=query)
+
+    def path_to_root(self, session=None):
+        """Generate path from a leaf or intermediate node to the root.
+
+        For example:
+
+            node11.path_to_root()
+
+            .. code::
+
+                level           Nested sets example
+
+                                 -----------------------------------------
+                1               |    1(1)22                               |
+                        ________|______|_____________________             |
+                       |        |      |                     |            |
+                       |         ------+---------            |            |
+                2    2(2)5           6(4)11      | --     12(7)21         |
+                       |               ^             |   /      \         |
+                3    3(3)4       7(5)8   9(6)10      ---/----    \        |
+                                                    13(8)16 |  17(10)20   |
+                                                       |    |     |       |
+                4                                   14(9)15 | 18(11)19    |
+                                                            |             |
+                                                             -------------
+        """
+        table = self.__class__
+        query = table._base_query(session)
+        query = query.filter(table.tree_id == self.tree_id)\
+            .filter(table.left <= self.left)\
+            .filter(table.right >= self.right)
+        return table._base_order(query)
 
     @classmethod
     def rebuild_tree(cls, session, tree_id):

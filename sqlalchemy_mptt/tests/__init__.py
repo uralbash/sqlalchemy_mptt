@@ -30,18 +30,18 @@
         4                                  14(20)15   18(22)19
 
 """
-import json
 import os
+import json
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import event, create_engine
 from sqlalchemy.orm import sessionmaker
-
 from sqlalchemy_mptt import mptt_sessionmaker
 
-from .cases.edit_node import Changes
 from .cases.get_tree import Tree
-from .cases.initialize import Initialize
+from .cases.edit_node import Changes
+from .cases.integrity import DataIntegrity
 from .cases.move_node import MoveAfter, MoveBefore, MoveInside
+from .cases.initialize import Initialize
 
 
 class Fixtures(object):
@@ -64,6 +64,7 @@ class TreeTestingMixin(
         Initialize,
         Changes,
         MoveAfter,
+        DataIntegrity,
         MoveBefore,
         MoveInside,
         Tree

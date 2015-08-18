@@ -2,6 +2,7 @@
 ==================
 
 - add method ``path_to_root`` (see #46)
+- add data integrity tests
 
 0.1.6 (2015-07-03)
 ==================

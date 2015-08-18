@@ -9,10 +9,10 @@
 """
 SQLAlchemy nested sets mixin
 """
-from sqlalchemy import Column, ForeignKey, Index, Integer
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import backref, object_session, relationship
+from sqlalchemy import Index, Column, Integer, ForeignKey, desc, asc
+from sqlalchemy.orm import backref, relationship, object_session
 from sqlalchemy.orm.session import Session
+from sqlalchemy.ext.declarative import declared_attr
 
 from .events import _get_tree_table
 
@@ -177,8 +177,10 @@ class BaseNestedSets(object):
         return session.query(cls)
 
     @classmethod
-    def _base_order(cls, query):
-        return query.order_by(cls.tree_id, cls.level, cls.left)
+    def _base_order(cls, query, order=asc):
+        return query.order_by(order(cls.tree_id))\
+            .order_by(order(cls.level))\
+            .order_by(order(cls.left))
 
     @classmethod
     def get_tree(cls, session=None, json=False, json_fields=None, query=None):
@@ -305,7 +307,7 @@ class BaseNestedSets(object):
         query = query.filter(table.tree_id == self.tree_id)\
             .filter(table.left <= self.left)\
             .filter(table.right >= self.right)
-        return table._base_order(query)
+        return self._base_order(query, order=desc)
 
     @classmethod
     def rebuild_tree(cls, session, tree_id):

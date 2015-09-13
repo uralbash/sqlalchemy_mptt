@@ -243,6 +243,12 @@ class BaseNestedSets(object):
                 nodes_of_level[get_node_id(node)] = tree[-1]
         return tree
 
+    def _drilldown_query(self, nodes):
+        table = self.__class__
+        return nodes.filter(table.tree_id == self.tree_id)\
+            .filter(table.left >= self.left)\
+            .filter(table.right <= self.right)
+
     def drilldown_tree(self, session=None, json=False, json_fields=None):
         """ This method generate a branch from a tree, begining with current
         node.
@@ -269,13 +275,8 @@ class BaseNestedSets(object):
 
             * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_drilldown_tree`
         """
-        def query(nodes):
-            table = self.__class__
-            return nodes.filter(table.tree_id == self.tree_id)\
-                .filter(table.left >= self.left)\
-                .filter(table.right <= self.right)
         return self.get_tree(session, json=json, json_fields=json_fields,
-                             query=query)
+                             query=self._drilldown_query)
 
     def path_to_root(self, session=None):
         """Generate path from a leaf or intermediate node to the root.

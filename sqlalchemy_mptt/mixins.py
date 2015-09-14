@@ -169,12 +169,12 @@ class BaseNestedSets(object):
 
     @classmethod
     def _base_query(cls, session=None):
-        # get orm session
-        if not session:
-            session = object_session(cls)
-
-        # handle custom query
         return session.query(cls)
+
+    def _base_query_obj(self, session=None):
+        if not session:
+            session = object_session(self)
+        return self._base_query(session)
 
     @classmethod
     def _base_order(cls, query, order=asc):
@@ -243,8 +243,10 @@ class BaseNestedSets(object):
                 nodes_of_level[get_node_id(node)] = tree[-1]
         return tree
 
-    def _drilldown_query(self, nodes):
+    def _drilldown_query(self, nodes=None):
         table = self.__class__
+        if not nodes:
+            nodes = self._base_query_obj()
         return nodes.filter(table.tree_id == self.tree_id)\
             .filter(table.left >= self.left)\
             .filter(table.right <= self.right)
@@ -275,6 +277,8 @@ class BaseNestedSets(object):
 
             * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_drilldown_tree`
         """
+        if not session:
+            session = object_session(self)
         return self.get_tree(session, json=json, json_fields=json_fields,
                              query=self._drilldown_query)
 
@@ -304,7 +308,7 @@ class BaseNestedSets(object):
                                                              -------------
         """
         table = self.__class__
-        query = table._base_query(session)
+        query = self._base_query_obj(session=session)
         query = query.filter(table.tree_id == self.tree_id)\
             .filter(table.left <= self.left)\
             .filter(table.right >= self.right)

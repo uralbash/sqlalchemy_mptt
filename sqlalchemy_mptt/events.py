@@ -354,13 +354,16 @@ class TreesManager(object):
         self.classes = set()
         self.instances = _WeakDefaultDict()
 
-    def register_mapper(self, mapper):
+    def register_mapper(self, mapper, remove=False):
         for e, h in (
             ('before_insert', self.before_insert),
             ('before_update', self.before_update),
             ('before_delete', self.before_delete),
         ):
-            event.listen(self.base_class, e, h, propagate=True)
+            if remove:
+                event.remove(self.base_class, e, h)
+            else:
+                event.listen(self.base_class, e, h, propagate=True)
         return self
 
     def register_factory(self, sessionmaker):

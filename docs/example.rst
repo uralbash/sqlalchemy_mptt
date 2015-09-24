@@ -1,7 +1,10 @@
 Example
 -------
 
-Create model with MPTT mixin and register events
+Initalize
+~~~~~~~~~
+
+Create model with MPTT mixin and register events.
 
 .. code-block:: python
     :linenos:
@@ -22,6 +25,38 @@ Create model with MPTT mixin and register events
 
         def __repr__(self):
             return "<Node (%s)>" % self.id
+
+Events
+~~~~~~
+
+Events registered automatically, but you can do it manually:
+
+.. code-block:: python
+
+   from sqlalchemy.orm import mapper
+
+   from .events import TreesManager
+   from .mixins import BaseNestedSets
+
+   tree_manager = TreesManager(BaseNestedSets)
+   tree_manager.register_mapper(mapper)  # register events before_insert,
+                                         # before_update and before_delete
+
+Or remove events if it required:
+
+.. code-block:: python
+
+   from sqlalchemy.orm import mapper
+
+   from .events import TreesManager
+   from .mixins import BaseNestedSets
+
+   tree_manager = TreesManager(BaseNestedSets)
+   tree_manager.register_mapper(mapper,       # remove events before_insert,
+                                remove=True)  # before_update and before_delete
+
+Data structure
+~~~~~~~~~~~~~~
 
 Fill table with records, for example, as shown in the picture
 

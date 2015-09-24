@@ -84,7 +84,7 @@ class BaseNestedSets(object):
             foreign_keys=[self.parent_id],
             remote_side='{}.{}'.format(self.__name__, self.get_pk_name()),
             backref=backref('children', cascade="all,delete",
-                            order_by=lambda: self.left),
+                            order_by=lambda: (self.tree_id, self.left)),
         )
 
     @declared_attr

@@ -36,9 +36,9 @@ Events registered automatically, but you can do it manually:
    from sqlalchemy.orm import mapper
 
    from sqlalchemy_mptt.events import TreesManager
-   from sqlalchemy_mptt.mixins import BaseNestedSets
+   from .models import MyUser
 
-   tree_manager = TreesManager(BaseNestedSets)
+   tree_manager = TreesManager(MyUser)
    tree_manager.register_mapper(mapper)  # register events before_insert,
                                          # before_update and before_delete
 
@@ -52,6 +52,19 @@ Or remove events if it required:
    from sqlalchemy_mptt.mixins import BaseNestedSets
 
    tree_manager = TreesManager(BaseNestedSets)
+   tree_manager.register_mapper(mapper,       # remove events before_insert,
+                                remove=True)  # before_update and before_delete
+
+Or remove for your custom model:
+
+.. code-block:: python
+
+   from sqlalchemy.orm import mapper
+
+   from sqlalchemy_mptt.events import TreesManager
+   from .models import MyUser
+
+   tree_manager = TreesManager(MyUser)
    tree_manager.register_mapper(mapper,       # remove events before_insert,
                                 remove=True)  # before_update and before_delete
 

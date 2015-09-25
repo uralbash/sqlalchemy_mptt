@@ -10,7 +10,7 @@ def read(name):
 
 setup(
     name='sqlalchemy_mptt',
-    version='0.1.9',
+    version='0.1.9.post0',
     url='http://github.com/ITCase/sqlalchemy_mptt/',
     author='Svintsov Dmitry',
     author_email='sacrud@uralbash.ru',

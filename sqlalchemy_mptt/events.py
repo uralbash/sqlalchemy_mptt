@@ -361,7 +361,8 @@ class TreesManager(object):
             ('before_delete', self.before_delete),
         ):
             if remove:
-                event.remove(self.base_class, e, h)
+                if event.contains(self.base_class, e, h):
+                    event.remove(self.base_class, e, h)
             else:
                 event.listen(self.base_class, e, h, propagate=True)
         return self

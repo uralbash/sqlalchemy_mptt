@@ -13,9 +13,7 @@ test tree
 import unittest
 
 from sqlalchemy import Column, Boolean, Integer
-from sqlalchemy.orm import mapper
 from sqlalchemy.event import contains
-from sqlalchemy_mptt.events import TreesManager
 from sqlalchemy.ext.declarative import declarative_base
 
 from . import TreeTestingMixin
@@ -56,12 +54,11 @@ class TestTreeWithCustomId(TreeTestingMixin, unittest.TestCase):
     model = TreeWithCustomId
 
 
-class Events(object):
+class Events(unittest.TestCase):
 
     def test_register(self):
-        from sqlalchemy_mptt import BaseNestedSets
-        tree_manager = TreesManager(BaseNestedSets)
-        tree_manager.register_mapper(mapper)
+        from sqlalchemy_mptt import tree_manager
+        tree_manager.register_events()
         self.assertTrue(contains(BaseNestedSets, 'before_insert',
                                  tree_manager.before_insert))
         self.assertTrue(contains(BaseNestedSets, 'before_update',
@@ -70,24 +67,24 @@ class Events(object):
                                  tree_manager.before_delete))
 
     def test_register_and_remove(self):
-        from sqlalchemy_mptt import BaseNestedSets
-        tree_manager = TreesManager(BaseNestedSets)
-        tree_manager.register_mapper(mapper)
-        tree_manager.register_mapper(mapper, remove=True)
-        self.assertFalse(contains(BaseNestedSets, 'before_insert',
+        from sqlalchemy_mptt import tree_manager
+        tree_manager.register_events()
+        tree_manager.register_events(remove=True)
+        self.assertFalse(contains(Tree, 'before_insert',
                                   tree_manager.before_insert))
-        self.assertFalse(contains(BaseNestedSets, 'before_update',
+        self.assertFalse(contains(Tree, 'before_update',
                                   tree_manager.before_update))
-        self.assertFalse(contains(BaseNestedSets, 'before_delete',
+        self.assertFalse(contains(Tree, 'before_delete',
                                   tree_manager.before_delete))
+        tree_manager.register_events()
 
     def test_remove(self):
-        from sqlalchemy_mptt import BaseNestedSets
-        tree_manager = TreesManager(BaseNestedSets)
-        tree_manager.register_mapper(mapper, remove=True)
-        self.assertFalse(contains(BaseNestedSets, 'before_insert',
+        from sqlalchemy_mptt import tree_manager
+        tree_manager.register_events(remove=True)
+        self.assertFalse(contains(Tree, 'before_insert',
                                   tree_manager.before_insert))
-        self.assertFalse(contains(BaseNestedSets, 'before_update',
+        self.assertFalse(contains(Tree, 'before_update',
                                   tree_manager.before_update))
-        self.assertFalse(contains(BaseNestedSets, 'before_delete',
+        self.assertFalse(contains(Tree, 'before_delete',
                                   tree_manager.before_delete))
+        tree_manager.register_events()

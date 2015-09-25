@@ -86,16 +86,6 @@ class TreeTestingMixin(
                      self.catch_queries)
 
     def setUp(self):
-
-        # register events
-        from .test_mixins import Tree2
-        from sqlalchemy.orm import mapper
-        from sqlalchemy_mptt.events import TreesManager
-
-        tree_manager = TreesManager(Tree2)
-        tree_manager.register_mapper(mapper)
-
-        # sqla settings
         self.engine = create_engine('sqlite:///:memory:')
         Session = mptt_sessionmaker(sessionmaker(bind=self.engine))
         self.session = Session()

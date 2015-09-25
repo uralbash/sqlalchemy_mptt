@@ -354,16 +354,16 @@ class TreesManager(object):
         self.classes = set()
         self.instances = _WeakDefaultDict()
 
-    def register_mapper(self, mapper, remove=False):
+    def register_events(self, remove=False):
         for e, h in (
             ('before_insert', self.before_insert),
             ('before_update', self.before_update),
             ('before_delete', self.before_delete),
         ):
-            if remove:
-                if event.contains(self.base_class, e, h):
-                    event.remove(self.base_class, e, h)
-            else:
+            is_event_exist = event.contains(self.base_class, e, h)
+            if remove and is_event_exist:
+                event.remove(self.base_class, e, h)
+            elif not is_event_exist:
                 event.listen(self.base_class, e, h, propagate=True)
         return self
 

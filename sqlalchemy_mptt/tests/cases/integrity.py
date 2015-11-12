@@ -97,10 +97,7 @@ class DataIntegrity(object):
         while nodes with left > self and right < self are considered descendants
         """
         table = self.model
-        tree_size = self.session.query(table).count()
-
-        pivot_idx = tree_size // 2
-        pivot = self.session.query(table).slice(pivot_idx, pivot_idx+1).one()
+        pivot = self.session.query(table).filter(table.right - table.left != 1).filter(table.parent_id != None).first()
 
         # Exclusive Tests
         ancestors = self.session.query(table).filter(table.is_ancestor_of(pivot)).all()

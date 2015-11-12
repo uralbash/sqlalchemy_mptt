@@ -34,6 +34,7 @@ Events registered automatically, but you can do it manually:
 .. code-block:: python
 
    from sqlalchemy_mptt import tree_manager
+
    tree_manager.register_events()  # register events before_insert,
                                    # before_update and before_delete
 

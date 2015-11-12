@@ -1,5 +1,4 @@
 |Build Status| |Coverage Status| |Stories in progress| |PyPI|
-|Bountysource|
 
 Library for implementing Modified Preorder Tree Traversal with your
 SQLAlchemy Models and working with trees of Model instances, like
@@ -281,5 +280,3 @@ The project is licensed under the MIT license.
    :target: https://waffle.io/itcase/sqlalchemy_mptt
 .. |PyPI| image:: http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg
    :target: https://pypi.python.org/pypi/sqlalchemy_mptt
-.. |Bountysource| image:: https://www.bountysource.com/badge/tracker?tracker_id=1148440
-   :target: https://www.bountysource.com/trackers/1148440-sqlalchemy_mptt?utm_source=1148440&utm_medium=shield&utm_campaign=TRACKER_BADGE

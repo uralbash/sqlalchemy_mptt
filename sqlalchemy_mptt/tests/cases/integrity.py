@@ -91,3 +91,36 @@ class DataIntegrity(object):
         right = self.session.query(table.right)
         keys = [x[0] for x in left.union(right)]
         self.assertEqual(len(keys), len(set(keys)))
+
+    def test_hierarchy_structure(self):
+        """ Nodes with left < self and right > self are considered ancestors,
+        while nodes with left > self and right < self are considered descendants
+        """
+        table = self.model
+        pivot = self.session.query(table).filter(table.right - table.left != 1).filter(table.parent_id != None).first()
+
+        # Exclusive Tests
+        ancestors = self.session.query(table).filter(table.is_ancestor_of(pivot)).all()
+        for ancestor in ancestors:
+            self.assertTrue(ancestor.is_ancestor_of(pivot))
+        self.assertNotIn(pivot, ancestors)
+
+        descendants = self.session.query(table).filter(table.is_descendant_of(pivot)).all()
+        for descendant in descendants:
+            self.assertTrue(descendant.is_descendant_of(pivot))
+        self.assertNotIn(pivot, descendants)
+
+        self.assertEqual(set(), set(ancestors).intersection(set(descendants)))
+
+        # Inclusive Tests - because sometimes inclusivity is nice, like with self joins
+        ancestors = self.session.query(table).filter(table.is_ancestor_of(pivot, inclusive=True)).all()
+        for ancestor in ancestors:
+            self.assertTrue(ancestor.is_ancestor_of(pivot, inclusive=True))
+        self.assertIn(pivot, ancestors)
+
+        descendants = self.session.query(table).filter(table.is_descendant_of(pivot, inclusive=True)).all()
+        for descendant in descendants:
+            self.assertTrue(descendant.is_descendant_of(pivot, inclusive=True))
+        self.assertIn(pivot, descendants)
+
+        self.assertEqual(set([pivot]), set(ancestors).intersection(set(descendants)))

@@ -13,6 +13,7 @@ from sqlalchemy import Index, Column, Integer, ForeignKey, desc, asc
 from sqlalchemy.orm import backref, relationship, object_session
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_method
 
 from .events import _get_tree_table
 
@@ -72,7 +73,7 @@ class BaseNestedSets(object):
         if not pk.name:
             pk.name = cls.get_pk_name()
 
-        return Column("parent_id", Integer,
+        return Column("parent_id", pk.type,
                       ForeignKey('%s.%s' % (cls.__tablename__, pk.name),
                                  ondelete='CASCADE'))
 
@@ -98,6 +99,30 @@ class BaseNestedSets(object):
     @declared_attr
     def level(cls):
         return Column("level", Integer, nullable=False, default=0)
+
+    @hybrid_method
+    def is_ancestor_of(self, other, inclusive=False):
+        """ class or instance level method which returns True if self is ancestor (closer to root) of other else False.
+        Optional flag `inclusive` on whether or not to treat self as ancestor of self.
+
+        For example see:
+
+        * :mod:`sqlalchemy_mptt.tests.cases.integrity.test_hierarchy_structure`
+        """
+        if inclusive:
+            return (self.tree_id == other.tree_id) & (self.left <= other.left) & (other.right <= self.right)
+        return (self.tree_id == other.tree_id) & (self.left < other.left) & (other.right < self.right)
+
+    @hybrid_method
+    def is_descendant_of(self, other, inclusive=False):
+        """ class or instance level method which returns True if self is descendant (farther from root) of other else False.
+        Optional flag `inclusive` on whether or not to treat self as descendant of self.
+
+        For example see:
+
+        * :mod:`sqlalchemy_mptt.tests.cases.integrity.test_hierarchy_structure`
+        """
+        return other.is_ancestor_of(self, inclusive)
 
     def move_inside(self, parent_id):
         """ Moving one node of tree inside another
@@ -247,9 +272,7 @@ class BaseNestedSets(object):
         table = self.__class__
         if not nodes:
             nodes = self._base_query_obj()
-        return nodes.filter(table.tree_id == self.tree_id)\
-            .filter(table.left >= self.left)\
-            .filter(table.right <= self.right)
+        return nodes.filter(self.is_ancestor_of(table, inclusive=True))
 
     def drilldown_tree(self, session=None, json=False, json_fields=None):
         """ This method generate a branch from a tree, begining with current
@@ -309,9 +332,7 @@ class BaseNestedSets(object):
         """
         table = self.__class__
         query = self._base_query_obj(session=session)
-        query = query.filter(table.tree_id == self.tree_id)\
-            .filter(table.left <= self.left)\
-            .filter(table.right >= self.right)
+        query = query.filter(table.is_ancestor_of(self, inclusive=True))
         return self._base_order(query, order=desc)
 
     @classmethod

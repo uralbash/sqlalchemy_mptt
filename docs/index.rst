@@ -49,5 +49,5 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. _ps_tree: https://github.com/ITCase/ps_tree
-.. _pyramid_pages: https://github.com/ITCase/pyramid_pages
+.. _ps_tree: https://github.com/uralbash/ps_tree
+.. _pyramid_pages: https://github.com/uralbash/pyramid_pages

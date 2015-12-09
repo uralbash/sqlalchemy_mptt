@@ -11,7 +11,7 @@ def read(name):
 setup(
     name='sqlalchemy_mptt',
     version='0.2.1.dev0',
-    url='http://github.com/ITCase/sqlalchemy_mptt/',
+    url='http://github.com/uralbash/sqlalchemy_mptt/',
     author='Svintsov Dmitry',
     author_email='sacrud@uralbash.ru',
     packages=['sqlalchemy_mptt', ],
@@ -29,7 +29,6 @@ setup(
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'Natural Language :: Russian',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         "Programming Language :: Python :: 2.6",

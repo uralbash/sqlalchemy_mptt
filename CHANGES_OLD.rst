@@ -89,4 +89,4 @@ Bug Fixes
 Bug Fixes
 ---------
 
--  Allow the primary key to not be named "id" #20. See https://github.com/ITCase/sqlalchemy_mptt/issues/20
+-  Allow the primary key to not be named "id" #20. See https://github.com/uralbash/sqlalchemy_mptt/issues/20

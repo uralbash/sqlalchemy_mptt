@@ -1,10 +1,10 @@
-|Build Status| |Coverage Status| |Stories in progress| |PyPI|
+|Build Status| |Coverage Status| |PyPI|
 
 Library for implementing Modified Preorder Tree Traversal with your
 SQLAlchemy Models and working with trees of Model instances, like
 django-mptt. Docs http://sqlalchemy-mptt.readthedocs.org/
 
-.. image:: https://cdn.rawgit.com/ITCase/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg
+.. image:: https://cdn.rawgit.com/uralbash/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg
    :alt: Nested sets traversal
    :width: 800px
 
@@ -18,7 +18,7 @@ Install from github:
 
 .. code-block:: bash
 
-    pip install git+http://github.com/ITCase/sqlalchemy_mptt.git
+    pip install git+http://github.com/uralbash/sqlalchemy_mptt.git
 
 PyPi:
 
@@ -157,7 +157,7 @@ Update node
 Move node (support multitree)
 -----------------------------
 
-.. figure:: https://cdn.rawgit.com/ITCase/sqlalchemy_mptt/master/docs/img/3_sqlalchemy_mptt_multitree.svg
+.. figure:: https://cdn.rawgit.com/uralbash/sqlalchemy_mptt/master/docs/img/3_sqlalchemy_mptt_multitree.svg
    :alt: Nested sets multitree
    :width: 600px
 
@@ -260,8 +260,7 @@ Move to top level
 Support and Development
 =======================
 
-To report bugs, use the `issue tracker <https://github.com/ITCase/sqlalchemy_mptt/issues>`_
-or `waffle board <https://waffle.io/ITCase/sqlalchemy_mptt>`_.
+To report bugs, use the `issue tracker <https://github.com/uralbash/sqlalchemy_mptt/issues>`_.
 
 We welcome any contribution: suggestions, ideas, commits with new futures, bug fixes, refactoring, docs, tests, translations etc
 
@@ -272,11 +271,9 @@ License
 
 The project is licensed under the MIT license.
 
-.. |Build Status| image:: https://travis-ci.org/ITCase/sqlalchemy_mptt.svg?branch=master
-   :target: https://travis-ci.org/ITCase/sqlalchemy_mptt
-.. |Coverage Status| image:: https://coveralls.io/repos/ITCase/sqlalchemy_mptt/badge.png
-   :target: https://coveralls.io/r/ITCase/sqlalchemy_mptt
-.. |Stories in progress| image:: https://badge.waffle.io/itcase/sqlalchemy_mptt.png?label=in%20progress&title=In%20Progress
-   :target: https://waffle.io/itcase/sqlalchemy_mptt
+.. |Build Status| image:: https://travis-ci.org/uralbash/sqlalchemy_mptt.svg?branch=master
+   :target: https://travis-ci.org/uralbash/sqlalchemy_mptt
+.. |Coverage Status| image:: https://coveralls.io/repos/uralbash/sqlalchemy_mptt/badge.png
+   :target: https://coveralls.io/r/uralbash/sqlalchemy_mptt
 .. |PyPI| image:: http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg
    :target: https://pypi.python.org/pypi/sqlalchemy_mptt

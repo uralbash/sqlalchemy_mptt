@@ -3,6 +3,7 @@
 # vim:fenc=utf-8
 #
 # Copyright © 2014 uralbash <root@uralbash.ru>
+# Copyright © 2016 Jiri Kuncar <jiri.kuncar@gmail.com>
 #
 # Distributed under terms of the MIT license.
 
@@ -43,12 +44,13 @@ class BaseNestedSets(object):
             def __repr__(self):
                 return "<Node (%s)>" % self.id
     """
+
     @declared_attr
     def __table_args__(cls):
         return (
-            Index('%s_lft_idx' % cls.__tablename__, "lft"),
-            Index('%s_rgt_idx' % cls.__tablename__, "rgt"),
-            Index('%s_level_idx' % cls.__tablename__, "level"),
+            Index('%s_lft_idx' % cls.__tablename__, cls.left.name),
+            Index('%s_rgt_idx' % cls.__tablename__, cls.right.name),
+            Index('%s_level_idx' % cls.__tablename__, cls.level.name),
         )
 
     @classmethod

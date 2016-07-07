@@ -13,6 +13,11 @@
 # serve to show the default.
 import itcase_sphinx_theme
 
+from docutils.parsers.rst import directives
+from sphinx.directives.code import CodeBlock
+
+directives.register_directive('no-code-block', CodeBlock)
+
 # -- General configuration ------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be

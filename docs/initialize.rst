@@ -87,7 +87,7 @@ exists in the database, but it is absolutely not allowed for initialize
 the tree, it is very long. In this case, you can change the code like
 this:
 
-.. code-block:: python
+.. no-code-block:: python
 
     from sqlalchemy_mptt import tree_manager
 

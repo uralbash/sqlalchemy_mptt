@@ -13,6 +13,7 @@
 # serve to show the default.
 import itcase_sphinx_theme
 
+from datetime import date
 from docutils.parsers.rst import directives
 from sphinx.directives.code import CodeBlock
 
@@ -38,8 +39,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'sqlalchemy_mptt'
-copyright = u'2014, uralbash'
+project = 'sqlalchemy_mptt'
+copyright = '{}, uralbash'.format(date.today().year)
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

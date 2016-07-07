@@ -1,14 +1,14 @@
-|Build Status| |Coverage Status| |PyPI|
+|Build Status| |Coverage Status|
 
 Library for implementing Modified Preorder Tree Traversal with your
 SQLAlchemy Models and working with trees of Model instances, like
-django-mptt. Docs http://sqlalchemy-mptt.readthedocs.org/
+django-mptt. Docs http://sqlalchemy-mptt.readthedocs.io/
 
 .. image:: https://cdn.rawgit.com/uralbash/sqlalchemy_mptt/master/docs/img/2_sqlalchemy_mptt_traversal.svg
    :alt: Nested sets traversal
    :width: 800px
 
-The nested set model is a particular technique for representing nested
+The nested set model is a particular technique for representing nested 
 sets (also known as trees or hierarchies) in relational databases.
 
 Installing
@@ -30,7 +30,7 @@ Source:
 
 .. code-block:: bash
 
-    python setup.py install
+    pip install -e .
 
 Usage
 -----
@@ -56,9 +56,7 @@ Add mixin to model
         def __repr__(self):
             return "<Node (%s)>" % self.id
 
-    Tree.register_tree()
-
-Now you can add, move and delete obj
+Now you can add, move and delete obj!
 
 Insert node
 -----------
@@ -256,15 +254,17 @@ Move to top level
                                |          |
             4               8(20)9    12(22)13
 
-
 Support and Development
 =======================
 
-To report bugs, use the `issue tracker <https://github.com/uralbash/sqlalchemy_mptt/issues>`_.
+To report bugs, use the `issue tracker
+<https://github.com/uralbash/sqlalchemy_mptt/issues>`_.
 
-We welcome any contribution: suggestions, ideas, commits with new futures, bug fixes, refactoring, docs, tests, translations etc
+We welcome any contribution: suggestions, ideas, commits with new
+futures, bug fixes, refactoring, docs, tests, translations, etc...
 
-If you have question, contact me sacrud@uralbash.ru or IRC channel #sacrud
+If you have question, contact me sacrud@uralbash.ru or #sacrud IRC
+channel |IRC Freenode|
 
 License
 =======
@@ -275,5 +275,5 @@ The project is licensed under the MIT license.
    :target: https://travis-ci.org/uralbash/sqlalchemy_mptt
 .. |Coverage Status| image:: https://coveralls.io/repos/uralbash/sqlalchemy_mptt/badge.png
    :target: https://coveralls.io/r/uralbash/sqlalchemy_mptt
-.. |PyPI| image:: http://img.shields.io/pypi/dm/sqlalchemy_mptt.svg
-   :target: https://pypi.python.org/pypi/sqlalchemy_mptt
+.. |IRC Freenode| image:: https://img.shields.io/badge/irc-freenode-blue.svg
+   :target: https://webchat.freenode.net/?channels=sacrud

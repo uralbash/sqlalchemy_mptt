@@ -25,22 +25,35 @@ API:
 
    sqlalchemy_mptt
 
-Project uses sqlalchemy_mptt
-----------------------------
+Where used
+----------
 
 * ps_tree_
 * pyramid_pages_
 * your project ...
 
-.. raw:: html
+Manual
+------
 
-    <br clear="all" />
+.. toctree::
+    
+    initialize.rst
+    crud.rst
 
-.. include:: example.rst
+A lot of examples and logic in
+:py:mod:`sqlalchemy_mptt.tests.tree_testing_base`
 
-A lot of examples and logic in :py:mod:`sqlalchemy_mptt.tests.tree_testing_base`
+Support and Development
+=======================
 
-.. include:: contribute.rst
+To report bugs, use the `issue tracker
+<https://github.com/uralbash/sqlalchemy_mptt/issues>`_.
+
+We welcome any contribution: suggestions, ideas, commits with new
+futures, bug fixes, refactoring, docs, tests, translations, etc...
+
+If you have question, contact me sacrud@uralbash.ru or #sacrud IRC
+channel |IRC Freenode|
 
 Indices and tables
 ==================
@@ -51,3 +64,5 @@ Indices and tables
 
 .. _ps_tree: https://github.com/sacrud/ps_tree
 .. _pyramid_pages: https://github.com/uralbash/pyramid_pages
+.. |IRC Freenode| image:: https://img.shields.io/badge/irc-freenode-blue.svg
+   :target: https://webchat.freenode.net/?channels=sacrud

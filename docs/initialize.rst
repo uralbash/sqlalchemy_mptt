@@ -1,7 +1,7 @@
 Initalize
 =========
 
-Create model with MPTT mixin and register events.
+Create model with MPTT mixin:
 
 .. code-block:: python
     :linenos:
@@ -23,10 +23,13 @@ Create model with MPTT mixin and register events.
         def __repr__(self):
             return "<Node (%s)>" % self.id
 
+
+It automatically registers events.
+
 Events
 ------
 
-Events registered automatically, but you can do it manually:
+But you can do it manually:
 
 .. code-block:: python
 
@@ -35,7 +38,7 @@ Events registered automatically, but you can do it manually:
    tree_manager.register_events()  # register events before_insert,
                                    # before_update and before_delete
 
-Or remove events if it required:
+Or disable events if it required:
 
 .. code-block:: python
 
@@ -75,10 +78,40 @@ Represented data of tree like dict
         {'id': '11',                  'parent_id': '10'},
     )
 
+Filling data at the first time
+------------------------------
+
+When you add any data to the database, he tries to be counted lft,
+rgt and level attribute. This is done very quickly if the tree already
+exists in the database, but it is absolutely not allowed for initialize
+the tree, it is very long. In this case, you can change the code like
+this:
+
+.. code-block:: python
+
+    from sqlalchemy_mptt import tree_manager
+
+    ...
+
+    tree_manager.register_events(remove=True) # Disable MPTT events
+
+    # Fill tree
+    for item in items:
+        db.session.add(item)
+    db.session.commit()
+
+    ...
+
+    tree_manager.register_events() # enabled MPTT events back
+    models.MyModelTree.rebuild_tree(db.session, models.MyModelTree.tree_id) # rebuild lft, rgt value automatically
+
+After an initial table with tree you can use mptt features.
+
 Session
 -------
 
-To work correctly after flush you should use :mod:`sqlalchemy_mptt.mptt_sessionmaker`
+To work correctly after flush you should use
+:mod:`sqlalchemy_mptt.mptt_sessionmaker`
 
 .. code-block:: python
     :linenos:

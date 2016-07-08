@@ -36,9 +36,16 @@ Manual
 ------
 
 .. toctree::
-    
+
     initialize.rst
     crud.rst
+
+Tutorial
+--------
+
+.. toctree::
+
+    tut_flask.rst
 
 A lot of examples and logic in
 :py:mod:`sqlalchemy_mptt.tests.tree_testing_base`

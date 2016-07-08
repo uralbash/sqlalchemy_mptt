@@ -8,7 +8,7 @@ django-mptt. Docs http://sqlalchemy-mptt.readthedocs.io/
    :alt: Nested sets traversal
    :width: 800px
 
-The nested set model is a particular technique for representing nested 
+The nested set model is a particular technique for representing nested
 sets (also known as trees or hierarchies) in relational databases.
 
 Installing

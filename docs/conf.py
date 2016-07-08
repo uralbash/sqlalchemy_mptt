@@ -27,6 +27,8 @@ directives.register_directive('no-code-block', CodeBlock)
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.mathbase',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

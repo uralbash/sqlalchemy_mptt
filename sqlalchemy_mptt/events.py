@@ -296,17 +296,7 @@ def mptt_before_update(mapper, connection, instance):
                         parent_tree_id, parent_level, node_level, left_sibling,
                         table_pk)
     else:
-        # if insert after
-        if left_sibling_tree_id or left_sibling_tree_id == 0:
-            tree_id = str(uuid.uuid4())
-            connection.execute(
-                table.update(table.c.tree_id > left_sibling_tree_id)
-                .values(tree_id=str(uuid.uuid4()))
-            )
-        # if just insert
-        else:
-            tree_id = str(uuid.uuid4())
-
+        tree_id = str(uuid.uuid4())
         connection.execute(
             table.update(table_pk.in_(subtree))
             .values(

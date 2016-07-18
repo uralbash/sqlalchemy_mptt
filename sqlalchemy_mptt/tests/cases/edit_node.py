@@ -444,7 +444,9 @@ class Changes(object):
             self.model.right: 0,
             self.model.level: 0
         })
-        self.model.rebuild(self.session, 1)
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 1).one()
+        self.model.rebuild(self.session, node.tree_id)
         #                 id lft rgt lvl parent tree
         self.assertEqual(self.result.all(),
                          [(1,   1, 22, 1, None, 1),

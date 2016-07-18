@@ -57,7 +57,7 @@ class TestTree(unittest.TestCase):
 
         tree = self.session.query(GenericTree).get(1)
         self.assertEqual(tree.ppk, 1)
-        self.assertEqual(tree.tree_id, 1)
+        self.assertEqual(len(tree.tree_id), 32)
 
     def test_create_spec(self):
         self.session.add(SpecializedTree(ppk=1))
@@ -65,7 +65,7 @@ class TestTree(unittest.TestCase):
 
         tree = self.session.query(SpecializedTree).get(1)
         self.assertEqual(tree.ppk, 1)
-        self.assertEqual(tree.tree_id, 1)
+        self.assertEqual(len(tree.tree_id), 32)
 
     def test_create_delete(self):
         parent = SpecializedTree(ppk=1)
@@ -81,7 +81,7 @@ class TestTree(unittest.TestCase):
 
         tree = self.session.query(SpecializedTree).get(1)
         self.assertEqual(tree.ppk, 1)
-        self.assertEqual(tree.tree_id, 1)
+        self.assertEqual(len(tree.tree_id), 32)
 
         self.session.delete(child1)
         self.session.commit()

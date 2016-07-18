@@ -10,7 +10,7 @@
 """
 SQLAlchemy nested sets mixin
 """
-from sqlalchemy import Index, Column, Integer, ForeignKey, desc, asc
+from sqlalchemy import Index, Column, Integer, ForeignKey, desc, asc, Unicode
 from sqlalchemy.orm import backref, relationship, object_session
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.declarative import declared_attr
@@ -67,7 +67,7 @@ class BaseNestedSets(object):
 
     @declared_attr
     def tree_id(cls):
-        return Column("tree_id", Integer)
+        return Column("tree_id", Unicode(32))
 
     @declared_attr
     def parent_id(cls):

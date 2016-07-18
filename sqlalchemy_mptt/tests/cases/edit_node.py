@@ -121,33 +121,35 @@ class Changes(object):
             4                      10(23)11  16(9)17  20(11)21
         """
         node = self.model(parent_id=6)
-        node2 = self.session.query(self.model) \
-            .filter(self.model.get_pk_column() == 12).one()
         self.session.add(node)
+        node1 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 1).one()
+        node12 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 12).one()
         #                 id lft rgt lvl parent tree
-        self.assertEqual([(1,   1, 24, 1, None, node.tree_id),
-                          (2,   2,  5, 2,  1, node.tree_id),
-                          (3,   3,  4, 3,  2, node.tree_id),
-                          (4,   6, 13, 2,  1, node.tree_id),
-                          (5,   7,  8, 3,  4, node.tree_id),
-                          (6,   9, 12, 3,  4, node.tree_id),
-                          (7,  14, 23, 2,  1, node.tree_id),
-                          (8,  15, 18, 3,  7, node.tree_id),
-                          (9,  16, 17, 4,  8, node.tree_id),
-                          (10, 19, 22, 3,  7, node.tree_id),
-                          (11, 20, 21, 4, 10, node.tree_id),
+        self.assertEqual([(1,   1, 24, 1, None, node1.tree_id),
+                          (2,   2,  5, 2,  1, node1.tree_id),
+                          (3,   3,  4, 3,  2, node1.tree_id),
+                          (4,   6, 13, 2,  1, node1.tree_id),
+                          (5,   7,  8, 3,  4, node1.tree_id),
+                          (6,   9, 12, 3,  4, node1.tree_id),
+                          (7,  14, 23, 2,  1, node1.tree_id),
+                          (8,  15, 18, 3,  7, node1.tree_id),
+                          (9,  16, 17, 4,  8, node1.tree_id),
+                          (10, 19, 22, 3,  7, node1.tree_id),
+                          (11, 20, 21, 4, 10, node1.tree_id),
 
-                          (12,  1, 22, 1, None, node2.tree_id),
-                          (13,  2,  5, 2, 12, node2.tree_id),
-                          (14,  3,  4, 3, 13, node2.tree_id),
-                          (15,  6, 11, 2, 12, node2.tree_id),
-                          (16,  7,  8, 3, 15, node2.tree_id),
-                          (17,  9, 10, 3, 15, node2.tree_id),
-                          (18, 12, 21, 2, 12, node2.tree_id),
-                          (19, 13, 16, 3, 18, node2.tree_id),
-                          (20, 14, 15, 4, 19, node2.tree_id),
-                          (21, 17, 20, 3, 18, node2.tree_id),
-                          (22, 18, 19, 4, 21, node2.tree_id),
+                          (12,  1, 22, 1, None, node12.tree_id),
+                          (13,  2,  5, 2, 12, node12.tree_id),
+                          (14,  3,  4, 3, 13, node12.tree_id),
+                          (15,  6, 11, 2, 12, node12.tree_id),
+                          (16,  7,  8, 3, 15, node12.tree_id),
+                          (17,  9, 10, 3, 15, node12.tree_id),
+                          (18, 12, 21, 2, 12, node12.tree_id),
+                          (19, 13, 16, 3, 18, node12.tree_id),
+                          (20, 14, 15, 4, 19, node12.tree_id),
+                          (21, 17, 20, 3, 18, node12.tree_id),
+                          (22, 18, 19, 4, 21, node12.tree_id),
 
                           (23, 10, 11, 4, 6, node.tree_id)], self.result.all())
 
@@ -176,33 +178,35 @@ class Changes(object):
             4                                      16(9)17   20(11)21
         """
         node = self.model(parent_id=4)
-        node2 = self.session.query(self.model) \
-            .filter(self.model.get_pk_column() == 12).one()
         self.session.add(node)
+        node1 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 1).one()
+        node12 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 12).one()
         #                 id lft rgt lvl parent tree
-        self.assertEqual([(1,   1, 24, 1, None, node.tree_id),
-                          (2,   2,  5, 2,  1, node.tree_id),
-                          (3,   3,  4, 3,  2, node.tree_id),
-                          (4,   6, 13, 2,  1, node.tree_id),
-                          (5,   7,  8, 3,  4, node.tree_id),
-                          (6,   9, 10, 3,  4, node.tree_id),
-                          (7,  14, 23, 2,  1, node.tree_id),
-                          (8,  15, 18, 3,  7, node.tree_id),
-                          (9,  16, 17, 4,  8, node.tree_id),
-                          (10, 19, 22, 3,  7, node.tree_id),
-                          (11, 20, 21, 4, 10, node.tree_id),
+        self.assertEqual([(1,   1, 24, 1, None, node1.tree_id),
+                          (2,   2,  5, 2,  1, node1.tree_id),
+                          (3,   3,  4, 3,  2, node1.tree_id),
+                          (4,   6, 13, 2,  1, node1.tree_id),
+                          (5,   7,  8, 3,  4, node1.tree_id),
+                          (6,   9, 10, 3,  4, node1.tree_id),
+                          (7,  14, 23, 2,  1, node1.tree_id),
+                          (8,  15, 18, 3,  7, node1.tree_id),
+                          (9,  16, 17, 4,  8, node1.tree_id),
+                          (10, 19, 22, 3,  7, node1.tree_id),
+                          (11, 20, 21, 4, 10, node1.tree_id),
 
-                          (12,  1, 22, 1, None, node2.tree_id),
-                          (13,  2,  5, 2, 12, node2.tree_id),
-                          (14,  3,  4, 3, 13, node2.tree_id),
-                          (15,  6, 11, 2, 12, node2.tree_id),
-                          (16,  7,  8, 3, 15, node2.tree_id),
-                          (17,  9, 10, 3, 15, node2.tree_id),
-                          (18, 12, 21, 2, 12, node2.tree_id),
-                          (19, 13, 16, 3, 18, node2.tree_id),
-                          (20, 14, 15, 4, 19, node2.tree_id),
-                          (21, 17, 20, 3, 18, node2.tree_id),
-                          (22, 18, 19, 4, 21, node2.tree_id),
+                          (12,  1, 22, 1, None, node12.tree_id),
+                          (13,  2,  5, 2, 12, node12.tree_id),
+                          (14,  3,  4, 3, 13, node12.tree_id),
+                          (15,  6, 11, 2, 12, node12.tree_id),
+                          (16,  7,  8, 3, 15, node12.tree_id),
+                          (17,  9, 10, 3, 15, node12.tree_id),
+                          (18, 12, 21, 2, 12, node12.tree_id),
+                          (19, 13, 16, 3, 18, node12.tree_id),
+                          (20, 14, 15, 4, 19, node12.tree_id),
+                          (21, 17, 20, 3, 18, node12.tree_id),
+                          (22, 18, 19, 4, 21, node12.tree_id),
 
                           (23, 11, 12, 3,  4, node.tree_id)], self.result.all())
 
@@ -286,34 +290,37 @@ class Changes(object):
         """
         node = self.session.query(self.model)\
             .filter(self.model.get_pk_column() == 8).one()
-        node2 = self.session.query(self.model) \
-            .filter(self.model.get_pk_column() == 12).one()
         node.parent_id = 5
         self.session.add(node)
-        #                 id lft rgt lvl parent tree
-        self.assertEqual([(1, 1, 22, 1, None, node.tree_id),
-                          (2,   2,  5, 2,  1, node.tree_id),
-                          (3,   3,  4, 3,  2, node.tree_id),
-                          (4,   6, 15, 2,  1, node.tree_id),
-                          (5,   7, 12, 3,  4, node.tree_id),
-                          (6,  13, 14, 3,  4, node.tree_id),
-                          (7,  16, 21, 2,  1, node.tree_id),
-                          (8,   8, 11, 4,  5, node.tree_id),
-                          (9,   9, 10, 5,  8, node.tree_id),
-                          (10, 17, 20, 3,  7, node.tree_id),
-                          (11, 18, 19, 4, 10, node.tree_id),
 
-                          (12,  1, 22, 1, None, node2.tree_id),
-                          (13,  2,  5, 2, 12, node2.tree_id),
-                          (14,  3,  4, 3, 13, node2.tree_id),
-                          (15,  6, 11, 2, 12, node2.tree_id),
-                          (16,  7,  8, 3, 15, node2.tree_id),
-                          (17,  9, 10, 3, 15, node2.tree_id),
-                          (18, 12, 21, 2, 12, node2.tree_id),
-                          (19, 13, 16, 3, 18, node2.tree_id),
-                          (20, 14, 15, 4, 19, node2.tree_id),
-                          (21, 17, 20, 3, 18, node2.tree_id),
-                          (22, 18, 19, 4, 21, node2.tree_id)], self.result.all())
+        node1 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 1).one()
+        node12 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 12).one()
+        #                 id lft rgt lvl parent tree
+        self.assertEqual([(1, 1, 22, 1, None, node1.tree_id),
+                          (2,   2,  5, 2,  1, node1.tree_id),
+                          (3,   3,  4, 3,  2, node1.tree_id),
+                          (4,   6, 15, 2,  1, node1.tree_id),
+                          (5,   7, 12, 3,  4, node1.tree_id),
+                          (6,  13, 14, 3,  4, node1.tree_id),
+                          (7,  16, 21, 2,  1, node1.tree_id),
+                          (8,   8, 11, 4,  5, node1.tree_id),
+                          (9,   9, 10, 5,  8, node1.tree_id),
+                          (10, 17, 20, 3,  7, node1.tree_id),
+                          (11, 18, 19, 4, 10, node1.tree_id),
+
+                          (12,  1, 22, 1, None, node12.tree_id),
+                          (13,  2,  5, 2, 12, node12.tree_id),
+                          (14,  3,  4, 3, 13, node12.tree_id),
+                          (15,  6, 11, 2, 12, node12.tree_id),
+                          (16,  7,  8, 3, 15, node12.tree_id),
+                          (17,  9, 10, 3, 15, node12.tree_id),
+                          (18, 12, 21, 2, 12, node12.tree_id),
+                          (19, 13, 16, 3, 18, node12.tree_id),
+                          (20, 14, 15, 4, 19, node12.tree_id),
+                          (21, 17, 20, 3, 18, node12.tree_id),
+                          (22, 18, 19, 4, 21, node12.tree_id)], self.result.all())
 
         """ level               Move 8 - > 5
                 1                     1(1)22

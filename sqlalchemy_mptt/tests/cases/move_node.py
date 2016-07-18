@@ -111,9 +111,12 @@ class MoveBefore(object):
         """
         node2 = self.session.query(self.model)\
             .filter(self.model.get_pk_column() == 12).one()
+        node2.move_before("1")
+
+        node2 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 12).one()
         node1 = self.session.query(self.model) \
             .filter(self.model.get_pk_column() == 1).one()
-        node2.move_before("1")
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, node1.tree_id),
                           (2,   2,  5, 2,  1, node1.tree_id),
@@ -969,29 +972,32 @@ class MoveInside(object):
             filter(self.model.get_pk_column() == 12).one()
         node.parent_id = 7
         self.session.add(node)
+
+        node1 = self.session.query(self.model).\
+            filter(self.model.get_pk_column() == 1).one()
         #                 id lft rgt lvl parent tree
-        self.assertEqual([(1, 1, 44, 1, None, node.tree_id),
-                          (2, 2, 5, 2, 1, node.tree_id),
-                          (3, 3, 4, 3, 2, node.tree_id),
-                          (4, 6, 11, 2, 1, node.tree_id),
-                          (5, 7, 8, 3, 4, node.tree_id),
-                          (6, 9, 10, 3, 4, node.tree_id),
-                          (7, 12, 43, 2, 1, node.tree_id),
-                          (8, 35, 38, 3, 7, node.tree_id),
-                          (9, 36, 37, 4, 8, node.tree_id),
-                          (10, 39, 42, 3, 7, node.tree_id),
-                          (11, 40, 41, 4, 10, node.tree_id),
-                          (12, 13, 34, 3, 7, node.tree_id),
-                          (13, 14, 17, 4, 12, node.tree_id),
-                          (14, 15, 16, 5, 13, node.tree_id),
-                          (15, 18, 23, 4, 12, node.tree_id),
-                          (16, 19, 20, 5, 15, node.tree_id),
-                          (17, 21, 22, 5, 15, node.tree_id),
-                          (18, 24, 33, 4, 12, node.tree_id),
-                          (19, 25, 28, 5, 18, node.tree_id),
-                          (20, 26, 27, 6, 19, node.tree_id),
-                          (21, 29, 32, 5, 18, node.tree_id),
-                          (22, 30, 31, 6, 21, node.tree_id)], self.result.all())
+        self.assertEqual([(1, 1, 44, 1, None, node1.tree_id),
+                          (2, 2, 5, 2, 1, node1.tree_id),
+                          (3, 3, 4, 3, 2, node1.tree_id),
+                          (4, 6, 11, 2, 1, node1.tree_id),
+                          (5, 7, 8, 3, 4, node1.tree_id),
+                          (6, 9, 10, 3, 4, node1.tree_id),
+                          (7, 12, 43, 2, 1, node1.tree_id),
+                          (8, 35, 38, 3, 7, node1.tree_id),
+                          (9, 36, 37, 4, 8, node1.tree_id),
+                          (10, 39, 42, 3, 7, node1.tree_id),
+                          (11, 40, 41, 4, 10, node1.tree_id),
+                          (12, 13, 34, 3, 7, node1.tree_id),
+                          (13, 14, 17, 4, 12, node1.tree_id),
+                          (14, 15, 16, 5, 13, node1.tree_id),
+                          (15, 18, 23, 4, 12, node1.tree_id),
+                          (16, 19, 20, 5, 15, node1.tree_id),
+                          (17, 21, 22, 5, 15, node1.tree_id),
+                          (18, 24, 33, 4, 12, node1.tree_id),
+                          (19, 25, 28, 5, 18, node1.tree_id),
+                          (20, 26, 27, 6, 19, node1.tree_id),
+                          (21, 29, 32, 5, 18, node1.tree_id),
+                          (22, 30, 31, 6, 21, node1.tree_id)], self.result.all())
 
     def test_move_inside_function(self):
         """ For example move node(4) inside node(15)

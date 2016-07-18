@@ -297,12 +297,11 @@ def mptt_before_update(mapper, connection, instance):
                         table_pk)
     else:
         # if insert after
-        # TODO: what case is this?  In the GUID world, this tree_id update mech won't work
         if left_sibling_tree_id or left_sibling_tree_id == 0:
-            tree_id = left_sibling_tree_id + 1
+            tree_id = str(uuid.uuid4())
             connection.execute(
                 table.update(table.c.tree_id > left_sibling_tree_id)
-                .values(tree_id=table.c.tree_id + 1)
+                .values(tree_id=str(uuid.uuid4()))
             )
         # if just insert
         else:

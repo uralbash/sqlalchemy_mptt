@@ -93,28 +93,32 @@ class Initialize(object):
             4                                  14(20)15   18(22)19
 
         """
+        node1 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 1).one()
+        node2 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 12).one()
         #    id lft rgt lvl parent tree
         self.assertEqual(
-            [(1,   1, 22, 1, None, 1),
-             (2,   2,  5, 2,  1, 1),
-             (3,   3,  4, 3,  2, 1),
-             (4,   6, 11, 2,  1, 1),
-             (5,   7,  8, 3,  4, 1),
-             (6,   9, 10, 3,  4, 1),
-             (7,  12, 21, 2,  1, 1),
-             (8,  13, 16, 3,  7, 1),
-             (9,  14, 15, 4,  8, 1),
-             (10, 17, 20, 3,  7, 1),
-             (11, 18, 19, 4, 10, 1),
+            [(1,   1, 22, 1, None, node1.tree_id),
+             (2,   2,  5, 2,  1, node1.tree_id),
+             (3,   3,  4, 3,  2, node1.tree_id),
+             (4,   6, 11, 2,  1, node1.tree_id),
+             (5,   7,  8, 3,  4, node1.tree_id),
+             (6,   9, 10, 3,  4, node1.tree_id),
+             (7,  12, 21, 2,  1, node1.tree_id),
+             (8,  13, 16, 3,  7, node1.tree_id),
+             (9,  14, 15, 4,  8, node1.tree_id),
+             (10, 17, 20, 3,  7, node1.tree_id),
+             (11, 18, 19, 4, 10, node1.tree_id),
 
-             (12,  1, 22, 1, None, 2),
-             (13,  2,  5, 2, 12, 2),
-             (14,  3,  4, 3, 13, 2),
-             (15,  6, 11, 2, 12, 2),
-             (16,  7,  8, 3, 15, 2),
-             (17,  9, 10, 3, 15, 2),
-             (18, 12, 21, 2, 12, 2),
-             (19, 13, 16, 3, 18, 2),
-             (20, 14, 15, 4, 19, 2),
-             (21, 17, 20, 3, 18, 2),
-             (22, 18, 19, 4, 21, 2)], self.result.all())  # flake8: noqa
+             (12,  1, 22, 1, None, node2.tree_id),
+             (13,  2,  5, 2, 12, node2.tree_id),
+             (14,  3,  4, 3, 13, node2.tree_id),
+             (15,  6, 11, 2, 12, node2.tree_id),
+             (16,  7,  8, 3, 15, node2.tree_id),
+             (17,  9, 10, 3, 15, node2.tree_id),
+             (18, 12, 21, 2, 12, node2.tree_id),
+             (19, 13, 16, 3, 18, node2.tree_id),
+             (20, 14, 15, 4, 19, node2.tree_id),
+             (21, 17, 20, 3, 18, node2.tree_id),
+             (22, 18, 19, 4, 21, node2.tree_id)], self.result.all())  # flake8: noqa

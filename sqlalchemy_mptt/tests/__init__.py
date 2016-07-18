@@ -112,17 +112,16 @@ class TreeTestingMixin(
         node.move_after('1')
         self.session.flush()
 
-        node1 = self.session.query(self.model). \
-            filter(self.model.get_pk_column() == 1).one()
+        node = self.session.query(self.model). \
+            filter(self.model.get_pk_column() == 4).one()
 
-        self.assertEqual(node.tree_id, node1.tree_id)
         self.assertEqual(node.level, 1)
         self.assertEqual(node.parent_id, None)
 
-        self.assertEqual(children[0].tree_id, node1.tree_id)
+        self.assertEqual(children[0].tree_id, node.tree_id)
         self.assertEqual(children[0].parent_id, 4)
         self.assertEqual(children[0].level, 2)
 
-        self.assertEqual(children[1].tree_id, node1.tree_id)
+        self.assertEqual(children[1].tree_id, node.tree_id)
         self.assertEqual(children[1].parent_id, 4)
         self.assertEqual(children[1].level, 2)

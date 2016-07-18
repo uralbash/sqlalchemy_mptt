@@ -350,12 +350,12 @@ class Changes(object):
         """
         node4 = self.session.query(self.model)\
             .filter(self.model.get_pk_column() == 4).one()
+        node4.parent_id = 2
+        self.session.add(node4)
         node2 = self.session.query(self.model) \
             .filter(self.model.get_pk_column() == 12).one()
         node1 = self.session.query(self.model) \
-            .filter(self.model.get_pk_column() == 12).one()
-        node4.parent_id = 2
-        self.session.add(node4)
+            .filter(self.model.get_pk_column() == 1).one()
         #                 id lft rgt lvl parent tree
         self.assertEqual([(1,   1, 22, 1, None, node1.tree_id),
                           (2,   2, 15, 2,  1, node1.tree_id),

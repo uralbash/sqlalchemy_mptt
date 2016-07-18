@@ -59,7 +59,8 @@ class Tree(object):
                                         {'node': go(21),
                                          'children': [{'node': go(22)}]}]}]}]
 
-        self.assertEqual(tree, reference_tree)
+        for element in reference_tree:
+            self.assertTrue(element in tree)
 
     def test_get_tree_count_query(self):
         """
@@ -131,7 +132,8 @@ class Tree(object):
              'id': 12, 'label': '<Node (12)>'}]
 
         tree = self.model.get_tree(self.session, json=True)
-        self.assertEqual(tree, reference_tree)
+        for element in reference_tree:
+            self.assertTrue(element in tree)
 
     def test_get_json_tree_with_custom_field(self):
         """.. note::
@@ -190,7 +192,8 @@ class Tree(object):
              'id': 12, 'label': '<Node (12)>'}]
 
         tree = self.model.get_tree(self.session, json=True, json_fields=fields)
-        self.assertEqual(tree, reference_tree)
+        for element in reference_tree:
+            self.assertTrue(element in tree)
 
     def test_leftsibling_in_level(self):
         """ Node to the left of the current node at the same level
@@ -275,7 +278,8 @@ class Tree(object):
                       {'node': go(11)}]}]
              }
         ]
-        self.assertEqual(tree, reference_tree)
+        for element in reference_tree:
+            self.assertTrue(element in tree)
 
     def test_path_to_root(self):
         """Generate path from a leaf or intermediate node to the root.

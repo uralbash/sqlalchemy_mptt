@@ -40,12 +40,17 @@ class MoveBefore(object):
         """
         node4 = self.session.query(self.model)\
             .filter(self.model.get_pk_column() == 4).one()
-        node2 = self.session.query(self.model) \
+        node12 = self.session.query(self.model) \
             .filter(self.model.get_pk_column() == 12).one()
         node4.move_before(1)
 
         node1 = self.session.query(self.model) \
             .filter(self.model.get_pk_column() == 1).one()
+        node12 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 12).one()
+        node4 = self.session.query(self.model) \
+            .filter(self.model.get_pk_column() == 4).one()
+
 
         #    id lft rgt lvl parent tree
         self.assertEqual(
@@ -63,17 +68,17 @@ class MoveBefore(object):
              (10, 11, 14, 3,  7, node1.tree_id),
              (11, 12, 13, 4, 10, node1.tree_id),
 
-             (12,  1, 22, 1, None, node2.tree_id),
-             (13,  2,  5, 2, 12, node2.tree_id),
-             (14,  3,  4, 3, 13, node2.tree_id),
-             (15,  6, 11, 2, 12, node2.tree_id),
-             (16,  7,  8, 3, 15, node2.tree_id),
-             (17,  9, 10, 3, 15, node2.tree_id),
-             (18, 12, 21, 2, 12, node2.tree_id),
-             (19, 13, 16, 3, 18, node2.tree_id),
-             (20, 14, 15, 4, 19, node2.tree_id),
-             (21, 17, 20, 3, 18, node2.tree_id),
-             (22, 18, 19, 4, 21, node2.tree_id)], self.result.all())  # flake8: noqa
+             (12,  1, 22, 1, None, node12.tree_id),
+             (13,  2,  5, 2, 12, node12.tree_id),
+             (14,  3,  4, 3, 13, node12.tree_id),
+             (15,  6, 11, 2, 12, node12.tree_id),
+             (16,  7,  8, 3, 15, node12.tree_id),
+             (17,  9, 10, 3, 15, node12.tree_id),
+             (18, 12, 21, 2, 12, node12.tree_id),
+             (19, 13, 16, 3, 18, node12.tree_id),
+             (20, 14, 15, 4, 19, node12.tree_id),
+             (21, 17, 20, 3, 18, node12.tree_id),
+             (22, 18, 19, 4, 21, node12.tree_id)], self.result.all())  # flake8: noqa
 
     def test_move_one_tree_before_another(self):
         """ For example move node(12) before node(1)

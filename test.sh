@@ -11,7 +11,9 @@ NC='\033[0m' # No Color
 PROJECT_NAME='sqlalchemy_mptt'
 
 RST_FILES=`find . -name "*.rst" -printf "%p "`
-RST_CHECK=$(rstcheck $RST_FILES --report 2 3>&1 1>&2 2>&3 | tee >(cat - >&2)) # fd=STDERR_FILENO
+RST_CHECK=$(rstcheck $RST_FILES               \
+              --ignore-directives code-block  \
+              --report 2 3>&1 1>&2 2>&3 | tee >(cat - >&2)) # fd=STDERR_FILENO
 FLAKE8=$(flake8 ./$PROJECT_NAME/)
 
 echo -e "${RED}"

@@ -29,8 +29,8 @@ install:
   - pip install -r requirements-test.txt
 
 script:
-  - python setup.py nosetests
   - ./test.sh
+  - python setup.py nosetests
 
 after_success:
   - pip install coveralls

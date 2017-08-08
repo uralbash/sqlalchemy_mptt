@@ -10,12 +10,14 @@
 """
 SQLAlchemy nested sets mixin
 """
-from sqlalchemy import Index, Column, Integer, ForeignKey, desc, asc
+# SQLAlchemy
+from sqlalchemy import Index, Column, Integer, ForeignKey, asc, desc
 from sqlalchemy.orm import backref, relationship, object_session
+from sqlalchemy.ext.hybrid import hybrid_method
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.hybrid import hybrid_method
 
+# local
 from .events import _get_tree_table
 
 
@@ -86,8 +88,12 @@ class BaseNestedSets(object):
             order_by=lambda: self.left,
             foreign_keys=[self.parent_id],
             remote_side='{}.{}'.format(self.__name__, self.get_pk_name()),
-            backref=backref('children', cascade="all,delete",
-                            order_by=lambda: (self.tree_id, self.left)),
+            backref=backref(
+                'children',
+                cascade="all,delete",
+                order_by=lambda: (self.tree_id, self.left),
+                passive_deletes=True
+            )
         )
 
     @declared_attr

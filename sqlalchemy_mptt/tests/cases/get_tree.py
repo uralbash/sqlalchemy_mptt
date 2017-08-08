@@ -17,7 +17,7 @@ class Tree(object):
         """
             No rows with id < 0.
         """
-        query = lambda x: x.filter(self.model.get_pk_column() < 0)
+        query = lambda x: x.filter(self.model.get_pk_column() < 0)  # noqa
         tree = self.model.get_tree(self.session, query=query)
         self.assertEqual(tree, [])
 

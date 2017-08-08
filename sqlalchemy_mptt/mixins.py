@@ -91,8 +91,7 @@ class BaseNestedSets(object):
             backref=backref(
                 'children',
                 cascade="all,delete",
-                order_by=lambda: (self.tree_id, self.left),
-                passive_deletes=True
+                order_by=lambda: (self.tree_id, self.left)
             )
         )
 

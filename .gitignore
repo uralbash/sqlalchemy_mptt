@@ -1,4 +1,5 @@
 .eggs
+.env
 *~
 *.swo
 *.swp

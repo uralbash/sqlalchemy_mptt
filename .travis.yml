@@ -22,9 +22,11 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+  - "pypy"
 
 install:
   - pip install git+git://github.com/myint/rstcheck.git
+  - pip install -r requirements-test.txt
 
 script:
   - python setup.py nosetests

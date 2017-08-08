@@ -21,7 +21,6 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "pypy-5.8.0"
 
 install:
   - pip install git+git://github.com/myint/rstcheck.git

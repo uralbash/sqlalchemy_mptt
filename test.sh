@@ -17,8 +17,8 @@ RST_CHECK=$(rstcheck $RST_FILES               \
 FLAKE8=$(flake8 ./$PROJECT_NAME/)
 
 echo -e "${RED}"
-if [ -n "$RST_CHECK" ] ||
-    [ -n "$FLAKE8" ]
+# if [ -n "$RST_CHECK" ] ||
+if [ -n "$FLAKE8" ]
 then
     echo -e "RST_CHECK: ${RST_CHECK:-OK}"
     echo -e "FLAKE8: ${FLAKE8:-OK}"

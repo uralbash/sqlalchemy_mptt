@@ -30,13 +30,18 @@
         4                                  14(20)15   18(22)19
 
 """
+# standard library
 import os
 import json
 
+# SQLAlchemy
 from sqlalchemy import event, create_engine
 from sqlalchemy.orm import sessionmaker
+
+# third-party
 from sqlalchemy_mptt import mptt_sessionmaker
 
+# local
 from .cases.get_tree import Tree
 from .cases.edit_node import Changes
 from .cases.integrity import DataIntegrity
@@ -78,12 +83,18 @@ class TreeTestingMixin(
 
     def start_query_counter(self):
         self.stmts = []
-        event.listen(self.session.bind.engine, "before_cursor_execute",
-                     self.catch_queries)
+        event.listen(
+            self.session.bind.engine,
+            "before_cursor_execute",
+            self.catch_queries
+        )
 
     def stop_query_counter(self):
-        event.remove(self.session.bind.engine, "before_cursor_execute",
-                     self.catch_queries)
+        event.remove(
+            self.session.bind.engine,
+            "before_cursor_execute",
+            self.catch_queries
+        )
 
     def setUp(self):
         self.engine = create_engine('sqlite:///:memory:')
@@ -97,29 +108,37 @@ class TreeTestingMixin(
         )
 
         self.result = self.session.query(
-            self.model.get_pk_column(), self.model.left, self.model.right,
-            self.model.level, self.model.parent_id, self.model.tree_id)
+            self.model.get_pk_column(),
+            self.model.left,
+            self.model.right,
+            self.model.level,
+            self.model.parent_id,
+            self.model.tree_id
+        )
 
     def tearDown(self):
         self.base.metadata.drop_all(self.engine)
 
     def test_session_expire_for_move_after_to_new_tree(self):
-        """https://github.com/ITCase/sqlalchemy_mptt/issues/33"""
-        node = self.session.query(self.model)\
+        """
+        https://github.com/uralbash/sqlalchemy_mptt/issues/33
+        """
+        node = self.session.query(self.model) \
             .filter(self.model.get_pk_column() == 4).one()
-        children = self.session.query(self.model)\
+        children = self.session.query(self.model) \
             .filter(self.model.get_pk_column().in_((5, 6))).all()
         node.move_after('1')
         self.session.flush()
 
+        _level = node.get_default_level()
         self.assertEqual(node.tree_id, 2)
-        self.assertEqual(node.level, 1)
+        self.assertEqual(node.level, _level)
         self.assertEqual(node.parent_id, None)
 
         self.assertEqual(children[0].tree_id, 2)
         self.assertEqual(children[0].parent_id, 4)
-        self.assertEqual(children[0].level, 2)
+        self.assertEqual(children[0].level, _level + 1)
 
         self.assertEqual(children[1].tree_id, 2)
         self.assertEqual(children[1].parent_id, 4)
-        self.assertEqual(children[1].level, 2)
+        self.assertEqual(children[1].level, _level + 1)

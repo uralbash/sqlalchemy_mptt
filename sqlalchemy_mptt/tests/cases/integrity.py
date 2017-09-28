@@ -79,7 +79,8 @@ class DataIntegrity(object):
             WHERE modulo = 1
         """
         table = self.model
-        modulo = (table.left - table.level + 2) % 2
+        level_delta = 0 if table.get_default_level() % 2 else 1
+        modulo = (table.left - table.level + level_delta + 2) % 2
         nop = self.session.query(table).filter(modulo == 1).all()
         self.assertEqual(nop, [])
 

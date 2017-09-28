@@ -31,8 +31,12 @@ class GenericTree(Base, BaseNestedSets):
 class SpecializedTree(GenericTree):
     __tablename__ = "specialized"
 
-    ppk = sa.Column('idd', sa.Integer, sa.ForeignKey(GenericTree.ppk),
-                    primary_key=True)
+    ppk = sa.Column(
+        'idd',
+        sa.Integer,
+        sa.ForeignKey(GenericTree.ppk),
+        primary_key=True
+    )
 
     __mapper_args__ = {
         'polymorphic_identity': 1,

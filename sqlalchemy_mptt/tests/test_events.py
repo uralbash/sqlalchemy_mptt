@@ -44,6 +44,18 @@ class TreeWithCustomId(Base, BaseNestedSets):
         return "<Node (%s)>" % self.ppk
 
 
+class TreeWithCustomLevel(Base, BaseNestedSets):
+    __tablename__ = "tree_custom_level"
+
+    id = Column(Integer, primary_key=True)
+    visible = Column(Boolean)
+
+    sqlalchemy_mptt_default_level = 0
+
+    def __repr__(self):
+        return "<Node (%s)>" % self.id
+
+
 class TestTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = Tree
@@ -54,37 +66,87 @@ class TestTreeWithCustomId(TreeTestingMixin, unittest.TestCase):
     model = TreeWithCustomId
 
 
+class TestTreeWithCustomLevel(TreeTestingMixin, unittest.TestCase):
+    base = Base
+    model = TreeWithCustomLevel
+
+
 class Events(unittest.TestCase):
 
     def test_register(self):
         from sqlalchemy_mptt import tree_manager
         tree_manager.register_events()
-        self.assertTrue(contains(BaseNestedSets, 'before_insert',
-                                 tree_manager.before_insert))
-        self.assertTrue(contains(BaseNestedSets, 'before_update',
-                                 tree_manager.before_update))
-        self.assertTrue(contains(BaseNestedSets, 'before_delete',
-                                 tree_manager.before_delete))
+        self.assertTrue(
+            contains(
+                BaseNestedSets,
+                'before_insert',
+                tree_manager.before_insert
+            )
+        )
+        self.assertTrue(
+            contains(
+                BaseNestedSets,
+                'before_update',
+                tree_manager.before_update
+            )
+        )
+        self.assertTrue(
+            contains(
+                BaseNestedSets,
+                'before_delete',
+                tree_manager.before_delete
+            )
+        )
 
     def test_register_and_remove(self):
         from sqlalchemy_mptt import tree_manager
         tree_manager.register_events()
         tree_manager.register_events(remove=True)
-        self.assertFalse(contains(Tree, 'before_insert',
-                                  tree_manager.before_insert))
-        self.assertFalse(contains(Tree, 'before_update',
-                                  tree_manager.before_update))
-        self.assertFalse(contains(Tree, 'before_delete',
-                                  tree_manager.before_delete))
+        self.assertFalse(
+            contains(
+                Tree,
+                'before_insert',
+                tree_manager.before_insert
+            )
+        )
+        self.assertFalse(
+            contains(
+                Tree,
+                'before_update',
+                tree_manager.before_update
+            )
+        )
+        self.assertFalse(
+            contains(
+                Tree,
+                'before_delete',
+                tree_manager.before_delete
+            )
+        )
         tree_manager.register_events()
 
     def test_remove(self):
         from sqlalchemy_mptt import tree_manager
         tree_manager.register_events(remove=True)
-        self.assertFalse(contains(Tree, 'before_insert',
-                                  tree_manager.before_insert))
-        self.assertFalse(contains(Tree, 'before_update',
-                                  tree_manager.before_update))
-        self.assertFalse(contains(Tree, 'before_delete',
-                                  tree_manager.before_delete))
+        self.assertFalse(
+            contains(
+                Tree,
+                'before_insert',
+                tree_manager.before_insert
+            )
+        )
+        self.assertFalse(
+            contains(
+                Tree,
+                'before_update',
+                tree_manager.before_update
+            )
+        )
+        self.assertFalse(
+            contains(
+                Tree,
+                'before_delete',
+                tree_manager.before_delete
+            )
+        )
         tree_manager.register_events()

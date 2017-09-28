@@ -28,5 +28,7 @@ class Tree2(Base, BaseNestedSets):
 
 class TestMixin(unittest.TestCase):
     def test_mixin_parent_id(self):
-        self.assertEqual(Tree2.parent_id.__class__.__name__,
-                         'InstrumentedAttribute')
+        self.assertEqual(
+            Tree2.parent_id.__class__.__name__,
+            'InstrumentedAttribute'
+        )

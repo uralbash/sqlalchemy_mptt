@@ -8,9 +8,10 @@ def read(name):
     with open(os.path.join(this, name)) as f:
         return f.read()
 
+
 setup(
     name='sqlalchemy_mptt',
-    version='0.2.1',
+    version='0.2.2-pre0',
     url='http://github.com/uralbash/sqlalchemy_mptt/',
     author='Svintsov Dmitry',
     author_email='sacrud@uralbash.ru',
@@ -34,9 +35,9 @@ setup(
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Framework :: Pyramid ",
         "Framework :: Flask",
         "Topic :: Internet",

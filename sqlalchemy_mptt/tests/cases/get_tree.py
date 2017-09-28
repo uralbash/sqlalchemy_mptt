@@ -64,7 +64,7 @@ class Tree(object):
     def test_get_tree_count_query(self):
         """
         Count num of queries to the database.
-        See https://github.com/ITCase/sqlalchemy_mptt/issues/39
+        See https://github.com/uralbash/sqlalchemy_mptt/issues/39
 
 
         Use ``--nocapture`` option for show run time:

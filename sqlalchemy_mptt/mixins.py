@@ -64,6 +64,10 @@ class BaseNestedSets(object):
         return getattr(cls, 'sqlalchemy_mptt_pk_name', 'id')
 
     @classmethod
+    def get_default_level(cls):
+        return getattr(cls, 'sqlalchemy_mptt_default_level', 1)
+
+    @classmethod
     def get_pk_column(cls):
         return getattr(cls, cls.get_pk_name())
 
@@ -366,7 +370,7 @@ class BaseNestedSets(object):
             .filter_by(tree_id=tree_id).one()
         top.left = left = 1
         top.right = right = 2
-        top.level = level = 1
+        top.level = level = cls.get_default_level()
 
         def recursive(children, left, right, level):
             level = level + 1

@@ -65,6 +65,10 @@ class BaseNestedSets(object):
 
     @classmethod
     def get_default_level(cls):
+        '''
+        Compatibility with Django MPTT: level value for root node.
+        See https://github.com/uralbash/sqlalchemy_mptt/issues/56
+        '''
         return getattr(cls, 'sqlalchemy_mptt_default_level', 1)
 
     @classmethod

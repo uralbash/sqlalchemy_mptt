@@ -85,9 +85,14 @@ class BaseNestedSets(object):
         if not pk.name:
             pk.name = cls.get_pk_name()
 
-        return Column("parent_id", pk.type,
-                      ForeignKey('%s.%s' % (cls.__tablename__, pk.name),
-                                 ondelete='CASCADE'))
+        return Column(
+            "parent_id",
+            pk.type,
+            ForeignKey(
+                '{}.{}'.format(cls.__tablename__, pk.name),
+                ondelete='CASCADE'
+            )
+        )
 
     @declared_attr
     def parent(self):
@@ -188,12 +193,13 @@ class BaseNestedSets(object):
     def leftsibling_in_level(self):
         """ Node to the left of the current node at the same level
 
-        For example see :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_leftsibling_in_level`
+        For example see
+        :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_leftsibling_in_level`
         """  # noqa
         table = _get_tree_table(self.__mapper__)
         session = Session.object_session(self)
-        current_lvl_nodes = session.query(table)\
-            .filter_by(level=self.level).filter_by(tree_id=self.tree_id)\
+        current_lvl_nodes = session.query(table) \
+            .filter_by(level=self.level).filter_by(tree_id=self.tree_id) \
             .filter(table.c.lft < self.left).order_by(table.c.lft).all()
         if current_lvl_nodes:
             return current_lvl_nodes[-1]
@@ -323,8 +329,12 @@ class BaseNestedSets(object):
         """
         if not session:
             session = object_session(self)
-        return self.get_tree(session, json=json, json_fields=json_fields,
-                             query=self._drilldown_query)
+        return self.get_tree(
+            session,
+            json=json,
+            json_fields=json_fields,
+            query=self._drilldown_query
+        )
 
     def path_to_root(self, session=None):
         """Generate path from a leaf or intermediate node to the root.

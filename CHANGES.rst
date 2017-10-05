@@ -1,3 +1,11 @@
+0.2.2 (2017-10-05)
+==================
+
+see issue #56
+
+- Added custom default root level. Support Django style level=0
+
+
 0.2.1 (2016-01-23)
 ==================
 

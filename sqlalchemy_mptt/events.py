@@ -88,7 +88,7 @@ def mptt_before_insert(mapper, connection, instance):
     db_pk = instance.get_pk_column()
     table_pk = getattr(table.c, db_pk.name)
 
-    if not instance.parent_id:
+    if instance.parent_id is None:
         instance.left = 1
         instance.right = 2
         instance.level = instance.get_default_level()
@@ -176,7 +176,7 @@ def mptt_before_delete(mapper, connection, instance, delete=True):
             )
         )
 
-    if instance.parent_id or not delete:
+    if instance.parent_id is not None or not delete:
         """ Update key of current tree
 
             UPDATE tree
@@ -358,6 +358,7 @@ def mptt_before_update(mapper, connection, instance):
     ).fetchone()
 
     # if instance just update w/o move
+    # XXX why this str() around parent_id comparison?
     if not left_sibling \
             and str(node_parent_id) == str(instance.parent_id) \
             and not mptt_move_inside:
@@ -365,7 +366,7 @@ def mptt_before_update(mapper, connection, instance):
             return
 
     # fix tree shorting
-    if instance.parent_id:
+    if instance.parent_id is not None:
         (
             parent_id,
             parent_pos_right,
@@ -385,14 +386,14 @@ def mptt_before_update(mapper, connection, instance):
                 table_pk == instance.parent_id
             )
         ).fetchone()
-        if not node_parent_id and node_tree_id == parent_tree_id:
+        if node_parent_id is None and node_tree_id == parent_tree_id:
             instance.parent_id = None
             return
 
     # delete from old tree
     mptt_before_delete(mapper, connection, instance, False)
 
-    if instance.parent_id:
+    if instance.parent_id is not None:
         """ Put there right position of new parent node (there moving node
             should be moved)
         """

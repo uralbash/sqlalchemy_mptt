@@ -12,9 +12,12 @@ test tree
 
 import unittest
 
-from sqlalchemy import Column, Boolean, Integer
+from sqlalchemy import Column, Boolean, Integer, create_engine
 from sqlalchemy.event import contains
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy_mptt import mptt_sessionmaker
 
 from . import TreeTestingMixin
 from ..mixins import BaseNestedSets
@@ -150,3 +153,24 @@ class Events(unittest.TestCase):
             )
         )
         tree_manager.register_events()
+
+
+class InitialInsert(unittest.TestCase):
+    """Test case for initial insertion of node as specified in docs/initialize.rst
+    """
+    def test_documented_initial_insert(self):
+        from sqlalchemy_mptt import tree_manager
+
+        engine = create_engine('sqlite:///:memory:')
+        Session = mptt_sessionmaker(sessionmaker(bind=engine))
+        session = Session()
+        Base.metadata.create_all(engine)
+
+        tree_manager.register_events(remove=True)  # Disable MPTT events
+
+        for node_id, parent_id in [(1, None), (2, 1), (3, 1), (4, 2)]:
+            session.add(Tree(id=node_id, parent_id=parent_id))
+        session.commit()
+
+        tree_manager.register_events()  # enabled MPTT events back
+        Tree.rebuild_tree(session)  # rebuild lft, rgt value automatically

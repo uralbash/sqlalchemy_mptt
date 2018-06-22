@@ -12,9 +12,12 @@ test tree
 
 import unittest
 
-from sqlalchemy import Column, Boolean, Integer
+from sqlalchemy import Column, Boolean, Integer, create_engine
 from sqlalchemy.event import contains
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy_mptt import mptt_sessionmaker
 
 from . import TreeTestingMixin
 from ..mixins import BaseNestedSets
@@ -150,3 +153,25 @@ class Events(unittest.TestCase):
             )
         )
         tree_manager.register_events()
+
+
+class Tree0Id(unittest.TestCase):
+    """Test case where node id is provided and starts with 0
+
+    See comments in https://github.com/uralbash/sqlalchemy_mptt/issues/57
+    """
+    def test(self):
+        engine = create_engine('sqlite:///:memory:')
+        Session = mptt_sessionmaker(sessionmaker(bind=engine))
+        session = Session()
+        Base.metadata.create_all(engine)
+
+        root = Tree(id=0)
+        child = Tree(id=1, parent_id=0)
+
+        session.add(root)
+        session.add(child)
+        session.commit()
+
+        self.assertEqual(root.tree_id, 1)
+        self.assertEqual(child.tree_id, 1)

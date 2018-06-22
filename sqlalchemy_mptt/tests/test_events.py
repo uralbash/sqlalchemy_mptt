@@ -191,9 +191,21 @@ class InitialInsert(unittest.TestCase):
 
         tree_manager.register_events(remove=True)  # Disable MPTT events
 
+        _tree_id = 'tree1'
+
         for node_id, parent_id in [(1, None), (2, 1), (3, 1), (4, 2)]:
-            session.add(Tree(id=node_id, parent_id=parent_id))
+            item = Tree(
+                id=node_id,
+                parent_id=parent_id,
+                left=0,
+                right=0,
+                tree_id=_tree_id
+            )
+            session.add(item)
         session.commit()
 
         tree_manager.register_events()  # enabled MPTT events back
-        Tree.rebuild_tree(session)  # rebuild lft, rgt value automatically
+        Tree.rebuild_tree(
+            session,
+            _tree_id
+        )  # rebuild lft, rgt value automatically

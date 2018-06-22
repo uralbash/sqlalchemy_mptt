@@ -97,13 +97,16 @@ this:
 
     # Fill tree
     for item in items:
+        item.left = 0
+        item.right = 0
+        item.tree_id = 'my_tree_1'
         db.session.add(item)
     db.session.commit()
 
     ...
 
     tree_manager.register_events() # enabled MPTT events back
-    models.MyModelTree.rebuild_tree(db.session, models.MyModelTree.tree_id) # rebuild lft, rgt value automatically
+    models.MyModelTree.rebuild_tree(db.session, 'my_tree_1') # rebuild lft, rgt value automatically
 
 After an initial table with tree you can use mptt features.
 

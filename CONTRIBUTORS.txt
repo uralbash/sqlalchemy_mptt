@@ -1,8 +1,9 @@
 Contributors
 ------------
 
-- Dmitry Svintsov, 2014/04/16
+- Dmitry Svintsov (uralbash), 2014/04/16
 - Jonathan Stoppani, 2014/08/11
 - Fayaz Yusuf Khan, 2014/10/10
 - Greg Klupar, 2015/11/13
 - Jiri Kuncar, 2016/01/20
+- Sylvain Thénault (sthenault), 2018/06/03

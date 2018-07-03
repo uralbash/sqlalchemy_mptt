@@ -1,3 +1,11 @@
+0.2.3 (2018-06-03)
+==================
+
+see issue #57
+
+- Fix rebuild tree
+- Added support node's identifier start from 0
+
 0.2.2 (2017-10-05)
 ==================
 

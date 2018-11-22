@@ -78,14 +78,15 @@ Represented data of tree like dict
         {'id': '11',                  'parent_id': '10'},
     )
 
-Filling data at the first time
-------------------------------
+Initializing a tree with data
+-----------------------------
 
-When you add any data to the database, he tries to be counted lft,
-rgt and level attribute. This is done very quickly if the tree already
-exists in the database, but it is absolutely not allowed for initialize
-the tree, it is very long. In this case, you can change the code like
-this:
+When you add nodes to the table, the tree manager subsequently updates the
+level, left and right attributes in the reset of the table. This is done very
+quickly if the tree already exists in the database, but for initializing the
+tree, it might become a big overhead. In this case, it is recommended to
+deactivate automatic tree management, fill in the data, reactivate automatic
+tree management and finally call manually a rebuild of the tree once at the end:
 
 .. no-code-block:: python
 

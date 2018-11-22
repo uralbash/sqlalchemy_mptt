@@ -113,8 +113,8 @@ After an initial table with tree you can use mptt features.
 Session
 -------
 
-To work correctly after flush you should use
-:mod:`sqlalchemy_mptt.mptt_sessionmaker`
+For the automatic tree maintainance triggered after session flush to work
+correctly, wrap the Session factory with :mod:`sqlalchemy_mptt.mptt_sessionmaker`
 
 .. code-block:: python
     :linenos:

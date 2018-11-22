@@ -25,8 +25,8 @@ Create model with MPTT mixin:
 
 
 
-Session
--------
+Session factory wrapper
+-----------------------
 
 For the automatic tree maintainance triggered after session flush to work
 correctly, wrap the Session factory with :mod:`sqlalchemy_mptt.mptt_sessionmaker`
@@ -40,6 +40,35 @@ correctly, wrap the Session factory with :mod:`sqlalchemy_mptt.mptt_sessionmaker
 
     engine = create_engine('...')
     Session = mptt_sessionmaker(sessionmaker(bind=engine))
+
+Using session factory wrapper with flask_sqlalchemy
+---------------------------------------------------
+
+If you use Flask and SQLAlchemy, you probably use also flask_sqlalchemy
+extension for integration. In that case the Session creation is not directly
+accessible. The following allows you to use the wrapper:
+
+.. code-block:: python
+    :linenos:
+
+    from sqlalchemy_mptt import mptt_sessionmaker
+    from flask_sqlalchemy import SQLAlchemy
+
+    # instead of creating db object directly
+    db = SQLAlchemy()
+
+    # subclass the db manager and insert the wrapper at session creation
+    class CustomSQLAlchemy(SQLAlchemy):
+        """A custom SQLAlchemy manager, to have control on session creation"""
+
+        def create_session(self, options):
+            """Override the original session factory creation"""
+            Session = super().create_session(options)
+            # Use wrapper from sqlalchemy_mptt that manage tree tables
+            return mptt_sessionmaker(Session)
+
+    # then
+    db = CustomSQLAlchemy()
 
 
 Events

@@ -24,12 +24,28 @@ Create model with MPTT mixin:
             return "<Node (%s)>" % self.id
 
 
-It automatically registers events.
+
+Session
+-------
+
+For the automatic tree maintainance triggered after session flush to work
+correctly, wrap the Session factory with :mod:`sqlalchemy_mptt.mptt_sessionmaker`
+
+.. code-block:: python
+    :linenos:
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy_mptt import mptt_sessionmaker
+
+    engine = create_engine('...')
+    Session = mptt_sessionmaker(sessionmaker(bind=engine))
+
 
 Events
 ------
 
-But you can do it manually:
+The tree manager automatically registers events. But you can do it manually:
 
 .. code-block:: python
 
@@ -77,7 +93,6 @@ Represented data of tree like dict
         {'id': '10',                  'parent_id':  '7'},
         {'id': '11',                  'parent_id': '10'},
     )
-
 Initializing a tree with data
 -----------------------------
 
@@ -110,19 +125,3 @@ tree management and finally call manually a rebuild of the tree once at the end:
     models.MyModelTree.rebuild_tree(db.session, 'my_tree_1') # rebuild lft, rgt value automatically
 
 After an initial table with tree you can use mptt features.
-
-Session
--------
-
-For the automatic tree maintainance triggered after session flush to work
-correctly, wrap the Session factory with :mod:`sqlalchemy_mptt.mptt_sessionmaker`
-
-.. code-block:: python
-    :linenos:
-
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
-    from sqlalchemy_mptt import mptt_sessionmaker
-
-    engine = create_engine('...')
-    Session = mptt_sessionmaker(sessionmaker(bind=engine))

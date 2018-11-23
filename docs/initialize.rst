@@ -100,7 +100,6 @@ Fill table with records, for example, as shown in the picture
 .. image:: img/2_sqlalchemy_mptt_traversal.svg
     :width: 500px
     :alt: SQLAlchemy MPTT (nested sets)
-    :align: left
 
 Represented data of tree like dict
 

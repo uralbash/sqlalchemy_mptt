@@ -11,8 +11,6 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-import itcase_sphinx_theme
-
 from datetime import date
 from docutils.parsers.rst import directives
 from sphinx.directives.code import CodeBlock
@@ -53,14 +51,6 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ----------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = 'itcase'
-
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [itcase_sphinx_theme.get_html_themes_path()]
-
-# Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']

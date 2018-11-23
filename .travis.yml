@@ -6,6 +6,7 @@
 #
 # Distributed under terms of the MIT license.
 sudo: true
+dist: xenial
 language: python
 
 notifications:

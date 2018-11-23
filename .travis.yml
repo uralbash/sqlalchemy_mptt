@@ -5,8 +5,8 @@
 # Copyright © 2014 uralbash <root@uralbash.ru>
 #
 # Distributed under terms of the MIT license.
-sudo: true
 dist: xenial
+sudo: required
 language: python
 
 notifications:

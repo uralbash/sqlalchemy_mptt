@@ -24,12 +24,57 @@ Create model with MPTT mixin:
             return "<Node (%s)>" % self.id
 
 
-It automatically registers events.
+
+Session factory wrapper
+-----------------------
+
+For the automatic tree maintainance triggered after session flush to work
+correctly, wrap the Session factory with :mod:`sqlalchemy_mptt.mptt_sessionmaker`
+
+.. code-block:: python
+    :linenos:
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy_mptt import mptt_sessionmaker
+
+    engine = create_engine('...')
+    Session = mptt_sessionmaker(sessionmaker(bind=engine))
+
+Using session factory wrapper with flask_sqlalchemy
+---------------------------------------------------
+
+If you use Flask and SQLAlchemy, you probably use also flask_sqlalchemy
+extension for integration. In that case the Session creation is not directly
+accessible. The following allows you to use the wrapper:
+
+.. code-block:: python
+    :linenos:
+
+    from sqlalchemy_mptt import mptt_sessionmaker
+    from flask_sqlalchemy import SQLAlchemy
+
+    # instead of creating db object directly
+    db = SQLAlchemy()
+
+    # subclass the db manager and insert the wrapper at session creation
+    class CustomSQLAlchemy(SQLAlchemy):
+        """A custom SQLAlchemy manager, to have control on session creation"""
+
+        def create_session(self, options):
+            """Override the original session factory creation"""
+            Session = super().create_session(options)
+            # Use wrapper from sqlalchemy_mptt that manage tree tables
+            return mptt_sessionmaker(Session)
+
+    # then
+    db = CustomSQLAlchemy()
+
 
 Events
 ------
 
-But you can do it manually:
+The tree manager automatically registers events. But you can do it manually:
 
 .. code-block:: python
 
@@ -77,15 +122,15 @@ Represented data of tree like dict
         {'id': '10',                  'parent_id':  '7'},
         {'id': '11',                  'parent_id': '10'},
     )
+Initializing a tree with data
+-----------------------------
 
-Filling data at the first time
-------------------------------
-
-When you add any data to the database, he tries to be counted lft,
-rgt and level attribute. This is done very quickly if the tree already
-exists in the database, but it is absolutely not allowed for initialize
-the tree, it is very long. In this case, you can change the code like
-this:
+When you add nodes to the table, the tree manager subsequently updates the
+level, left and right attributes in the reset of the table. This is done very
+quickly if the tree already exists in the database, but for initializing the
+tree, it might become a big overhead. In this case, it is recommended to
+deactivate automatic tree management, fill in the data, reactivate automatic
+tree management and finally call manually a rebuild of the tree once at the end:
 
 .. no-code-block:: python
 
@@ -109,19 +154,3 @@ this:
     models.MyModelTree.rebuild_tree(db.session, 'my_tree_1') # rebuild lft, rgt value automatically
 
 After an initial table with tree you can use mptt features.
-
-Session
--------
-
-To work correctly after flush you should use
-:mod:`sqlalchemy_mptt.mptt_sessionmaker`
-
-.. code-block:: python
-    :linenos:
-
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
-    from sqlalchemy_mptt import mptt_sessionmaker
-
-    engine = create_engine('...')
-    Session = mptt_sessionmaker(sessionmaker(bind=engine))

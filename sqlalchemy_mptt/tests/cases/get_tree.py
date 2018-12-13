@@ -1,3 +1,6 @@
+from sqlalchemy import asc
+
+
 def get_obj(session, model, id):
     return session.query(model).filter(model.get_pk_column() == id).one()
 
@@ -317,3 +320,6 @@ class Tree(object):
         self.assertEqual(path_8_to_root, [go(8), go(7), go(1)])
         self.assertEqual(path_6_to_root, [go(6), go(4), go(1)])
         self.assertEqual(path_1_to_root, [go(1)])
+
+        asc_path_11_to_root = node11.path_to_root(self.session, order=asc).all()
+        self.assertEqual(asc_path_11_to_root, [go(1), go(7), go(10), go(11)])

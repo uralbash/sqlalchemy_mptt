@@ -336,7 +336,7 @@ class BaseNestedSets(object):
             query=self._drilldown_query
         )
 
-    def path_to_root(self, session=None):
+    def path_to_root(self, session=None, order=desc):
         """Generate path from a leaf or intermediate node to the root.
 
         For example:
@@ -364,7 +364,7 @@ class BaseNestedSets(object):
         table = self.__class__
         query = self._base_query_obj(session=session)
         query = query.filter(table.is_ancestor_of(self, inclusive=True))
-        return self._base_order(query, order=desc)
+        return self._base_order(query, order=order)
 
     @classmethod
     def rebuild_tree(cls, session, tree_id):

@@ -1,3 +1,10 @@
+0.2.4 (2018-12-14)
+==================
+
+see PR #61
+
+- Allow to specify ordering of path_to_root
+
 0.2.3 (2018-06-03)
 ==================
 
@@ -12,7 +19,6 @@ see issue #57
 see issue #56
 
 - Added custom default root level. Support Django style level=0
-
 
 0.2.1 (2016-01-23)
 ==================

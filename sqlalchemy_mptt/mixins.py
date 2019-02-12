@@ -93,11 +93,16 @@ class BaseNestedSets(object):
             order_by=lambda: self.left,
             foreign_keys=[self.parent_id],
             remote_side='{}.{}'.format(self.__name__, self.get_pk_name()),
-            backref=backref(
-                'children',
-                cascade="all,delete",
-                order_by=lambda: (self.tree_id, self.left)
-            )
+            back_populates="children"
+        )
+
+    @declared_attr
+    def children(self):
+        return relationship(
+            self,
+            cascade="all,delete",
+            lazy="dynamic",
+            order_by=lambda: (self.tree_id, self.left)
         )
 
     @declared_attr

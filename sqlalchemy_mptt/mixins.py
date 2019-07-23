@@ -376,8 +376,8 @@ class BaseNestedSets(object):
 
     def get_siblings(self, include_self=False, session=None):
         """
-        https://github.com/uralbash/sqlalchemy_mptt/issues/64
-        https://django-mptt.readthedocs.io/en/latest/models.html#get-siblings-include-self-false
+        * https://github.com/uralbash/sqlalchemy_mptt/issues/64
+        * https://django-mptt.readthedocs.io/en/latest/models.html#get-siblings-include-self-false
 
         Creates a query containing siblings of this model
         instance. Root nodes are considered to be siblings of other root
@@ -398,11 +398,11 @@ class BaseNestedSets(object):
                        |              |                    |
                        |              |                    |
                 2    2(2)5          6(4)11              12(7)21
-                       |              ^                /       \
-                3    3(3)4      7(5)8   9(6)10        /         \
-                                                   13(8)16   17(10)20
-                                                      |         |
-                4                                  14(9)15   18(11)19
+                       |              ^                /       \            |
+                3    3(3)4      7(5)8   9(6)10        /         \           |
+                                                   13(8)16   17(10)20       |
+                                                      |         |           |
+                4                                  14(9)15   18(11)19       |
 
 
         """
@@ -418,8 +418,8 @@ class BaseNestedSets(object):
 
     def get_children(self, session=None):
         """
-        https://github.com/uralbash/sqlalchemy_mptt/issues/64
-        https://github.com/django-mptt/django-mptt/blob/fd76a816e05feb5fb0fc23126d33e514460a0ead/mptt/models.py#L563
+        * https://github.com/uralbash/sqlalchemy_mptt/issues/64
+        * https://github.com/django-mptt/django-mptt/blob/fd76a816e05feb5fb0fc23126d33e514460a0ead/mptt/models.py#L563
 
         Returns a query containing the immediate children of this
         model instance, in tree order.
@@ -437,11 +437,11 @@ class BaseNestedSets(object):
                        |              |                    |
                        |              |                    |
                 2    2(2)5          6(4)11              12(7)21
-                       |              ^                /       \
-                3    3(3)4      7(5)8   9(6)10        /         \
-                                                   13(8)16   17(10)20
-                                                      |         |
-                4                                  14(9)15   18(11)19
+                       |              ^                /       \             |
+                3    3(3)4      7(5)8   9(6)10        /         \            |
+                                                   13(8)16   17(10)20        |
+                                                      |         |            |
+                4                                  14(9)15   18(11)19        |
 
 
         """

@@ -43,6 +43,7 @@ from sqlalchemy_mptt import mptt_sessionmaker
 
 # local
 from .cases.get_tree import Tree
+from .cases.get_node import GetNodes
 from .cases.edit_node import Changes
 from .cases.integrity import DataIntegrity
 from .cases.move_node import MoveAfter, MoveBefore, MoveInside
@@ -50,7 +51,6 @@ from .cases.initialize import Initialize
 
 
 class Fixtures(object):
-
     def __init__(self, session):
         self.session = session
 
@@ -59,22 +59,22 @@ class Fixtures(object):
         file = open(os.path.join(here, fixtures))
         fixtures = json.loads(file.read())
         for fixture in fixtures:
-            if hasattr(model, 'sqlalchemy_mptt_pk_name'):
-                fixture[model.sqlalchemy_mptt_pk_name] = fixture.pop('id')
+            if hasattr(model, "sqlalchemy_mptt_pk_name"):
+                fixture[model.sqlalchemy_mptt_pk_name] = fixture.pop("id")
             self.session.add(model(**fixture))
             self.session.flush()
 
 
 class TreeTestingMixin(
-        Initialize,
-        Changes,
-        MoveAfter,
-        DataIntegrity,
-        MoveBefore,
-        MoveInside,
-        Tree
+    Initialize,
+    Changes,
+    MoveAfter,
+    DataIntegrity,
+    MoveBefore,
+    MoveInside,
+    Tree,
+    GetNodes,
 ):
-
     base = None
     model = None
 
@@ -84,27 +84,22 @@ class TreeTestingMixin(
     def start_query_counter(self):
         self.stmts = []
         event.listen(
-            self.session.bind.engine,
-            "before_cursor_execute",
-            self.catch_queries
+            self.session.bind.engine, "before_cursor_execute", self.catch_queries
         )
 
     def stop_query_counter(self):
         event.remove(
-            self.session.bind.engine,
-            "before_cursor_execute",
-            self.catch_queries
+            self.session.bind.engine, "before_cursor_execute", self.catch_queries
         )
 
     def setUp(self):
-        self.engine = create_engine('sqlite:///:memory:')
+        self.engine = create_engine("sqlite:///:memory:")
         Session = mptt_sessionmaker(sessionmaker(bind=self.engine))
         self.session = Session()
         self.base.metadata.create_all(self.engine)
         self.fixture = Fixtures(self.session)
         self.fixture.add(
-            self.model,
-            os.path.join('fixtures', getattr(self, 'fixtures', 'tree.json'))
+            self.model, os.path.join("fixtures", getattr(self, "fixtures", "tree.json"))
         )
 
         self.result = self.session.query(
@@ -113,7 +108,7 @@ class TreeTestingMixin(
             self.model.right,
             self.model.level,
             self.model.parent_id,
-            self.model.tree_id
+            self.model.tree_id,
         )
 
     def tearDown(self):
@@ -123,11 +118,15 @@ class TreeTestingMixin(
         """
         https://github.com/uralbash/sqlalchemy_mptt/issues/33
         """
-        node = self.session.query(self.model) \
-            .filter(self.model.get_pk_column() == 4).one()
-        children = self.session.query(self.model) \
-            .filter(self.model.get_pk_column().in_((5, 6))).all()
-        node.move_after('1')
+        node = (
+            self.session.query(self.model).filter(self.model.get_pk_column() == 4).one()
+        )
+        children = (
+            self.session.query(self.model)
+            .filter(self.model.get_pk_column().in_((5, 6)))
+            .all()
+        )
+        node.move_after("1")
         self.session.flush()
 
         _level = node.get_default_level()

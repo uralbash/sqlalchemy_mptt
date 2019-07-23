@@ -1,3 +1,11 @@
+0.2.5 (2019-07-23)
+==================
+
+see issue #64
+
+- Added similar `django_mptt` methods `get_siblings` and `get_children`
+
+
 0.2.4 (2018-12-14)
 ==================
 

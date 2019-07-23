@@ -50,9 +50,9 @@ class BaseNestedSets(object):
     @declared_attr
     def __table_args__(cls):
         return (
-            Index('%s_lft_idx' % cls.__tablename__, cls.left.name),
-            Index('%s_rgt_idx' % cls.__tablename__, cls.right.name),
-            Index('%s_level_idx' % cls.__tablename__, cls.level.name),
+            Index("%s_lft_idx" % cls.__tablename__, cls.left.name),
+            Index("%s_rgt_idx" % cls.__tablename__, cls.right.name),
+            Index("%s_level_idx" % cls.__tablename__, cls.level.name),
         )
 
     @classmethod
@@ -60,20 +60,23 @@ class BaseNestedSets(object):
         cls.__mapper__.batch = False
 
     @classmethod
-    def get_pk_name(cls):
-        return getattr(cls, 'sqlalchemy_mptt_pk_name', 'id')
-
-    @classmethod
     def get_default_level(cls):
-        '''
+        """
         Compatibility with Django MPTT: level value for root node.
         See https://github.com/uralbash/sqlalchemy_mptt/issues/56
-        '''
-        return getattr(cls, 'sqlalchemy_mptt_default_level', 1)
+        """
+        return getattr(cls, "sqlalchemy_mptt_default_level", 1)
+
+    @classmethod
+    def get_pk_name(cls):
+        return getattr(cls, "sqlalchemy_mptt_pk_name", "id")
 
     @classmethod
     def get_pk_column(cls):
         return getattr(cls, cls.get_pk_name())
+
+    def get_pk_value(self):
+        return getattr(self, self.get_pk_name())
 
     @declared_attr
     def tree_id(cls):
@@ -88,10 +91,7 @@ class BaseNestedSets(object):
         return Column(
             "parent_id",
             pk.type,
-            ForeignKey(
-                '{}.{}'.format(cls.__tablename__, pk.name),
-                ondelete='CASCADE'
-            )
+            ForeignKey("{}.{}".format(cls.__tablename__, pk.name), ondelete="CASCADE"),
         )
 
     @declared_attr
@@ -100,12 +100,12 @@ class BaseNestedSets(object):
             self,
             order_by=lambda: self.left,
             foreign_keys=[self.parent_id],
-            remote_side='{}.{}'.format(self.__name__, self.get_pk_name()),
+            remote_side="{}.{}".format(self.__name__, self.get_pk_name()),
             backref=backref(
-                'children',
+                "children",
                 cascade="all,delete",
-                order_by=lambda: (self.tree_id, self.left)
-            )
+                order_by=lambda: (self.tree_id, self.left),
+            ),
         )
 
     @declared_attr
@@ -131,12 +131,16 @@ class BaseNestedSets(object):
         * :mod:`sqlalchemy_mptt.tests.cases.integrity.test_hierarchy_structure`
         """
         if inclusive:
-            return (self.tree_id == other.tree_id) \
-                & (self.left <= other.left) \
+            return (
+                (self.tree_id == other.tree_id)
+                & (self.left <= other.left)
                 & (other.right <= self.right)
-        return (self.tree_id == other.tree_id) \
-            & (self.left < other.left) \
+            )
+        return (
+            (self.tree_id == other.tree_id)
+            & (self.left < other.left)
             & (other.right < self.right)
+        )
 
     @hybrid_method
     def is_descendant_of(self, other, inclusive=False):
@@ -198,9 +202,14 @@ class BaseNestedSets(object):
         """  # noqa
         table = _get_tree_table(self.__mapper__)
         session = Session.object_session(self)
-        current_lvl_nodes = session.query(table) \
-            .filter_by(level=self.level).filter_by(tree_id=self.tree_id) \
-            .filter(table.c.lft < self.left).order_by(table.c.lft).all()
+        current_lvl_nodes = (
+            session.query(table)
+            .filter_by(level=self.level)
+            .filter_by(tree_id=self.tree_id)
+            .filter(table.c.lft < self.left)
+            .order_by(table.c.lft)
+            .all()
+        )
         if current_lvl_nodes:
             return current_lvl_nodes[-1]
         return None
@@ -212,11 +221,11 @@ class BaseNestedSets(object):
         if json:
             pk_name = node.get_pk_name()
             # jqTree or jsTree format
-            result = {'id': getattr(node, pk_name), 'label': node.__repr__()}
+            result = {"id": getattr(node, pk_name), "label": node.__repr__()}
             if json_fields:
                 result.update(json_fields(node))
         else:
-            result = {'node': node}
+            result = {"node": node}
         return result
 
     @classmethod
@@ -230,9 +239,11 @@ class BaseNestedSets(object):
 
     @classmethod
     def _base_order(cls, query, order=asc):
-        return query.order_by(order(cls.tree_id))\
-            .order_by(order(cls.level))\
+        return (
+            query.order_by(order(cls.tree_id))
+            .order_by(order(cls.level))
             .order_by(order(cls.left))
+        )
 
     @classmethod
     def get_tree(cls, session=None, json=False, json_fields=None, query=None):
@@ -284,10 +295,10 @@ class BaseNestedSets(object):
                 # Find parent in the tree
                 if parent_id not in nodes_of_level.keys():
                     continue
-                if 'children' not in nodes_of_level[parent_id]:
-                    nodes_of_level[parent_id]['children'] = []
+                if "children" not in nodes_of_level[parent_id]:
+                    nodes_of_level[parent_id]["children"] = []
                 # Append node to parent
-                nl = nodes_of_level[parent_id]['children']
+                nl = nodes_of_level[parent_id]["children"]
                 nl.append(result)
                 nodes_of_level[get_node_id(node)] = nl[-1]
             else:  # for top level nodes
@@ -330,10 +341,7 @@ class BaseNestedSets(object):
         if not session:
             session = object_session(self)
         return self.get_tree(
-            session,
-            json=json,
-            json_fields=json_fields,
-            query=self._drilldown_query
+            session, json=json, json_fields=json_fields, query=self._drilldown_query
         )
 
     def path_to_root(self, session=None, order=desc):
@@ -366,6 +374,82 @@ class BaseNestedSets(object):
         query = query.filter(table.is_ancestor_of(self, inclusive=True))
         return self._base_order(query, order=order)
 
+    def get_siblings(self, include_self=False, session=None):
+        """
+        https://github.com/uralbash/sqlalchemy_mptt/issues/64
+        https://django-mptt.readthedocs.io/en/latest/models.html#get-siblings-include-self-false
+
+        Creates a query containing siblings of this model
+        instance. Root nodes are considered to be siblings of other root
+        nodes.
+
+        For example:
+
+            node10.get_siblings() -> [Node(8)]
+
+            Only one node is sibling of node10
+
+            .. code::
+
+                level           Nested sets example
+
+                1                   1(1)22
+                        ______________|____________________
+                       |              |                    |
+                       |              |                    |
+                2    2(2)5          6(4)11              12(7)21
+                       |              ^                /       \
+                3    3(3)4      7(5)8   9(6)10        /         \
+                                                   13(8)16   17(10)20
+                                                      |         |
+                4                                  14(9)15   18(11)19
+
+
+        """
+        table = self.__class__
+        query = self._base_query_obj(session=session)
+        if self.parent_id:
+            query = query.filter(table.parent_id == self.parent_id)
+        else:
+            query = query.filter(table.parent_id == None)
+        if not include_self:
+            query = query.filter(self.get_pk_column() != self.get_pk_value())
+        return query
+
+    def get_children(self, session=None):
+        """
+        https://github.com/uralbash/sqlalchemy_mptt/issues/64
+        https://github.com/django-mptt/django-mptt/blob/fd76a816e05feb5fb0fc23126d33e514460a0ead/mptt/models.py#L563
+
+        Returns a query containing the immediate children of this
+        model instance, in tree order.
+
+        For example:
+
+            node7.get_children() -> [Node(8), Node(10)]
+
+            .. code::
+
+                level           Nested sets example
+
+                1                   1(1)22
+                        ______________|____________________
+                       |              |                    |
+                       |              |                    |
+                2    2(2)5          6(4)11              12(7)21
+                       |              ^                /       \
+                3    3(3)4      7(5)8   9(6)10        /         \
+                                                   13(8)16   17(10)20
+                                                      |         |
+                4                                  14(9)15   18(11)19
+
+
+        """
+        table = self.__class__
+        query = self._base_query_obj(session=session)
+        query = query.filter(table.parent_id == self.get_pk_value())
+        return query
+
     @classmethod
     def rebuild_tree(cls, session, tree_id):
         """ This method rebuid tree.
@@ -378,10 +462,15 @@ class BaseNestedSets(object):
 
         * :mod:`sqlalchemy_mptt.tests.cases.get_tree.test_rebuild`
         """
-        session.query(cls).filter_by(tree_id=tree_id)\
-            .update({cls.left: 0, cls.right: 0, cls.level: 0})
-        top = session.query(cls).filter_by(parent_id=None)\
-            .filter_by(tree_id=tree_id).one()
+        session.query(cls).filter_by(tree_id=tree_id).update(
+            {cls.left: 0, cls.right: 0, cls.level: 0}
+        )
+        top = (
+            session.query(cls)
+            .filter_by(parent_id=None)
+            .filter_by(tree_id=tree_id)
+            .one()
+        )
         top.left = left = 1
         top.right = right = 2
         top.level = level = cls.get_default_level()

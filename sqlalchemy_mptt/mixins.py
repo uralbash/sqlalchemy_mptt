@@ -11,7 +11,7 @@
 SQLAlchemy nested sets mixin
 """
 # SQLAlchemy
-from sqlalchemy import Index, Column, Integer, ForeignKey, asc, desc
+from sqlalchemy import Column, Integer, ForeignKey, asc, desc
 from sqlalchemy.orm import backref, relationship, object_session
 from sqlalchemy.ext.hybrid import hybrid_method
 from sqlalchemy.orm.session import Session
@@ -46,14 +46,6 @@ class BaseNestedSets(object):
             def __repr__(self):
                 return "<Node (%s)>" % self.id
     """
-
-    @declared_attr
-    def __table_args__(cls):
-        return (
-            Index("%s_lft_idx" % cls.__tablename__, cls.left.name),
-            Index("%s_rgt_idx" % cls.__tablename__, cls.right.name),
-            Index("%s_level_idx" % cls.__tablename__, cls.level.name),
-        )
 
     @classmethod
     def __declare_first__(cls):
@@ -101,24 +93,29 @@ class BaseNestedSets(object):
             order_by=lambda: self.left,
             foreign_keys=[self.parent_id],
             remote_side="{}.{}".format(self.__name__, self.get_pk_name()),
-            backref=backref(
-                "children",
-                cascade="all,delete",
-                order_by=lambda: (self.tree_id, self.left),
-            ),
+            back_populates="children",
+        )
+
+    @declared_attr
+    def children(self):
+        return relationship(
+            self,
+            cascade="all,delete",
+            lazy="dynamic",
+            order_by=lambda: (self.tree_id, self.left),
         )
 
     @declared_attr
     def left(cls):
-        return Column("lft", Integer, nullable=False)
+        return Column("lft", Integer, nullable=False, index=True)
 
     @declared_attr
     def right(cls):
-        return Column("rgt", Integer, nullable=False)
+        return Column("rgt", Integer, nullable=False, index=True)
 
     @declared_attr
     def level(cls):
-        return Column("level", Integer, nullable=False, default=0)
+        return Column("level", Integer, nullable=False, default=0, index=True)
 
     @hybrid_method
     def is_ancestor_of(self, other, inclusive=False):

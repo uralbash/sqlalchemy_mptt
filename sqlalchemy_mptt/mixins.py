@@ -83,7 +83,9 @@ class BaseNestedSets(object):
         return Column(
             "parent_id",
             pk.type,
-            ForeignKey("{}.{}".format(cls.__tablename__, pk.name), ondelete="CASCADE"),
+            ForeignKey(
+                "{}.{}".format(cls.__tablename__, pk.name), ondelete="CASCADE"
+            ),
         )
 
     @declared_attr
@@ -93,16 +95,11 @@ class BaseNestedSets(object):
             order_by=lambda: self.left,
             foreign_keys=[self.parent_id],
             remote_side="{}.{}".format(self.__name__, self.get_pk_name()),
-            back_populates="children",
-        )
-
-    @declared_attr
-    def children(self):
-        return relationship(
-            self,
-            cascade="all,delete",
-            lazy="dynamic",
-            order_by=lambda: (self.tree_id, self.left),
+            backref=backref(
+                "children",
+                cascade="all,delete",
+                order_by=lambda: (self.tree_id, self.left),
+            ),
         )
 
     @declared_attr
@@ -338,7 +335,10 @@ class BaseNestedSets(object):
         if not session:
             session = object_session(self)
         return self.get_tree(
-            session, json=json, json_fields=json_fields, query=self._drilldown_query
+            session,
+            json=json,
+            json_fields=json_fields,
+            query=self._drilldown_query,
         )
 
     def path_to_root(self, session=None, order=desc):

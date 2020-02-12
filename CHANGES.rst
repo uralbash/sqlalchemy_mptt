@@ -1,3 +1,10 @@
+0.2.6 (2020-XX-XX)
+==================
+
+see issue #63
+
+- Support for joined-table inheritance
+
 0.2.5 (2019-07-23)
 ==================
 

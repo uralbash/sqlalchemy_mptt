@@ -10,9 +10,9 @@ def read(name):
 
 
 setup(
-    name="oy-libs-sqlalchemy_mptt",
+    name="sqlalchemy_mptt",
     version="0.2.4",
-    url="http://github.com/mush42/sqlalchemy_mptt/",
+    url="http://github.com/uralbash/sqlalchemy_mptt/",
     author="Svintsov Dmitry",
     author_email="sacrud@uralbash.ru",
     packages=["sqlalchemy_mptt"],

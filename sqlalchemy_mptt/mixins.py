@@ -449,7 +449,7 @@ class BaseNestedSets(object):
 
     @classmethod
     def rebuild_tree(cls, session, tree_id):
-        """ This method rebuid tree.
+        """ This method rebuild tree.
 
         Args:
             session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session
@@ -501,7 +501,7 @@ class BaseNestedSets(object):
 
     @classmethod
     def rebuild(cls, session, tree_id=None):
-        """ This function rebuid tree.
+        """ This function rebuild tree.
 
         Args:
             session (:mod:`sqlalchemy.orm.session.Session`): SQLAlchemy session

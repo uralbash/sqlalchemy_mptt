@@ -285,7 +285,7 @@ class BaseNestedSets(object):
         for node in nodes:
             result = cls._node_to_dict(node, json, json_fields)
             parent_id = node.parent_id
-            if node.level != min_level:  # for cildren
+            if node.level != min_level:  # for children
                 # Find parent in the tree
                 if parent_id not in nodes_of_level.keys():
                     continue
@@ -307,7 +307,7 @@ class BaseNestedSets(object):
         return nodes.filter(self.is_ancestor_of(table, inclusive=True))
 
     def drilldown_tree(self, session=None, json=False, json_fields=None):
-        """ This method generate a branch from a tree, begining with current
+        """ This method generate a branch from a tree, beginning with current
         node.
 
         For example:

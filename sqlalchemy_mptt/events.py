@@ -532,7 +532,7 @@ class TreesManager(object):
         Registers this TreesManager instance to respond on
         `after_flush_postexec` events on the given session or session factory.
         This method returns the original argument, so that it can be used by
-        wrapping an already exisiting instance:
+        wrapping an already existing instance:
 
         .. code-block:: python
             :linenos:

@@ -342,7 +342,7 @@ class BaseNestedSets(object):
         )
 
     def path_to_root(self, session=None, order=desc):
-        """Generate path from a leaf or intermediate node to the root.
+        r"""Generate path from a leaf or intermediate node to the root.
 
         For example:
 
@@ -372,7 +372,7 @@ class BaseNestedSets(object):
         return self._base_order(query, order=order)
 
     def get_siblings(self, include_self=False, session=None):
-        """
+        r"""
         * https://github.com/uralbash/sqlalchemy_mptt/issues/64
         * https://django-mptt.readthedocs.io/en/latest/models.html#get-siblings-include-self-false
 
@@ -414,7 +414,7 @@ class BaseNestedSets(object):
         return query
 
     def get_children(self, session=None):
-        """
+        r"""
         * https://github.com/uralbash/sqlalchemy_mptt/issues/64
         * https://github.com/django-mptt/django-mptt/blob/fd76a816e05feb5fb0fc23126d33e514460a0ead/mptt/models.py#L563
 

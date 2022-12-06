@@ -7,7 +7,7 @@ Create model with MPTT mixin:
     :linenos:
 
     from sqlalchemy import Column, Integer, Boolean
-    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import declarative_base
 
     from sqlalchemy_mptt.mixins import BaseNestedSets
 

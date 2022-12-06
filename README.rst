@@ -40,7 +40,7 @@ Add mixin to model
 .. code-block:: python
 
     from sqlalchemy import Column, Integer, Boolean
-    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import declarative_base
 
     from sqlalchemy_mptt.mixins import BaseNestedSets
 

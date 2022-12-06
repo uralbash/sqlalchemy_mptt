@@ -1,8 +1,7 @@
 import unittest
 
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 from . import TreeTestingMixin
 from ..mixins import BaseNestedSets
@@ -59,7 +58,7 @@ class TestTree(unittest.TestCase):
         self.session.add(GenericTree(ppk=1))
         self.session.commit()
 
-        tree = self.session.query(GenericTree).get(1)
+        tree = self.session.get(GenericTree, 1)
         self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
@@ -67,7 +66,7 @@ class TestTree(unittest.TestCase):
         self.session.add(SpecializedTree(ppk=1))
         self.session.commit()
 
-        tree = self.session.query(SpecializedTree).get(1)
+        tree = self.session.get(SpecializedTree, 1)
         self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
@@ -83,21 +82,21 @@ class TestTree(unittest.TestCase):
         self.session.add(parent)
         self.session.commit()
 
-        tree = self.session.query(SpecializedTree).get(1)
+        tree = self.session.get(SpecializedTree, 1)
         self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
         self.session.delete(child1)
         self.session.commit()
 
-        self.assertEquals(None, self.session.query(SpecializedTree).get(2))
+        self.assertEquals(None, self.session.get(SpecializedTree, 2))
 
         self.session.delete(child2)
         self.session.commit()
 
-        self.assertEquals(None, self.session.query(SpecializedTree).get(3))
-        self.assertEquals(None, self.session.query(SpecializedTree).get(4))
-        self.assertEquals(None, self.session.query(SpecializedTree).get(5))
+        self.assertEquals(None, self.session.get(SpecializedTree, 3))
+        self.assertEquals(None, self.session.get(SpecializedTree, 4))
+        self.assertEquals(None, self.session.get(SpecializedTree, 5))
 
 
 class TestGenericTree(TreeTestingMixin, unittest.TestCase):

@@ -86,6 +86,7 @@ class BaseNestedSets(object):
             ForeignKey(
                 "{}.{}".format(cls.__tablename__, pk.name), ondelete="CASCADE"
             ),
+            index=True
         )
 
     @declared_attr

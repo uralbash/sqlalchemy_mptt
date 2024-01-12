@@ -64,7 +64,11 @@ class BaseNestedSets(object):
 
     @classmethod
     def get_pk_column(cls):
-        return getattr(cls, cls.get_pk_name())
+        col = getattr(cls, cls.get_pk_name())
+        # might be a Mapped column
+        if hasattr(col, "column") and hasattr(col.column, "name"):
+            return col.column
+        return col
 
     def get_pk_value(self):
         return getattr(self, self.get_pk_name())

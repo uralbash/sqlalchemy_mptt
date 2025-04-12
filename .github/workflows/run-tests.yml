@@ -11,17 +11,23 @@ permissions:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-    container: ${{ matrix.container }}
     strategy:
       matrix:
-        python-version: ["2.7", "3.4", "3.5", "3.6", "3.7"]
         include:
-          - python-version: "2.7"
+          - os: ubuntu-latest
+            python-version: "2.7"
             container: coatldev/six:latest
+          - os: ubuntu-18.04
+            python-version: "3.4"
+          - os: ubuntu-20.04
+            python-version: "3.5"
+          - os: ubuntu-20.04
+            python-version: "3.6"
+          - os: ubuntu-22.04
+            python-version: "3.7"
 
-
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}

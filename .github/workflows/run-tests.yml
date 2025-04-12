@@ -13,10 +13,14 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: coatldev/six:latest
+    container: ${{ matrix.container }}
     strategy:
       matrix:
         python-version: ["2.7", "3.4", "3.5", "3.6", "3.7"]
+        include:
+          - python-version: "2.7"
+            container: coatldev/six:latest
+
 
     steps:
     - uses: actions/checkout@v4

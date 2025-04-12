@@ -44,6 +44,8 @@ jobs:
         python setup.py nosetests
     - name: Upload coverage data
       uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel: true
 
   coveralls_finish:
     needs: test
@@ -51,3 +53,5 @@ jobs:
     steps:
     - name: Coveralls Finished
       uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel-finished: true

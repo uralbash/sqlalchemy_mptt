@@ -30,6 +30,13 @@ jobs:
     container: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@v4
+    - name: Ignore certificate verification on python 3.5
+      shell: bash
+      # workaround found in https://github.com/actions/setup-python/issues/866
+      # for issue "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:728)" on Python 3.5
+      run: |
+        echo 'PIP_TRUSTED_HOST=pypi.python.org pypi.org files.pythonhosted.org' >>$GITHUB_ENV
+      if: 'matrix.python-version == 3.5'
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:

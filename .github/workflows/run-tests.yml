@@ -13,7 +13,14 @@ jobs:
   test:
     strategy:
       matrix:
-        sqlalchemy-version: ["1.0.0", "1.1.0", "1.2.0", "1.3.0"]
+        python-version:
+          - "3.6"
+          - "3.7"
+        sqlalchemy-version:
+          - "1.0.0"
+          - "1.1.0"
+          - "1.2.0"
+          - "1.3.0"
         include:
           - os: ubuntu-20.04
             python-version: "3.6"

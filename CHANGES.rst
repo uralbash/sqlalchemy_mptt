@@ -1,9 +1,10 @@
 0.2.6 (2020-XX-XX)
 ==================
 
-see issue #63
+see issue #63 & #87
 
 - Support for joined-table inheritance
+- Restrict to SQLA 1.0 - 1.3
 
 0.2.5 (2019-07-23)
 ==================
@@ -11,7 +12,6 @@ see issue #63
 see issue #64
 
 - Added similar `django_mptt` methods `get_siblings` and `get_children`
-
 
 0.2.4 (2018-12-14)
 ==================

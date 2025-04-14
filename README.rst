@@ -271,8 +271,8 @@ License
 
 The project is licensed under the MIT license.
 
-.. |Build Status| image:: https://travis-ci.org/uralbash/sqlalchemy_mptt.svg?branch=master
-   :target: https://travis-ci.org/uralbash/sqlalchemy_mptt
+.. |Build Status| image:: https://github.com/uralbash/sqlalchemy_mptt/actions/workflows/run-tests.yml/badge.svg?branch=master
+   :target: https://github.com/uralbash/sqlalchemy_mptt/actions/workflows/run-tests.yml
 .. |Coverage Status| image:: https://coveralls.io/repos/uralbash/sqlalchemy_mptt/badge.png
    :target: https://coveralls.io/r/uralbash/sqlalchemy_mptt
 .. |IRC Freenode| image:: https://img.shields.io/badge/irc-freenode-blue.svg

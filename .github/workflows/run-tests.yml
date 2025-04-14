@@ -28,7 +28,6 @@ jobs:
             python-version: "3.7"
 
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}

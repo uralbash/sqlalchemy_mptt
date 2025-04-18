@@ -27,3 +27,4 @@ _build
 .ropeproject
 _themes
 .aider.*
+.vscode/

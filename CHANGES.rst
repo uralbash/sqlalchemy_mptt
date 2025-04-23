@@ -1,9 +1,10 @@
 0.2.6 (2020-XX-XX)
 ==================
 
-see issue #63 & #87
+see issues #63, #87 & #89
 
 - Support for joined-table inheritance
+- Restrict to Python 3.7 - 3.9
 - Restrict to SQLA 1.0 - 1.3
 
 0.2.5 (2019-07-23)

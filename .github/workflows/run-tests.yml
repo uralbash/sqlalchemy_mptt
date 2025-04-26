@@ -53,7 +53,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with nose
       run: |
-        python setup.py nosetests
+        nosetests --with-coverage --cover-package=sqlalchemy_mptt --cover-erase
     - name: Upload coverage data
       run: coveralls
       env:

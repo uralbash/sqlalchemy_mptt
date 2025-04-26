@@ -590,7 +590,10 @@ class TreesManager(object):
         """
         instances = self.instances[session]
         while instances:
-            instance = instances.pop()
+            try:
+                instance = instances.pop()
+            except KeyError:
+                break
             if instance not in session:
                 continue
             parent = self.get_parent_value(instance)

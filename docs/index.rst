@@ -62,6 +62,14 @@ futures, bug fixes, refactoring, docs, tests, translations, etc...
 If you have question, contact me sacrud@uralbash.ru or #sacrud IRC
 channel |IRC Freenode|
 
+Changelog
+=========
+
+.. toctree::
+
+    CHANGES.rst
+    CHANGES_OLD.rst
+
 Indices and tables
 ==================
 

@@ -17,7 +17,9 @@ jobs:
           - "3.7"
           - "3.8"
           - "3.9"
+          - "pypy-3.7"
           - "pypy-3.8"
+          - "pypy-3.9"
         sqlalchemy-version:
           - "1.0.0"
           - "1.1.0"
@@ -31,7 +33,11 @@ jobs:
           - os: ubuntu-latest
             python-version: "3.9"
           - os: ubuntu-latest
+            python-version: "pypy-3.7"
+          - os: ubuntu-latest
             python-version: "pypy-3.8"
+          - os: ubuntu-latest
+            python-version: "pypy-3.9"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -53,7 +59,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with nose
       run: |
-        python setup.py nosetests
+        nosetests --with-coverage --cover-package=sqlalchemy_mptt --cover-erase
     - name: Upload coverage data
       run: coveralls
       env:

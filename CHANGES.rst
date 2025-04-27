@@ -1,11 +1,12 @@
 0.2.6 (2020-XX-XX)
 ==================
 
-see issues #63, #87 & #89
+see issues #63, #87, #89 & #90
 
 - Support for joined-table inheritance
-- Restrict to Python 3.7 - 3.9
+- Restrict to Python & PyPy 3.7 - 3.9
 - Restrict to SQLA 1.0 - 1.3
+- Fixes race condition with garbage collection on PyPy versions
 
 0.2.5 (2019-07-23)
 ==================

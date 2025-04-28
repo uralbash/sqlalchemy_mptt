@@ -17,14 +17,6 @@ Library for implementing Modified Preorder Tree Traversal with your
 The nested set model is a particular technique for representing nested
 sets (also known as trees or hierarchies) in relational databases.
 
-API:
-----
-
-.. toctree::
-   :maxdepth: 4
-
-   sqlalchemy_mptt
-
 Where used
 ----------
 
@@ -39,6 +31,14 @@ Manual
 
     initialize.rst
     crud.rst
+
+API:
+----
+
+.. toctree::
+   :maxdepth: 4
+
+   sqlalchemy_mptt
 
 Tutorial
 --------
@@ -59,8 +59,10 @@ To report bugs, use the `issue tracker
 We welcome any contribution: suggestions, ideas, commits with new
 futures, bug fixes, refactoring, docs, tests, translations, etc...
 
-If you have question, contact me sacrud@uralbash.ru or #sacrud IRC
-channel |IRC Freenode|
+If you have any questions:
+* Use the `Discussion board <https://github.com/uralbash/sqlalchemy_mptt/discussions>`_
+* Contact the maintainer via email: fayaz.yusuf.khan@gmail.com
+* Contact the author via email: sacrud@uralbash.ru or #sacrud IRC channel |IRC Freenode|
 
 Changelog
 =========

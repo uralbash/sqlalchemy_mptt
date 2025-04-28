@@ -1,5 +1,5 @@
-Initalize
-=========
+Setup
+=====
 
 Create model with MPTT mixin:
 

@@ -1,5 +1,5 @@
-CRUD
-====
+Usage
+=====
 
 INSERT
 ------

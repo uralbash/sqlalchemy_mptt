@@ -1,5 +1,5 @@
-Flask
-=====
+Setup & Usage with Flask-SQLAlchemy
+===================================
 
 Initialize Flask app and sqlalchemy
 

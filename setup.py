@@ -11,10 +11,12 @@ def read(name):
 
 setup(
     name="sqlalchemy_mptt",
-    version="0.2.5",
+    version="0.3.0",
     url="http://github.com/uralbash/sqlalchemy_mptt/",
     author="Svintsov Dmitry",
     author_email="sacrud@uralbash.ru",
+    maintainer="Fayaz Khan",
+    maintainer_email="fayaz.yusuf.khan@gmail.com",
     packages=["sqlalchemy_mptt"],
     include_package_data=True,
     zip_safe=False,

@@ -33,4 +33,6 @@ sphinx:
 python:
   install:
     - requirements: requirements.txt
+jobs:
+  create_environment:
     - pip install -e .

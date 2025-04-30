@@ -65,7 +65,6 @@ html_static_path = ['_static']
 htmlhelp_basename = 'sqlalchemy_mpttdoc'
 
 html_theme_options = {
-    'travis_button': True,
     'github_button': True,
     'github_user': 'uralbash',
     'github_repo': 'sqlalchemy_mptt',

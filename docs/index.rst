@@ -7,9 +7,7 @@ sqlalchemy_mptt
 ===============
 
 .. image:: _static/mptt_insert.jpg
-    :width: 450px
     :alt: MPTT (nested sets) INSERT
-    :align: right
 
 Library for implementing Modified Preorder Tree Traversal with your
 `SQLAlchemy` Models and working with trees of Model instances, like

@@ -75,7 +75,7 @@ class DataIntegrity(object):
 
         .. code-block:: sql
 
-            SELECT id, MOD((left – level + 2) / 2) AS modulo FROM tree
+            SELECT id, MOD((left - level + 2) / 2) AS modulo FROM tree
             WHERE modulo = 1
         """
         table = self.model

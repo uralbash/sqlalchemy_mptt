@@ -33,7 +33,7 @@ sphinx:
 #python:
 #  install:
 #    - requirements: requirements.txt
-jobs:
+python:
   install:
-    - pip install -e .
-    - pip install -r requirements.txt
+    - method: pip
+      path: .

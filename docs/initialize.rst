@@ -121,6 +121,7 @@ Represented data of tree like dict
         {'id': '10',                  'parent_id':  '7'},
         {'id': '11',                  'parent_id': '10'},
     )
+
 Initializing a tree with data
 -----------------------------
 

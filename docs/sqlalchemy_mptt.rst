@@ -52,10 +52,35 @@ Tests
     :undoc-members:
     :show-inheritance:
 
-Base tests
-~~~~~~~~~~
+Cases tests
+~~~~~~~~~~~
 
-.. automodule:: sqlalchemy_mptt.tests.tree_testing_base
+.. automodule:: sqlalchemy_mptt.tests.cases.edit_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: sqlalchemy_mptt.tests.cases.get_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: sqlalchemy_mptt.tests.cases.get_tree
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: sqlalchemy_mptt.tests.cases.initialize
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: sqlalchemy_mptt.tests.cases.integrity
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: sqlalchemy_mptt.tests.cases.move_node
     :members:
     :undoc-members:
     :show-inheritance:

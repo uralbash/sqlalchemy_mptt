@@ -12,10 +12,16 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 from datetime import date
+import os
+import sys
+
 from docutils.parsers.rst import directives
 from sphinx.directives.code import CodeBlock
 
 directives.register_directive('no-code-block', CodeBlock)
+
+sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath("../"))
 
 # -- General configuration ------------------------------------------------
 
@@ -26,7 +32,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.mathjax',
-    #'sphinx.ext.mathbase',
+    # 'sphinx.ext.mathbase',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

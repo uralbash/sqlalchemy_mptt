@@ -30,9 +30,10 @@ sphinx:
 # Optional but recommended, declare the Python requirements required
 # to build your documentation
 # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
-python:
-  install:
-    - requirements: requirements.txt
+#python:
+#  install:
+#    - requirements: requirements.txt
 jobs:
-  create_environment:
+  install:
     - pip install -e .
+    - pip install -r requirements.txt

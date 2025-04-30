@@ -60,6 +60,7 @@ We welcome any contribution: suggestions, ideas, commits with new
 futures, bug fixes, refactoring, docs, tests, translations, etc...
 
 If you have any questions:
+
 * Use the `Discussion board <https://github.com/uralbash/sqlalchemy_mptt/discussions>`_
 * Contact the maintainer via email: fayaz.yusuf.khan@gmail.com
 * Contact the author via email: sacrud@uralbash.ru or #sacrud IRC channel |IRC Freenode|

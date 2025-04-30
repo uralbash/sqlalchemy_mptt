@@ -67,6 +67,7 @@ Changelog
 =========
 
 .. toctree::
+    :maxdepth: 1
 
     CHANGES.rst
     CHANGES_OLD.rst

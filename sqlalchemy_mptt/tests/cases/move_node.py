@@ -79,6 +79,7 @@ class MoveBefore(object):
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
 
         .. code::
+
                                         <--------------------------------
                                                                         |
             level           Nested sets tree1                           |

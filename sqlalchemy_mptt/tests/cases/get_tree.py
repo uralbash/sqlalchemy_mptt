@@ -281,7 +281,7 @@ class Tree(object):
         self.assertEqual(tree, reference_tree)
 
     def test_path_to_root(self):
-        """Generate path from a leaf or intermediate node to the root.
+        r"""Generate path from a leaf or intermediate node to the root.
 
         For example:
 

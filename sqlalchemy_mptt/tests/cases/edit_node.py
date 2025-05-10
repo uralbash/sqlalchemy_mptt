@@ -4,6 +4,7 @@ class Changes(object):
         """ Update node w/o move
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
         .. code::
+
             level           Nested sets example
             1                    1(1)22
                     _______________|___________________
@@ -52,6 +53,7 @@ class Changes(object):
         """ Just change attr from node w/o move
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
         .. code::
+
             level           Nested sets example
             1                    1(1)22
                     _______________|___________________
@@ -97,6 +99,7 @@ class Changes(object):
         """ Insert node with parent==6
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
         .. code::
+
             level           Nested sets example
             1                    1(1)22
                     _______________|___________________
@@ -155,6 +158,7 @@ class Changes(object):
         """ Insert node with parent==4
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
         .. code::
+
             level           Nested sets example
             1                    1(1)22
                     _______________|___________________
@@ -216,6 +220,7 @@ class Changes(object):
         """ Delete node(4)
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
         .. code::
+
             level           Test delete node
             1                    1(1)22
                     _______________|___________________
@@ -269,6 +274,7 @@ class Changes(object):
         """ Set parent_id==5 for node(8)
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
         .. code::
+
             level           Test update node
                 1                    1(1)22
                         _______________|___________________

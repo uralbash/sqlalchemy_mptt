@@ -7,9 +7,7 @@ sqlalchemy_mptt
 ===============
 
 .. image:: _static/mptt_insert.jpg
-    :width: 450px
     :alt: MPTT (nested sets) INSERT
-    :align: right
 
 Library for implementing Modified Preorder Tree Traversal with your
 `SQLAlchemy` Models and working with trees of Model instances, like
@@ -36,7 +34,7 @@ API:
 ----
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    sqlalchemy_mptt
 
@@ -60,6 +58,7 @@ We welcome any contribution: suggestions, ideas, commits with new
 futures, bug fixes, refactoring, docs, tests, translations, etc...
 
 If you have any questions:
+
 * Use the `Discussion board <https://github.com/uralbash/sqlalchemy_mptt/discussions>`_
 * Contact the maintainer via email: fayaz.yusuf.khan@gmail.com
 * Contact the author via email: sacrud@uralbash.ru or #sacrud IRC channel |IRC Freenode|
@@ -68,6 +67,7 @@ Changelog
 =========
 
 .. toctree::
+    :maxdepth: 1
 
     CHANGES.rst
     CHANGES_OLD.rst

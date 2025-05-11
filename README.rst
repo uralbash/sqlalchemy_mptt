@@ -1,4 +1,5 @@
 |Build Status| |Coverage Status|
+|PyPI Version|
 
 Library for implementing Modified Preorder Tree Traversal with your
 SQLAlchemy Models and working with trees of Model instances, like
@@ -277,3 +278,5 @@ The project is licensed under the MIT license.
    :target: https://coveralls.io/r/uralbash/sqlalchemy_mptt
 .. |IRC Freenode| image:: https://img.shields.io/badge/irc-freenode-blue.svg
    :target: https://webchat.freenode.net/?channels=sacrud
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/sqlalchemy_mptt
+   :alt: PyPI - Version

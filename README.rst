@@ -1,3 +1,4 @@
+|PyPI Version| |PyPI Downloads| |PyPI Python Versions|
 |Build Status| |Coverage Status|
 
 Library for implementing Modified Preorder Tree Traversal with your
@@ -263,14 +264,23 @@ To report bugs, use the `issue tracker
 We welcome any contribution: suggestions, ideas, commits with new
 futures, bug fixes, refactoring, docs, tests, translations, etc...
 
-If you have question, contact me sacrud@uralbash.ru or #sacrud IRC
-channel |IRC Freenode|
+If you have any questions:
+
+* Use the `Discussion board <https://github.com/uralbash/sqlalchemy_mptt/discussions>`_
+* Contact the maintainer via email: fayaz.yusuf.khan@gmail.com
+* Contact the author via email: sacrud@uralbash.ru or #sacrud IRC channel |IRC Freenode|
 
 License
 =======
 
 The project is licensed under the MIT license.
 
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/sqlalchemy_mptt
+   :alt: PyPI - Version
+.. |PyPI Downloads| image:: https://img.shields.io/pypi/dm/sqlalchemy_mptt
+   :alt: PyPI - Downloads
+.. |PyPI Python Versions| image:: https://img.shields.io/pypi/pyversions/sqlalchemy_mptt
+   :alt: PyPI - Python Version
 .. |Build Status| image:: https://github.com/uralbash/sqlalchemy_mptt/actions/workflows/run-tests.yml/badge.svg?branch=master
    :target: https://github.com/uralbash/sqlalchemy_mptt/actions/workflows/run-tests.yml
 .. |Coverage Status| image:: https://coveralls.io/repos/uralbash/sqlalchemy_mptt/badge.png

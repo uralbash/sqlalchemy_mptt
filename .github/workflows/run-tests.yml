@@ -33,6 +33,7 @@ jobs:
     - uses: wntrblm/nox@main
     - run: nox -s "${{ matrix.session }}"
     - name: Upload coverage data
+      if: ${{ matrix.session != 'lint' }}
       uses: coverallsapp/github-action@v2
       with:
         flag-name: run-${{ join(matrix.*, '-') }}

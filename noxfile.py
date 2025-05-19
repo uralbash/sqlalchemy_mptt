@@ -1,12 +1,10 @@
 import nox
 
 
-PYTHON_VERSIONS = ["3.7", "3.8", "3.9"]
-# uv pip still works with Python 3.7
+PYTHON_VERSIONS = ["3.8", "3.9"]
 nox.options.default_venv_backend = "uv"
 
 
-# Fails for pypy-3.7. See: https://github.com/astral-sh/uv/issues/9490
 @nox.session(python=[python_version for python_version in PYTHON_VERSIONS] +
              [f"pypy-{python_version}" for python_version in PYTHON_VERSIONS])
 @nox.parametrize("sqlalchemy", [0, 1, 2, 3])

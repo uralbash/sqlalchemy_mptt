@@ -7,6 +7,15 @@ nox.options.default_venv_backend = "uv"
 
 
 @nox.session()
+def lint(session):
+    session.install("flake8")
+    # stop the linter if there are Python syntax errors or undefined names
+    session.run("flake8", ".", "--count", "--select=E9,F63,F7,F82", "--show-source", "--statistics")
+    # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+    session.run("flake8", ".", "--count", "--exit-zero", "--max-complexity=10", "--max-line-length=127", "--statistics")
+
+
+@nox.session()
 @nox.parametrize("python,sqlalchemy",
                  [(f"{interpreter}-{python_major}.{python_minor}", sqlalchemy_version)
                   for interpreter in ("cpython", "pypy")

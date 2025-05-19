@@ -25,4 +25,4 @@ def lint(session):
 def test(session, sqlalchemy):
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")
-    session.run("pytest", "sqlalchemy_mptt/")
+    session.run("coverage", "run", "--source=sqlalchemy_mptt", "-m", "pytest", "sqlalchemy_mptt/")

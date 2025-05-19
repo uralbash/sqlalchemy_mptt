@@ -23,7 +23,6 @@ def lint(session):
                   for sqlalchemy_version in SQLALCHEMY_VERSIONS
                   if sqlalchemy_version >= "1.2" or (python_major, python_minor) <= (3, 9)])
 def test(session, sqlalchemy):
-    session.install("pip==24.0")
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")
     session.run("pytest", "sqlalchemy_mptt/")

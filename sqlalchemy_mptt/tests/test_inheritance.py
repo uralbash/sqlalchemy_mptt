@@ -109,19 +109,14 @@ class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = SpecializedTree
 
+    @unittest.expectedFailure
     def test_rebuild(self):
         # See the following URL for caveats when using update on mapped
         # hierarchies:
         # http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update
         #
         # This test will always fail on specialized classes.
-        try:
-            super(TestSpecializedTree, self).test_rebuild()
-        except Exception:
-            import nose
-            raise nose.SkipTest()
-        else:
-            raise AssertionError('Failure expected')  # pragma: no cover
+        super().test_rebuild()
 
 
 Base2 = declarative_base()
@@ -159,16 +154,9 @@ class TestInheritanceTree(TreeTestingMixin, unittest.TestCase):
     base = Base2
     model = InheritanceTree
 
+    @unittest.skipIf(
+            sa.__version__ < "1.4",
+            "Trees involving inheritance are only supported on "
+            "SQLAlchemy version 1.4 and above")
     def test_rebuild(self):
-        # See the following URL for caveats when using update on mapped
-        # hierarchies:
-        # http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update
-        #
-        # This test will always fail on specialized classes.
-        try:
-            super(TestInheritanceTree, self).test_rebuild()
-        except Exception:
-            import nose
-            raise nose.SkipTest()
-        else:
-            raise AssertionError('Failure expected')  # pragma: no cover
+        super(TestInheritanceTree, self).test_rebuild()

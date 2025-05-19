@@ -14,4 +14,4 @@ def test(session, sqlalchemy):
     session.install("pip==24.0")
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~=1.{sqlalchemy}.0")
-    session.run("nosetests", "sqlalchemy_mptt/")
+    session.run("pytest", "sqlalchemy_mptt/")

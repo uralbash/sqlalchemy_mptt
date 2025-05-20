@@ -21,7 +21,7 @@ jobs:
       shell: bash
       run: echo session=$(nox --json -l | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
   checks:
-    name: Session ${{ matrix.session }}
+    name: Run ${{ matrix.session }}
     needs: [generate-jobs]
     runs-on: ubuntu-latest
     strategy:

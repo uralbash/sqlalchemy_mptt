@@ -1,7 +1,7 @@
 import nox
 
 
-PYTHON_VERSIONS = [(3, 8), (3, 9), (3, 10), (3, 11)]
+PYTHON_VERSIONS = [(3, 7), (3, 8), (3, 9), (3, 10), (3, 11)]
 SQLALCHEMY_VERSIONS = ["1.0", "1.1", "1.2", "1.3"]
 nox.options.default_venv_backend = "uv|venv"
 

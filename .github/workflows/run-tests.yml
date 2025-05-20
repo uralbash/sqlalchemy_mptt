@@ -46,7 +46,6 @@ jobs:
     name: Finalize coverage
     needs: checks
     runs-on: ubuntu-latest
-    container: python:3-slim
     steps:
     - uses: coverallsapp/github-action@v2
       with:

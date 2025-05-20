@@ -29,3 +29,4 @@ _build
 _themes
 .aider.*
 .vscode/
+coverage.xml

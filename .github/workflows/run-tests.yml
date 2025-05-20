@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: wntrblm/nox@main
-    - run: nox -s "${{ matrix.session }}"
+    - run: nox -s "${{ matrix.session }}" -- --coverage
     - name: Upload coverage data
       if: ${{ matrix.session != 'lint' }}
       uses: coverallsapp/github-action@v2

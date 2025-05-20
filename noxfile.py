@@ -25,4 +25,8 @@ def lint(session):
 def test(session, sqlalchemy):
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")
-    session.run("coverage", "run", "--source=sqlalchemy_mptt", "-m", "pytest", "sqlalchemy_mptt/")
+    if "--coverage" in session.posargs:
+        session.run("coverage", "run", "--source=sqlalchemy_mptt", "-m", "pytest", "sqlalchemy_mptt/")
+        session.run("coverage", "xml")
+    else:
+        session.run("pytest", "sqlalchemy_mptt/")

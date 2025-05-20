@@ -17,8 +17,8 @@ def lint(session):
 
 @nox.session()
 @nox.parametrize("python,sqlalchemy",
-                 [(f"{interpreter}-{python_major}.{python_minor}", sqlalchemy_version)
-                  for interpreter in ("cpython", "pypy")
+                 [(f"{interpreter}{python_major}.{python_minor}", sqlalchemy_version)
+                  for interpreter in ("", "pypy-")
                   for (python_major, python_minor) in PYTHON_VERSIONS
                   for sqlalchemy_version in SQLALCHEMY_VERSIONS
                   if sqlalchemy_version >= "1.2" or (python_major, python_minor) <= (3, 9)])

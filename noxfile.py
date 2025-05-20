@@ -1,7 +1,15 @@
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "nox",
+#     "nox-uv",
+# ]
+# ///
 import nox
 
 
-PYTHON_VERSIONS = [(3, 8), (3, 9), (3, 10), (3, 11)]
+PYTHON_MINOR_VERSION_MIN = 8
+PYTHON_MINOR_VERSION_MAX = 11
 SQLALCHEMY_VERSIONS = ["1.0", "1.1", "1.2", "1.3"]
 nox.options.default_venv_backend = "uv|venv"
 
@@ -17,11 +25,12 @@ def lint(session):
 
 @nox.session()
 @nox.parametrize("python,sqlalchemy",
-                 [(f"{interpreter}{python_major}.{python_minor}", sqlalchemy_version)
+                 [(f"{interpreter}3.{python_minor}", sqlalchemy_version)
                   for interpreter in ("", "pypy-")
-                  for (python_major, python_minor) in PYTHON_VERSIONS
+                  for python_minor in range(PYTHON_MINOR_VERSION_MIN, PYTHON_MINOR_VERSION_MAX + 1)
                   for sqlalchemy_version in SQLALCHEMY_VERSIONS
-                  if sqlalchemy_version >= "1.2" or (python_major, python_minor) <= (3, 9)])
+                  # SQLA 1.1 doesn't seem to support Python 3.10
+                  if sqlalchemy_version >= "1.2" or python_minor <= 9])
 def test(session, sqlalchemy):
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")
@@ -30,3 +39,13 @@ def test(session, sqlalchemy):
         session.run("coverage", "xml")
     else:
         session.run("pytest", "sqlalchemy_mptt/")
+
+
+@nox.session(default=False)
+def dev(session):
+    session.run("uv", "venv", "--python", f"3.{PYTHON_MINOR_VERSION_MIN}", "--seed")
+    session.run(".venv/bin/python", "setup.py", "develop", external=True)
+
+
+if __name__ == "__main__":
+    nox.main()

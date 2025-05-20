@@ -31,6 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: wntrblm/nox@main
+    - run: pip install nox-uv
     - run: nox -s "${{ matrix.session }}" -- --coverage
     - name: Upload coverage data
       if: ${{ matrix.session != 'lint' }}

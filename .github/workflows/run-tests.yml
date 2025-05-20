@@ -30,9 +30,10 @@ jobs:
         session: ${{ fromJson(needs.generate-jobs.outputs.session) }}
     steps:
     - uses: actions/checkout@v4
-    - uses: wntrblm/nox@main
-    - run: pip install nox-uv
-    - run: nox -s "${{ matrix.session }}" -- --coverage
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+    - run: uv tool install nox --with nox-uv
+    - run: uvx nox -s "${{ matrix.session }}" -- --coverage
     - name: Upload coverage data
       if: ${{ matrix.session != 'lint' }}
       uses: coverallsapp/github-action@v2

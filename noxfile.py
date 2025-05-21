@@ -46,8 +46,9 @@ def test(session, sqlalchemy):
 
 @nox.session(default=False)
 def dev(session):
-    session.run("uv", "venv", "--python", f"3.{PYTHON_MINOR_VERSION_MIN}", "--seed")
-    session.run(".venv/bin/python", "setup.py", "develop", external=True)
+    session.run("uv", "venv", "--python", session.python or f"3.{PYTHON_MINOR_VERSION_MIN}", "--seed")
+    session.run(".venv/bin/pip", "install", "-r", "requirements-test.txt", external=True)
+    session.run(".venv/bin/pip", "install", "-e", ".", external=True)
 
 
 if __name__ == "__main__":

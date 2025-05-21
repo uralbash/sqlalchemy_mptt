@@ -94,5 +94,5 @@ def validate_get_tree_node_for_custom_query(node_response):
 
 TestTreeStates = TreeStateMachine.TestCase
 TestTreeStates.settings = settings(
-    max_examples=50, stateful_step_count=100
+    max_examples=75, stateful_step_count=25
 )

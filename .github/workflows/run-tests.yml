@@ -16,10 +16,11 @@ jobs:
       session: ${{ steps.set-matrix.outputs.session }}
     steps:
     - uses: actions/checkout@v4
-    - uses: wntrblm/nox@main
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
     - id: set-matrix
       shell: bash
-      run: echo session=$(nox --json -l | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
+      run: echo session=$(uv run noxfile.py --json -l | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
   checks:
     name: Run ${{ matrix.session }}
     needs: [generate-jobs]

@@ -1,5 +1,5 @@
 from hypothesis import assume, given, settings, strategies as st
-from hypothesis.stateful import Bundle, RuleBasedStateMachine, invariant, rule
+from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
 from sqlalchemy import Column, Integer, Boolean, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -39,6 +39,12 @@ class TreeStateMachine(RuleBasedStateMachine):
         assert node.left < node.right
         return node
 
+    @rule(node=consumes(node))
+    def delete_node(self, node):
+        assume(node in self.session)
+        self.session.delete(node)
+        self.session.flush()
+
     @rule(target=node, node=node, visible=st.none() | st.booleans())
     def add_child(self, node, visible):
         assume(node in self.session)
@@ -47,12 +53,6 @@ class TreeStateMachine(RuleBasedStateMachine):
         self.session.flush()
         assert node.left < child.left < child.right < node.right
         return child
-
-    @rule(node=node)
-    def delete_child(self, node):
-        assume(node in self.session)
-        self.session.delete(node)
-        self.session.flush()
 
     @invariant()
     def check_get_tree_integrity(self):

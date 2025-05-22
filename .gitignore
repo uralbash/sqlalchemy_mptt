@@ -31,3 +31,6 @@ _themes
 .vscode/
 coverage.xml
 .hypothesis/
+.nox
+.pytest_cache
+.venv

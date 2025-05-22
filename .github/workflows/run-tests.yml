@@ -11,14 +11,15 @@ permissions:
 
 jobs:
   generate-jobs:
+    name: Generate build matrix for tests
     runs-on: ubuntu-latest
     outputs:
       session: ${{ steps.set-matrix.outputs.session }}
     steps:
     - uses: actions/checkout@v4
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
-    - id: set-matrix
+    - uses: astral-sh/setup-uv@v6
+    - name: Generate build matrix
+      id: set-matrix
       shell: bash
       run: echo session=$(uv run noxfile.py --json -l | jq -c '[.[].session]') | tee --append $GITHUB_OUTPUT
   checks:
@@ -31,10 +32,10 @@ jobs:
         session: ${{ fromJson(needs.generate-jobs.outputs.session) }}
     steps:
     - uses: actions/checkout@v4
-    - name: Install uv
-      uses: astral-sh/setup-uv@v6
+    - uses: astral-sh/setup-uv@v6
     - run: uv tool install nox --with nox-uv
-    - run: uvx nox -s "${{ matrix.session }}" -- --coverage
+    - name: Run nox
+      run: uvx nox -s "${{ matrix.session }}" -- --coverage
     - name: Upload coverage data
       if: ${{ matrix.session != 'lint' }}
       uses: coverallsapp/github-action@v2

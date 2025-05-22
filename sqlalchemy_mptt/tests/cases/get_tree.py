@@ -68,20 +68,7 @@ class Tree(object):
         """
         Count num of queries to the database.
         See https://github.com/uralbash/sqlalchemy_mptt/issues/39
-
-
-        Use ``--nocapture`` option for show run time:
-
-        ::
-
-            nosetests sqlalchemy_mptt.tests.test_events:TestTree.test_get_tree_count_query --nocapture
-            Get tree:             0:00:00.001817
-            .
-            ----------------------------------------------------------------------
-            Ran 1 test in 0.064s
-
-            OK
-        """  # noqa
+        """
         # from datetime import datetime
         self.session.commit()
 

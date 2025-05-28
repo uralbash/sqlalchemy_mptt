@@ -111,10 +111,6 @@ class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
 
     @unittest.expectedFailure
     def test_rebuild(self):
-        # See the following URL for caveats when using update on mapped
-        # hierarchies:
-        # http://docs.sqlalchemy.org/en/rel_0_9/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update
-        #
         # This test will always fail on specialized classes.
         super().test_rebuild()
 

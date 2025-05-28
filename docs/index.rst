@@ -46,7 +46,7 @@ Tutorial
     tut_flask.rst
 
 A lot of examples and logic in
-:py:mod:`sqlalchemy_mptt.tests.cacses`
+:py:mod:`sqlalchemy_mptt.tests.cases`
 
 Support and Development
 =======================

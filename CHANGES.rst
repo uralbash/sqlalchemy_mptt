@@ -1,6 +1,14 @@
 Versions releases 0.2.x & above
 ###############################
 
+0.4.0 (Unreleased)
+==================
+
+see issue #97
+
+- Support for Python 3.10 and 3.11
+- Dropped support for Python 3.7
+
 0.3.0 (2025-05-10)
 ==================
 

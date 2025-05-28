@@ -270,6 +270,9 @@ If you have any questions:
 * Contact the maintainer via email: fayaz.yusuf.khan@gmail.com
 * Contact the author via email: sacrud@uralbash.ru or #sacrud IRC channel |IRC Freenode|
 
+Refer the detailed contribution guide in the `docs <https://sqlalchemy-mptt.readthedocs.io/en/latest/contributing.html>`_
+for more information on setting up the development environment, running tests, and contributing to the project.
+
 License
 =======
 

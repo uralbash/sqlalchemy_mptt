@@ -68,6 +68,7 @@ def test(session, sqlalchemy):
     """Run tests with pytest.
 
     Use the --coverage option to run tests with coverage.
+    For fine-grained control over running the tests, refer the nox documentation: https://nox.thea.codes/en/stable/usage.html
     """
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")

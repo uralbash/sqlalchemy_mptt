@@ -46,22 +46,14 @@ Tutorial
     tut_flask.rst
 
 A lot of examples and logic in
-:py:mod:`sqlalchemy_mptt.tests.cacses`
+:py:mod:`sqlalchemy_mptt.tests.cases`
 
 Support and Development
 =======================
 
-To report bugs, use the `issue tracker
-<https://github.com/uralbash/sqlalchemy_mptt/issues>`_.
+.. toctree::
 
-We welcome any contribution: suggestions, ideas, commits with new
-futures, bug fixes, refactoring, docs, tests, translations, etc...
-
-If you have any questions:
-
-* Use the `Discussion board <https://github.com/uralbash/sqlalchemy_mptt/discussions>`_
-* Contact the maintainer via email: fayaz.yusuf.khan@gmail.com
-* Contact the author via email: sacrud@uralbash.ru or #sacrud IRC channel |IRC Freenode|
+    CONTRIBUTING.rst
 
 Changelog
 =========
@@ -81,5 +73,3 @@ Indices and tables
 
 .. _ps_tree: https://github.com/sacrud/ps_tree
 .. _pyramid_pages: https://github.com/uralbash/pyramid_pages
-.. |IRC Freenode| image:: https://img.shields.io/badge/irc-freenode-blue.svg
-   :target: https://webchat.freenode.net/?channels=sacrud

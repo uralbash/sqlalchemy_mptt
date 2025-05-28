@@ -29,3 +29,8 @@ _build
 _themes
 .aider.*
 .vscode/
+coverage.xml
+.hypothesis/
+.nox
+.pytest_cache
+.venv

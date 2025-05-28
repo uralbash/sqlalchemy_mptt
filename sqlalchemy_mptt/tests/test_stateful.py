@@ -1,3 +1,4 @@
+"""Test cases written using Hypothesis stateful testing framework."""
 from hypothesis import assume, given, settings, strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
 from sqlalchemy import Column, Integer, Boolean, create_engine
@@ -21,6 +22,7 @@ class Tree(Base, BaseNestedSets):
 
 
 class TreeStateMachine(RuleBasedStateMachine):
+    """A state machine with various possible actions and transitions for the Tree model."""
 
     def __init__(self):
         super().__init__()
@@ -56,6 +58,7 @@ class TreeStateMachine(RuleBasedStateMachine):
 
     @invariant()
     def check_get_tree_integrity(self):
+        """Check that get_tree response is valid after each operation."""
         response = Tree.get_tree(self.session)
         assert isinstance(response, list)
         for node in response:
@@ -65,6 +68,7 @@ class TreeStateMachine(RuleBasedStateMachine):
     @invariant()
     @given(st.none() | st.booleans())
     def check_get_tree_with_custom_query(self, visible):
+        """Check that get_tree response is valid with custom queries."""
         response = Tree.get_tree(self.session, query=lambda x: x.filter_by(visible=visible))
         assert isinstance(response, list)
         for node in response:
@@ -73,6 +77,7 @@ class TreeStateMachine(RuleBasedStateMachine):
 
 
 def validate_get_tree_node(node_response, level=1):
+    """Validate the structure of a node response from get_tree."""
     node = node_response['node']
     assert node.level == level
     if len(node.children):
@@ -85,6 +90,7 @@ def validate_get_tree_node(node_response, level=1):
 
 
 def validate_get_tree_node_for_custom_query(node_response):
+    """Validate the structure of a node response from get_tree with custom query."""
     node = node_response['node']
     if 'children' in node_response.keys():
         for child_response in node_response['children']:
@@ -92,6 +98,7 @@ def validate_get_tree_node_for_custom_query(node_response):
             validate_get_tree_node_for_custom_query(child_response)
 
 
+# Export the stateful test case
 TestTreeStates = TreeStateMachine.TestCase
 TestTreeStates.settings = settings(
     max_examples=75, stateful_step_count=25

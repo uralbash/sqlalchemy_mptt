@@ -11,7 +11,7 @@ def read(name):
 
 setup(
     name="sqlalchemy_mptt",
-    version="0.3.0",
+    version="0.4.0",
     url="http://github.com/uralbash/sqlalchemy_mptt/",
     author="Svintsov Dmitry",
     author_email="sacrud@uralbash.ru",
@@ -21,7 +21,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     license="MIT",
-    description="SQLAlchemy MPTT mixins (Nested Sets)",
+    description="SQLAlchemy mixins for implementing tree-like models using Modified Pre-order Tree Traversal (MPTT) / Nested Sets",
     long_description=read("README.rst") + "\n" + read("CHANGES.rst"),
     install_requires=read("requirements.txt"),
     classifiers=[

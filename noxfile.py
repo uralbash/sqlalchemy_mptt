@@ -26,10 +26,10 @@
         $ uv run noxfile.py -- --coverage
 
       Set up a development environment with the default Python version (3.8):
-        $ uv run noxfile.py dev
+        $ uv run noxfile.py -s dev
       Set up a development environment with a specific Python version:
-        $ uv run noxfile.py dev -P 3.X
-        $ uv run noxfile.py dev -P pypy-3.X    # For PyPy
+        $ uv run noxfile.py -s dev -P 3.X
+        $ uv run noxfile.py -s dev -P pypy-3.X    # For PyPy
 """
 import nox
 
@@ -85,8 +85,8 @@ def dev(session):
     This will create a virtual environment and install the package in editable mode in .venv.
 
     To use a specific Python version, use the -P option:
-    $ uv run noxfile.py dev -P 3.X
-    $ uv run noxfile.py dev -P pypy-3.X    # For PyPy
+    $ uv run noxfile.py -s dev -P 3.X
+    $ uv run noxfile.py -s dev -P pypy-3.X    # For PyPy
     """
     session.run("uv", "venv", "--python", session.python or f"3.{PYTHON_MINOR_VERSION_MIN}", "--seed")
     session.run(".venv/bin/pip", "install", "-r", "requirements-test.txt", external=True)

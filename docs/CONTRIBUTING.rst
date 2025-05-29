@@ -20,14 +20,14 @@ To set up the development environment, you can run:
     # Install uv
     $ pip install uv
     # Run the noxfile.py script
-    $ uv run noxfile.py dev
+    $ uv run noxfile.py -s dev
 
 By default, this will create a virtual environment with Python 3.8 and install all the required dependencies.
 If you need to setup the development environment with a specific Python version, you can run:
 
 .. code-block:: bash
 
-    $ uv run noxfile.py dev -P 3.10
+    $ uv run noxfile.py -s dev -P 3.10
 
 Running Tests
 -------------

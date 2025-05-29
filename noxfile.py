@@ -93,5 +93,12 @@ def dev(session):
     session.run(".venv/bin/pip", "install", "-e", ".", external=True)
 
 
+@nox.session(default=False)
+def build(session):
+    """Build the package."""
+    session.install("build")
+    session.run("python", "-m", "build")
+
+
 if __name__ == "__main__":
     nox.main()

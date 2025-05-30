@@ -21,7 +21,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     license="MIT",
-    description="SQLAlchemy mixins for implementing tree-like models using Modified Pre-order Tree Traversal (MPTT) / Nested Sets",
+    description=(
+        "SQLAlchemy mixins for implementing tree-like models"
+        " using Modified Pre-order Tree Traversal (MPTT) / Nested Sets"),
     long_description=read("README.rst") + "\n" + read("CHANGES.rst"),
     install_requires=read("requirements.txt"),
     classifiers=[

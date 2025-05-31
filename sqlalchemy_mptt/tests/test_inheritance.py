@@ -90,14 +90,14 @@ class TestTree(unittest.TestCase):
         self.session.delete(child1)
         self.session.commit()
 
-        self.assertEquals(None, self.session.query(SpecializedTree).get(2))
+        self.assertEqual(None, self.session.query(SpecializedTree).get(2))
 
         self.session.delete(child2)
         self.session.commit()
 
-        self.assertEquals(None, self.session.query(SpecializedTree).get(3))
-        self.assertEquals(None, self.session.query(SpecializedTree).get(4))
-        self.assertEquals(None, self.session.query(SpecializedTree).get(5))
+        self.assertEqual(None, self.session.query(SpecializedTree).get(3))
+        self.assertEqual(None, self.session.query(SpecializedTree).get(4))
+        self.assertEqual(None, self.session.query(SpecializedTree).get(5))
 
 
 class TestGenericTree(TreeTestingMixin, unittest.TestCase):

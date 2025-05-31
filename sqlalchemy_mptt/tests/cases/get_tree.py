@@ -267,6 +267,24 @@ class Tree(object):
         ]
         self.assertEqual(tree, reference_tree)
 
+    def test_drilldown_tree_without_session(self):
+        def go(id):
+            return get_obj(self.session, self.model, id)
+        node = go(7)
+        tree = node.drilldown_tree()
+        reference_tree = [
+            {'node': go(7),
+             'children': [
+                 {'node': go(8),
+                  'children': [
+                      {'node': go(9)}]},
+                 {'node': go(10),
+                  'children': [
+                      {'node': go(11)}]}]
+             }
+        ]
+        self.assertEqual(tree, reference_tree)
+
     def test_path_to_root(self):
         r"""Generate path from a leaf or intermediate node to the root.
 

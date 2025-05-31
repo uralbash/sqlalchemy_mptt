@@ -25,6 +25,11 @@
         $ uv run noxfile.py
       Run all tests with coverage and linting:
         $ uv run noxfile.py -- --coverage
+      Run tests for a specific SQLAlchemy version:
+        $ uv run noxfile.py -t sqla12
+      Run tests for a specific Python version:
+        $ uv run noxfile.py -s test -p 3.X
+        $ uv run noxfile.py -s test -p pypy-3.X    # For PyPy
 
       Set up a development environment with the default Python version (3.8):
         $ uv run noxfile.py -s dev
@@ -56,7 +61,7 @@ def lint(session):
         "flake8", ".", "--count", "--select=E9,F63,F7,F82", "--show-source", "--statistics", "--extend-exclude", ".venv")
     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
     session.run(
-        "flake8", ".", "--count", "--exit-zero", "--max-complexity=10",
+        "flake8", ".", "--count", "--exit-zero", "--max-complexity=10", "--extend-ignore=E711",
         "--max-line-length=127", "--statistics", "--extend-exclude", ".venv")
 
 
@@ -81,7 +86,10 @@ def parametrize_test_versions():
     ]
 
     return [
-        (f"{interpreter}3.{python_minor}", str(sqlalchemy_version))
+        nox.param(
+            f"{interpreter}3.{python_minor}", str(sqlalchemy_version),
+            tags=[f"sqla{sqlalchemy_version.major}{sqlalchemy_version.minor}"]
+        )
         for interpreter in ("", "pypy-")
         for python_minor in range(PYTHON_MINOR_VERSION_MIN, PYTHON_MINOR_VERSION_MAX + 1)
         for sqlalchemy_version in filtered_sqlalchemy_versions
@@ -95,6 +103,11 @@ def test(session, sqlalchemy):
     """Run tests with pytest.
 
     Use the --coverage option to run tests with coverage.
+
+    For running tests for a specific SQLAlchemy version, use the tags option:
+
+        $ uv run noxfile.py -s test -t sqla12
+
     For fine-grained control over running the tests, refer the nox documentation: https://nox.thea.codes/en/stable/usage.html
     """
     session.install("-r", "requirements-test.txt")

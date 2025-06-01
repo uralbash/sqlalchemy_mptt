@@ -112,11 +112,18 @@ def test(session, sqlalchemy):
     """
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")
-    if "--coverage" in session.posargs:
-        session.run("coverage", "run", "--source=sqlalchemy_mptt", "-m", "pytest", "sqlalchemy_mptt/")
-        session.run("coverage", "xml")
+    session.install("-e", ".")
+    try:
+        session.posargs.remove("--coverage")
+    except ValueError:
+        with_coverage = False
     else:
-        session.run("pytest", "sqlalchemy_mptt/")
+        with_coverage = True
+    pytest_cmd = [
+        "pytest", "--pyargs", "sqlalchemy_mptt",
+        "--cov", "sqlalchemy_mptt", "--cov-report", "term-missing:skip-covered"
+    ] + ["--cov-report", "xml"] if with_coverage else [] + session.posargs
+    session.run(*pytest_cmd)
 
 
 @nox.session(default=False)

@@ -56,8 +56,8 @@ class Fixtures(object):
 
     def add(self, model, fixtures):
         here = os.path.dirname(os.path.realpath(__file__))
-        file = open(os.path.join(here, fixtures))
-        fixtures = json.loads(file.read())
+        with open(os.path.join(here, fixtures)) as file:
+            fixtures = json.loads(file.read())
         for fixture in fixtures:
             if hasattr(model, "sqlalchemy_mptt_pk_name"):
                 fixture[model.sqlalchemy_mptt_pk_name] = fixture.pop("id")

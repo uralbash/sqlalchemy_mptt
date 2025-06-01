@@ -38,6 +38,7 @@ To run the tests and linters, you can use the following command:
 
     $ uv run noxfile.py
 
+For futher details, refer to the `noxfile.py` script.
 
 .. |IRC Freenode| image:: https://img.shields.io/badge/irc-freenode-blue.svg
    :target: https://webchat.freenode.net/?channels=sacrud

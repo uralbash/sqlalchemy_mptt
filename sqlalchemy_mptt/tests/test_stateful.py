@@ -3,7 +3,7 @@ from hypothesis import assume, given, settings, strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
 from sqlalchemy import Column, Integer, Boolean, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, was_deleted
+from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy_mptt import BaseNestedSets, mptt_sessionmaker
 

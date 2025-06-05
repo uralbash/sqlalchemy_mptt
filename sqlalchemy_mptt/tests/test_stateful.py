@@ -44,6 +44,14 @@ class TreeStateMachine(RuleBasedStateMachine):
     @rule(node=consumes(node))
     def delete_node(self, node):
         assume(node in self.session)
+        # Consume all descendants of the node
+        for name, value in self.names_to_values.copy().items():
+            if node.is_ancestor_of(value):
+                for var_reference in self.bundles["node"][:]:
+                    if var_reference.name == name:
+                        self.bundles["node"].remove(var_reference)
+                # Remove the object as well for garbage collection
+                del self.names_to_values[name]
         self.session.delete(node)
         self.session.flush()
 

@@ -3,7 +3,7 @@ from hypothesis import assume, given, settings, strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
 from sqlalchemy import Column, Integer, Boolean, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, was_deleted
 
 from sqlalchemy_mptt import BaseNestedSets, mptt_sessionmaker
 
@@ -44,6 +44,14 @@ class TreeStateMachine(RuleBasedStateMachine):
     @rule(node=consumes(node))
     def delete_node(self, node):
         assume(node in self.session)
+        # Consume all descendants of the node
+        for name, value in self.names_to_values.copy().items():
+            if node.is_ancestor_of(value):
+                for var_reference in self.bundles["node"][:]:
+                    if var_reference.name == name:
+                        self.bundles["node"].remove(var_reference)
+                # Remove the object as well for garbage collection
+                del self.names_to_values[name]
         self.session.delete(node)
         self.session.flush()
 

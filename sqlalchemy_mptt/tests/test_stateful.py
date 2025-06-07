@@ -74,14 +74,16 @@ class TreeStateMachine(RuleBasedStateMachine):
             validate_get_tree_node(node)
 
     @invariant()
-    @given(st.none() | st.booleans())
-    def check_get_tree_with_custom_query(self, visible):
+    def check_get_tree_with_custom_query(self):
         """Check that get_tree response is valid with custom queries."""
-        response = Tree.get_tree(self.session, query=lambda x: x.filter_by(visible=visible))
-        assert isinstance(response, list)
-        for node in response:
-            self.session.refresh(node['node'])
-            validate_get_tree_node_for_custom_query(node)
+        for visible in [None, True, False]:
+            response = Tree.get_tree(
+                self.session,
+                query=lambda x: x.filter_by(visible=visible)
+                    .execution_options(populate_existing=True).options(joinedload(Tree.children)))
+            assert isinstance(response, list)
+            for node in response:
+                validate_get_tree_node_for_custom_query(node)
 
 
 def validate_get_tree_node(node_response, level=1):

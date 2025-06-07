@@ -1,9 +1,9 @@
 """Test cases written using Hypothesis stateful testing framework."""
-from hypothesis import assume, given, settings, strategies as st
+from hypothesis import HealthCheck, settings, strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
 from sqlalchemy import Column, Integer, Boolean, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import joinedload, sessionmaker
 
 from sqlalchemy_mptt import BaseNestedSets, mptt_sessionmaker
 
@@ -37,40 +37,39 @@ class TreeStateMachine(RuleBasedStateMachine):
     def add_root_node(self, visible):
         node = Tree(visible=visible)
         self.session.add(node)
-        self.session.flush()
+        self.session.commit()
         assert node.left < node.right
         return node
 
     @rule(node=consumes(node))
     def delete_node(self, node):
-        assume(node in self.session)
         # Consume all descendants of the node
-        for name, value in self.names_to_values.copy().items():
-            if node.is_ancestor_of(value):
+        for name, value in list(self.names_to_values.items()):
+            if value not in self.session or node.is_ancestor_of(value):
                 for var_reference in self.bundles["node"][:]:
                     if var_reference.name == name:
                         self.bundles["node"].remove(var_reference)
                 # Remove the object as well for garbage collection
                 del self.names_to_values[name]
         self.session.delete(node)
-        self.session.flush()
+        self.session.commit()
 
     @rule(target=node, node=node, visible=st.none() | st.booleans())
     def add_child(self, node, visible):
-        assume(node in self.session)
         child = Tree(parent=node, visible=visible)
         self.session.add(child)
-        self.session.flush()
+        self.session.commit()
         assert node.left < child.left < child.right < node.right
         return child
 
     @invariant()
     def check_get_tree_integrity(self):
         """Check that get_tree response is valid after each operation."""
-        response = Tree.get_tree(self.session)
+        response = Tree.get_tree(
+            self.session,
+            query=lambda x: x.execution_options(populate_existing=True).options(joinedload(Tree.children)))
         assert isinstance(response, list)
         for node in response:
-            self.session.refresh(node['node'])
             validate_get_tree_node(node)
 
     @invariant()

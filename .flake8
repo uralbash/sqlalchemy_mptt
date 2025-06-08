@@ -1,0 +1,9 @@
+[flake8]
+extend-exclude = .venv
+statistics = True
+count = True
+show-source = True
+# The GitHub editor is 127 chars wide
+max-line-length = 127
+# Ignore valid SQLAlchemy NULL query syntax
+extend-ignore = E711

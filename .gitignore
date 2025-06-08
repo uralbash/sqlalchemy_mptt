@@ -1,5 +1,4 @@
 uv.lock
-.pre-commit-config.yaml
 .eggs
 .env
 *~

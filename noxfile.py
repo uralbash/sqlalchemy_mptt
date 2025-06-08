@@ -57,12 +57,9 @@ def lint(session):
     """Run flake8."""
     session.install("flake8")
     # stop the linter if there are Python syntax errors or undefined names
-    session.run(
-        "flake8", ".", "--count", "--select=E9,F63,F7,F82", "--show-source", "--statistics", "--extend-exclude", ".venv")
-    # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-    session.run(
-        "flake8", ".", "--count", "--exit-zero", "--max-complexity=10", "--extend-ignore=E711",
-        "--max-line-length=127", "--statistics", "--extend-exclude", ".venv")
+    session.run("flake8", "--select=E9,F63,F7,F82", "--show-source")
+    # exit-zero treats all errors as warnings
+    session.run("flake8", "--exit-zero", "--max-complexity=10")
 
 
 def parametrize_test_versions():

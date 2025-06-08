@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
-# Copyright © 2025 fayazkhan <fayaz.yusuf.khan@gmail.com>
+# Copyright (c) 2025 Fayaz Yusuf Khan <fayaz.yusuf.khan@gmail.com>
 #
 # Distributed under terms of the MIT license.
 """Test cases written using Hypothesis stateful testing framework."""

@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8
+#
+# Copyright © 2025 fayazkhan <fayaz.yusuf.khan@gmail.com>
+#
+# Distributed under terms of the MIT license.
 """Test cases written using Hypothesis stateful testing framework."""
 from hypothesis import HealthCheck, settings, strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
@@ -110,5 +116,5 @@ def validate_get_tree_node_for_custom_query(node_response):
 # Export the stateful test case
 TestTreeStates = TreeStateMachine.TestCase
 TestTreeStates.settings = settings(
-    max_examples=75, stateful_step_count=25, suppress_health_check=[HealthCheck.too_slow]
+    max_examples=75, stateful_step_count=25#, suppress_health_check=[HealthCheck.too_slow]
 )

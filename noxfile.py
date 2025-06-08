@@ -119,10 +119,13 @@ def test(session, sqlalchemy):
         with_coverage = False
     else:
         with_coverage = True
-    pytest_cmd = [
-        "pytest", "--pyargs", "sqlalchemy_mptt",
-        "--cov", "sqlalchemy_mptt", "--cov-report", "term-missing:skip-covered"
-    ] + ["--cov-report", "xml"] if with_coverage else [] + session.posargs
+    pytest_cmd = ["pytest"] + (
+        session.posargs or [
+            "--pyargs", "sqlalchemy_mptt",
+            "--cov", "sqlalchemy_mptt", "--cov-report", "term-missing:skip-covered",
+            "-W", "error:::sqlalchemy_mptt"
+        ]
+    ) + (["--cov-report", "xml"] if with_coverage else [])
     session.run(*pytest_cmd)
 
 

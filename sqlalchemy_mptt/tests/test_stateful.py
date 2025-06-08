@@ -1,9 +1,15 @@
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8
+#
+# Copyright (c) 2025 Fayaz Yusuf Khan <fayaz.yusuf.khan@gmail.com>
+#
+# Distributed under terms of the MIT license.
 """Test cases written using Hypothesis stateful testing framework."""
-from hypothesis import assume, given, settings, strategies as st
+from hypothesis import HealthCheck, settings, strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
 from sqlalchemy import Column, Integer, Boolean, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import joinedload, sessionmaker
 
 from sqlalchemy_mptt import BaseNestedSets, mptt_sessionmaker
 
@@ -37,43 +43,52 @@ class TreeStateMachine(RuleBasedStateMachine):
     def add_root_node(self, visible):
         node = Tree(visible=visible)
         self.session.add(node)
-        self.session.flush()
+        self.session.commit()
         assert node.left < node.right
         return node
 
     @rule(node=consumes(node))
     def delete_node(self, node):
-        assume(node in self.session)
+        # Consume all descendants of the node
+        for name, value in list(self.names_to_values.items()):
+            if value not in self.session or node.is_ancestor_of(value):
+                for var_reference in self.bundles["node"][:]:
+                    if var_reference.name == name:
+                        self.bundles["node"].remove(var_reference)
+                # Remove the object as well for garbage collection
+                del self.names_to_values[name]
         self.session.delete(node)
-        self.session.flush()
+        self.session.commit()
 
     @rule(target=node, node=node, visible=st.none() | st.booleans())
     def add_child(self, node, visible):
-        assume(node in self.session)
         child = Tree(parent=node, visible=visible)
         self.session.add(child)
-        self.session.flush()
+        self.session.commit()
         assert node.left < child.left < child.right < node.right
         return child
 
     @invariant()
     def check_get_tree_integrity(self):
         """Check that get_tree response is valid after each operation."""
-        response = Tree.get_tree(self.session)
+        response = Tree.get_tree(
+            self.session,
+            query=lambda x: x.execution_options(populate_existing=True).options(joinedload(Tree.children)))
         assert isinstance(response, list)
         for node in response:
-            self.session.refresh(node['node'])
             validate_get_tree_node(node)
 
     @invariant()
-    @given(st.none() | st.booleans())
-    def check_get_tree_with_custom_query(self, visible):
+    def check_get_tree_with_custom_query(self):
         """Check that get_tree response is valid with custom queries."""
-        response = Tree.get_tree(self.session, query=lambda x: x.filter_by(visible=visible))
-        assert isinstance(response, list)
-        for node in response:
-            self.session.refresh(node['node'])
-            validate_get_tree_node_for_custom_query(node)
+        for visible in [None, True, False]:
+            response = Tree.get_tree(
+                self.session,
+                query=lambda x: x.filter_by(visible=visible)
+                    .execution_options(populate_existing=True).options(joinedload(Tree.children)))
+            assert isinstance(response, list)
+            for node in response:
+                validate_get_tree_node_for_custom_query(node)
 
 
 def validate_get_tree_node(node_response, level=1):
@@ -101,5 +116,5 @@ def validate_get_tree_node_for_custom_query(node_response):
 # Export the stateful test case
 TestTreeStates = TreeStateMachine.TestCase
 TestTreeStates.settings = settings(
-    max_examples=75, stateful_step_count=25
+    max_examples=75, stateful_step_count=25, suppress_health_check=[HealthCheck.too_slow]
 )

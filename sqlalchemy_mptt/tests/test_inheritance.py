@@ -150,11 +150,9 @@ class TestInheritanceTree(TreeTestingMixin, unittest.TestCase):
     base = Base2
     model = InheritanceTree
 
-    # For SQLAlchemy 1.4 support
-    # @unittest.skipIf(
-    #         sa.__version__ < "1.4",
-    #         "Trees involving inheritance are only supported on "
-    #         "SQLAlchemy version 1.4 and above")
-    @unittest.expectedFailure
-    def test_rebuild(self):
+    @unittest.skipIf(
+            sa.__version__ < "1.4",
+            "Trees involving inheritance are only supported on "
+            "SQLAlchemy version 1.4 and above")
+    def test_rebuild(self):  # pragma: no cover
         super(TestInheritanceTree, self).test_rebuild()

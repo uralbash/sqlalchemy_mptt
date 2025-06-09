@@ -116,13 +116,24 @@ def test(session, sqlalchemy):
         with_coverage = False
     else:
         with_coverage = True
-    pytest_cmd = ["pytest"] + (
-        session.posargs or [
-            "--pyargs", "sqlalchemy_mptt",
-            "--cov", "sqlalchemy_mptt", "--cov-report", "term-missing:skip-covered",
-            "-W", "error:::sqlalchemy_mptt"
+    if with_coverage:
+        coverage_options = [
+            "--cov", "sqlalchemy_mptt",
+            "--cov-report", "term-missing:skip-covered",
+            "--cov-report", "xml"
         ]
-    ) + (["--cov-report", "xml"] if with_coverage else [])
+    elif session.python.startswith("pypy"):
+        # Disable coverage for PyPy as it slows down the tests significantly
+        # See: https://github.com/sqlalchemy/sqlalchemy/issues/9154#issuecomment-1687420057
+        coverage_options = []
+    else:
+        coverage_options = [
+            "--cov", "sqlalchemy_mptt",
+            "--cov-report", "term-missing:skip-covered"
+        ]
+    pytest_cmd = ["pytest"] + coverage_options + (
+        session.posargs or ["--pyargs", "sqlalchemy_mptt", "-W", "error:::sqlalchemy_mptt"]
+    )
     session.run(*pytest_cmd)
 
 

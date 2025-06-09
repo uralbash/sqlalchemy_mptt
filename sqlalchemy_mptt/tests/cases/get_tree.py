@@ -11,7 +11,9 @@ class Tree(object):
         """
             No rows in database.
         """
-        self.session.query(self.model).delete()
+        self.session.query(self.model).delete(
+            synchronize_session=False  # Fails with the default'evaluate' option for SQLAlchemy 1.4 on PyPy
+        )
         self.session.flush()
         tree = self.model.get_tree(self.session)
         self.assertEqual(tree, [])

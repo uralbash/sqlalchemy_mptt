@@ -17,7 +17,7 @@ class GetNodes(object):
         .. code::
 
             level           Nested sets example
-                1                    1(1)22
+                1                    1(1)22                              (12)
                         _______________|___________________
                        |               |                   |
                 2    2(2)5           6(4)11             12(7)21
@@ -41,6 +41,14 @@ class GetNodes(object):
             self.session.query(self.model).filter(self.model.get_pk_column() == 9).one()
         )
         self.assertEqual([], node9.get_siblings().all())  # flake8: noqa
+
+        node1 = (
+            self.session.query(self.model).filter(self.model.get_pk_column() == 1).one()
+        )
+        points = (
+            self.session.query(self.model).filter(self.model.get_pk_column() == 12).all()
+        )
+        self.assertEqual(points, node1.get_siblings().all())
 
     def test_get_children(self):
         """

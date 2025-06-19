@@ -480,6 +480,8 @@ def mptt_before_update(mapper, connection, instance):
 
 
 class _WeakDefaultDict(weakref.WeakKeyDictionary):
+    """A weak reference dictionary that returns a new `WeakSet` as a default
+    value for missing keys."""
 
     def __getitem__(self, key):
         try:

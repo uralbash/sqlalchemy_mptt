@@ -573,7 +573,7 @@ class TreesManager(object):
         parents of all modified instances part of this flush.
         """
         instances = self.instances[session]
-        while instances:
+        while True:
             try:
                 instance = instances.pop()
             except KeyError:

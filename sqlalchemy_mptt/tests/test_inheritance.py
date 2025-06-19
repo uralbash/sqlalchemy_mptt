@@ -154,5 +154,5 @@ class TestInheritanceTree(TreeTestingMixin, unittest.TestCase):
             sa.__version__ < "1.4",
             "Trees involving inheritance are only supported on "
             "SQLAlchemy version 1.4 and above")
-    def test_rebuild(self):  # pragma: no cover
+    def test_rebuild(self):
         super(TestInheritanceTree, self).test_rebuild()

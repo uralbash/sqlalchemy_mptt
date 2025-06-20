@@ -29,13 +29,11 @@
         $ uv run noxfile.py -t sqla12
       Run tests for a specific Python version:
         $ uv run noxfile.py -s test -p 3.X
-        $ uv run noxfile.py -s test -p pypy-3.X    # For PyPy
 
       Set up a development environment with the default Python version (3.8):
         $ uv run noxfile.py -s dev
       Set up a development environment with a specific Python version:
         $ uv run noxfile.py -s dev -P 3.X
-        $ uv run noxfile.py -s dev -P pypy-3.X    # For PyPy
 """
 from itertools import groupby
 
@@ -84,10 +82,9 @@ def parametrize_test_versions():
 
     return [
         nox.param(
-            f"{interpreter}3.{python_minor}", str(sqlalchemy_version),
+            f"3.{python_minor}", str(sqlalchemy_version),
             tags=[f"sqla{sqlalchemy_version.major}{sqlalchemy_version.minor}"]
         )
-        for interpreter in ("", "pypy-")
         for python_minor in range(PYTHON_MINOR_VERSION_MIN, PYTHON_MINOR_VERSION_MAX + 1)
         for sqlalchemy_version in filtered_sqlalchemy_versions
         # SQLA 1.1 or below doesn't seem to support Python 3.10+
@@ -122,10 +119,6 @@ def test(session, sqlalchemy):
             "--cov-report", "term-missing:skip-covered",
             "--cov-report", "xml"
         ]
-    elif session.python.startswith("pypy"):
-        # Disable coverage for PyPy as it slows down the tests significantly
-        # See: https://github.com/sqlalchemy/sqlalchemy/issues/9154#issuecomment-1687420057
-        coverage_options = []
     else:
         coverage_options = [
             "--cov", "sqlalchemy_mptt",
@@ -144,7 +137,6 @@ def dev(session):
 
     To use a specific Python version, use the -P option:
     $ uv run noxfile.py -s dev -P 3.X
-    $ uv run noxfile.py -s dev -P pypy-3.X    # For PyPy
     """
     session.run("uv", "venv", "--python", session.python or f"3.{PYTHON_MINOR_VERSION_MIN}", "--seed")
     session.run(".venv/bin/pip", "install", "-r", "requirements-test.txt", external=True)

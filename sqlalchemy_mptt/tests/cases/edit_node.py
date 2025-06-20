@@ -483,8 +483,7 @@ class Changes(object):
                 self.model.left: 0,
                 self.model.right: 0,
                 self.model.level: 0
-            },
-            synchronize_session=False  # Fails with the default 'evaluate' option for SQLAlchemy 1.4 on PyPy
+            }
         )
         self.model.rebuild(self.session, 1)
         _level = self.model.get_default_level()

@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from . import TreeTestingMixin
+from . import TreeTestingMixin, failures_expected_on
 from ..mixins import BaseNestedSets
 
 Base = declarative_base()
@@ -104,6 +104,10 @@ class TestGenericTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = GenericTree
 
+    @failures_expected_on(sqlalchemy_versions=['1.4'], interpreters=['pypy'])
+    def test_get_empty_tree(self):
+        super().test_get_empty_tree()
+
 
 class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
     base = Base
@@ -113,6 +117,10 @@ class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
     def test_rebuild(self):
         # This test will always fail on specialized classes.
         super().test_rebuild()
+
+    @failures_expected_on(sqlalchemy_versions=['1.4'], interpreters=['pypy'])
+    def test_get_empty_tree(self):
+        super().test_get_empty_tree()
 
 
 Base2 = declarative_base()
@@ -150,9 +158,10 @@ class TestInheritanceTree(TreeTestingMixin, unittest.TestCase):
     base = Base2
     model = InheritanceTree
 
-    @unittest.skipIf(
-            sa.__version__ < "1.4",
-            "Trees involving inheritance are only supported on "
-            "SQLAlchemy version 1.4 and above")
+    @failures_expected_on(sqlalchemy_versions=['1.0', '1.1', '1.2', '1.3'])
     def test_rebuild(self):
-        super(TestInheritanceTree, self).test_rebuild()
+        super().test_rebuild()
+
+    @failures_expected_on(sqlalchemy_versions=['1.4'], interpreters=['pypy'])
+    def test_get_empty_tree(self):
+        super().test_get_empty_tree()

@@ -11,6 +11,15 @@ class Tree(object):
         """
             No rows in database.
         """
+        self.session.query(self.model).delete()
+        self.session.flush()
+        tree = self.model.get_tree(self.session)
+        self.assertEqual(tree, [])
+
+    def test_get_empty_tree_without_synchronize(self):
+        """
+            No rows in database.
+        """
         self.session.query(self.model).delete(
             synchronize_session=False  # Fails with the default'evaluate' option for SQLAlchemy 1.4 on PyPy
         )

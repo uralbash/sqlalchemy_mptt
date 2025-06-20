@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy_mptt import mptt_sessionmaker
 
-from . import TreeTestingMixin
+from . import TreeTestingMixin, failures_expected_on
 from ..mixins import BaseNestedSets
 
 Base = declarative_base()
@@ -63,15 +63,27 @@ class TestTree(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = Tree
 
+    @failures_expected_on(sqlalchemy_versions=['1.4'], interpreters=['pypy'])
+    def test_get_empty_tree(self):
+        super().test_get_empty_tree()
+
 
 class TestTreeWithCustomId(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = TreeWithCustomId
 
+    @failures_expected_on(sqlalchemy_versions=['1.4'], interpreters=['pypy'])
+    def test_get_empty_tree(self):
+        super().test_get_empty_tree()
+
 
 class TestTreeWithCustomLevel(TreeTestingMixin, unittest.TestCase):
     base = Base
     model = TreeWithCustomLevel
+
+    @failures_expected_on(sqlalchemy_versions=['1.4'], interpreters=['pypy'])
+    def test_get_empty_tree(self):
+        super().test_get_empty_tree()
 
 
 class Events(unittest.TestCase):

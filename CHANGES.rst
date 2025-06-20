@@ -1,6 +1,12 @@
 Versions releases 0.2.x & above
 ###############################
 
+0.5.0 (Unreleased)
+==================
+
+- Support for SQLAlchemy 1.4
+- Drop official support for PyPy.
+
 0.4.0 (2025-05-30)
 ==================
 

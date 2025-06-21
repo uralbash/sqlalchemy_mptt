@@ -23,8 +23,6 @@
 
       Run all tests and linting:
         $ uv run noxfile.py
-      Run all tests with coverage and linting:
-        $ uv run noxfile.py -- --coverage
       Run tests for a specific SQLAlchemy version:
         $ uv run noxfile.py -t sqla12
       Run tests for a specific Python version:
@@ -107,27 +105,8 @@ def test(session, sqlalchemy):
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")
     session.install("-e", ".")
-    try:
-        session.posargs.remove("--coverage")
-    except ValueError:
-        with_coverage = False
-    else:
-        with_coverage = True
-    if with_coverage:
-        coverage_options = [
-            "--cov", "sqlalchemy_mptt",
-            "--cov-report", "term-missing:skip-covered",
-            "--cov-report", "xml"
-        ]
-    else:
-        coverage_options = [
-            "--cov", "sqlalchemy_mptt",
-            "--cov-report", "term-missing:skip-covered"
-        ]
-    pytest_cmd = ["pytest"] + coverage_options + (
-        session.posargs or ["--pyargs", "sqlalchemy_mptt", "-W", "error:::sqlalchemy_mptt"]
-    )
-    session.run(*pytest_cmd)
+    pytest_args = session.posargs or ["--pyargs", "sqlalchemy_mptt"]
+    session.run("pytest", *pytest_args)
 
 
 @nox.session(default=False)

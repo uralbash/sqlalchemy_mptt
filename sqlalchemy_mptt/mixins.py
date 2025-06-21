@@ -405,10 +405,7 @@ class BaseNestedSets(object):
         """
         table = self.__class__
         query = self._base_query_obj(session=session)
-        if self.parent_id:
-            query = query.filter(table.parent_id == self.parent_id)
-        else:
-            query = query.filter(table.parent_id == None)
+        query = query.filter(table.parent_id == self.parent_id)
         if not include_self:
             query = query.filter(self.get_pk_column() != self.get_pk_value())
         return query

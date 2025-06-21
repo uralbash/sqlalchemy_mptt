@@ -478,11 +478,13 @@ class Changes(object):
                 4                                  14(9)15   18(11)19
         """
 
-        self.session.query(self.model).update({
-            self.model.left: 0,
-            self.model.right: 0,
-            self.model.level: 0
-        })
+        self.session.query(self.model).update(
+            {
+                self.model.left: 0,
+                self.model.right: 0,
+                self.model.level: 0
+            }
+        )
         self.model.rebuild(self.session, 1)
         _level = self.model.get_default_level()
         self.assertEqual(

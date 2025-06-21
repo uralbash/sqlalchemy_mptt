@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from . import TreeTestingMixin
+from . import TreeTestingMixin, failures_expected_on
 from ..mixins import BaseNestedSets
 
 Base = declarative_base()
@@ -150,11 +150,6 @@ class TestInheritanceTree(TreeTestingMixin, unittest.TestCase):
     base = Base2
     model = InheritanceTree
 
-    # For SQLAlchemy 1.4 support
-    # @unittest.skipIf(
-    #         sa.__version__ < "1.4",
-    #         "Trees involving inheritance are only supported on "
-    #         "SQLAlchemy version 1.4 and above")
-    @unittest.expectedFailure
+    @failures_expected_on(sqlalchemy_versions=['1.0', '1.1', '1.2', '1.3'])
     def test_rebuild(self):
-        super(TestInheritanceTree, self).test_rebuild()
+        super().test_rebuild()

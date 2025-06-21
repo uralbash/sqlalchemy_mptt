@@ -16,5 +16,7 @@ exclude = '''
 '''
 
 [tool.pytest.ini_options]
-filterwarnings = "error:::sqlalchemy_mptt"
+filterwarnings = [
+  "error:::sqlalchemy_mptt"
+]
 addopts = "--cov sqlalchemy_mptt --cov-report term-missing:skip-covered"

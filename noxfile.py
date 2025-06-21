@@ -94,7 +94,8 @@ def parametrize_test_versions():
 def test(session, sqlalchemy):
     """Run tests with pytest.
 
-    Use the --coverage option to run tests with coverage.
+    To pass additional arguments to pytest, use the posargs option:
+    $ uv run noxfile.py -s test -- -v
 
     For running tests for a specific SQLAlchemy version, use the tags option:
 

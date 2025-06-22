@@ -33,8 +33,11 @@
 # standard library
 import os
 import json
+import sys
+import unittest
 
 # SQLAlchemy
+import sqlalchemy as sa
 from sqlalchemy import event, create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -48,6 +51,26 @@ from .cases.edit_node import Changes
 from .cases.integrity import DataIntegrity
 from .cases.move_node import MoveAfter, MoveBefore, MoveInside
 from .cases.initialize import Initialize
+
+
+def failures_expected_on(*, sqlalchemy_versions=[], python_versions=[]):
+    """
+    Decorator to mark tests that are expected to fail on specific versions of
+    SQLAlchemy and/or Python.
+
+    If a parameter is not provided, it is assumed that the failure is expected on all versions.
+    If more than one parameter is provided, it is assumed that the failure is expected on all combinations of those parameters.
+    """
+    def decorator(test_method):
+        if sqlalchemy_versions:
+            if not any(sa.__version__.startswith(v) for v in sqlalchemy_versions):
+                return test_method
+        if python_versions:
+            if not any(sys.version.startswith(v) for v in python_versions):
+                return test_method
+        # If we reach here, it means the test is expected to fail
+        return unittest.expectedFailure(test_method)
+    return decorator
 
 
 class Fixtures(object):

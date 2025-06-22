@@ -23,19 +23,15 @@
 
       Run all tests and linting:
         $ uv run noxfile.py
-      Run all tests with coverage and linting:
-        $ uv run noxfile.py -- --coverage
       Run tests for a specific SQLAlchemy version:
         $ uv run noxfile.py -t sqla12
       Run tests for a specific Python version:
         $ uv run noxfile.py -s test -p 3.X
-        $ uv run noxfile.py -s test -p pypy-3.X    # For PyPy
 
       Set up a development environment with the default Python version (3.8):
         $ uv run noxfile.py -s dev
       Set up a development environment with a specific Python version:
         $ uv run noxfile.py -s dev -P 3.X
-        $ uv run noxfile.py -s dev -P pypy-3.X    # For PyPy
 """
 from itertools import groupby
 
@@ -84,10 +80,9 @@ def parametrize_test_versions():
 
     return [
         nox.param(
-            f"{interpreter}3.{python_minor}", str(sqlalchemy_version),
+            f"3.{python_minor}", str(sqlalchemy_version),
             tags=[f"sqla{sqlalchemy_version.major}{sqlalchemy_version.minor}"]
         )
-        for interpreter in ("", "pypy-")
         for python_minor in range(PYTHON_MINOR_VERSION_MIN, PYTHON_MINOR_VERSION_MAX + 1)
         for sqlalchemy_version in filtered_sqlalchemy_versions
         # SQLA 1.1 or below doesn't seem to support Python 3.10+
@@ -99,7 +94,11 @@ def parametrize_test_versions():
 def test(session, sqlalchemy):
     """Run tests with pytest.
 
-    Use the --coverage option to run tests with coverage.
+    You can pass arguments to pytest using the `--` option.
+
+        $ uv run noxfile.py -s test -- sqlalchemy_mptt/tests/test_events.py
+
+    If no arguments are provided, it defaults to running all tests in the package.
 
     For running tests for a specific SQLAlchemy version, use the tags option:
 
@@ -110,20 +109,8 @@ def test(session, sqlalchemy):
     session.install("-r", "requirements-test.txt")
     session.install(f"sqlalchemy~={sqlalchemy}.0")
     session.install("-e", ".")
-    try:
-        session.posargs.remove("--coverage")
-    except ValueError:
-        with_coverage = False
-    else:
-        with_coverage = True
-    pytest_cmd = ["pytest"] + (
-        session.posargs or [
-            "--pyargs", "sqlalchemy_mptt",
-            "--cov", "sqlalchemy_mptt", "--cov-report", "term-missing:skip-covered",
-            "-W", "error:::sqlalchemy_mptt"
-        ]
-    ) + (["--cov-report", "xml"] if with_coverage else [])
-    session.run(*pytest_cmd)
+    pytest_args = session.posargs or ["--pyargs", "sqlalchemy_mptt"]
+    session.run("pytest", *pytest_args, env={"SQLALCHEMY_SILENCE_UBER_WARNING": "1"})
 
 
 @nox.session(default=False)
@@ -133,7 +120,6 @@ def dev(session):
 
     To use a specific Python version, use the -P option:
     $ uv run noxfile.py -s dev -P 3.X
-    $ uv run noxfile.py -s dev -P pypy-3.X    # For PyPy
     """
     session.run("uv", "venv", "--python", session.python or f"3.{PYTHON_MINOR_VERSION_MIN}", "--seed")
     session.run(".venv/bin/pip", "install", "-r", "requirements-test.txt", external=True)

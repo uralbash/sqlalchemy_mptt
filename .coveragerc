@@ -2,5 +2,4 @@
 relative_files = True
 [report]
 omit =
-    */python?.?/*
-    */site-packages/nose/*
+    */tests/*

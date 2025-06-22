@@ -479,29 +479,15 @@ def mptt_before_update(mapper, connection, instance):
         )
 
 
-class _WeakDictBasedSet(weakref.WeakKeyDictionary, object):
-    """
-    In absence of a default weakset implementation, provide our own dict
-    based solution.
-    """
-
-    def add(self, obj):
-        self[obj] = None
-
-    def discard(self, obj):
-        super(_WeakDictBasedSet, self).pop(obj, None)
-
-    def pop(self):
-        return self.popitem()[0]
-
-
-class _WeakDefaultDict(weakref.WeakKeyDictionary, object):
+class _WeakDefaultDict(weakref.WeakKeyDictionary):
+    """A weak reference dictionary that returns a new `WeakSet` as a default
+    value for missing keys."""
 
     def __getitem__(self, key):
         try:
             return super(_WeakDefaultDict, self).__getitem__(key)
         except KeyError:
-            self[key] = value = _WeakDictBasedSet()
+            self[key] = value = weakref.WeakSet()
             return value
 
 
@@ -589,7 +575,7 @@ class TreesManager(object):
         parents of all modified instances part of this flush.
         """
         instances = self.instances[session]
-        while instances:
+        while True:
             try:
                 instance = instances.pop()
             except KeyError:

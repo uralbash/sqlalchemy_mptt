@@ -3,6 +3,7 @@
 # vim:fenc=utf-8
 #
 # Copyright © 2014 uralbash <root@uralbash.ru>
+# Copyright (c) 2025 Fayaz Yusuf Khan <fayaz.yusuf.khan@gmail.com>
 #
 # Distributed under terms of the MIT license.
 

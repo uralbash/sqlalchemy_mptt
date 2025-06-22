@@ -50,12 +50,14 @@ nox.options.default_venv_backend = "uv"
 
 @nox.session()
 def lint(session):
-    """Run flake8."""
-    session.install("flake8")
+    """Run linters."""
+    session.install("flake8", "toml-sort")
     # stop the linter if there are Python syntax errors or undefined names
     session.run("flake8", "--select=E9,F63,F7,F82", "--show-source")
     # exit-zero treats all errors as warnings
     session.run("flake8", "--exit-zero", "--max-complexity=10")
+    # check the pyproject.toml file for correctness
+    session.run("toml-sort", "--check", "pyproject.toml")
 
 
 def parametrize_test_versions():

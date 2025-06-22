@@ -8,10 +8,10 @@
 from hypothesis import HealthCheck, settings, strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
 from sqlalchemy import Column, Integer, Boolean, create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import joinedload, sessionmaker
 
 from sqlalchemy_mptt import BaseNestedSets, mptt_sessionmaker
+from sqlalchemy_mptt.sqlalchemy_compat import declarative_base
 
 
 Base = declarative_base()
@@ -62,8 +62,9 @@ class TreeStateMachine(RuleBasedStateMachine):
 
     @rule(target=node, node=node, visible=st.none() | st.booleans())
     def add_child(self, node, visible):
-        child = Tree(parent=node, visible=visible)
-        self.session.add(child)
+        # Avoid cascade_backrefs here since it is deprecated.
+        child = Tree(visible=visible)
+        node.children.append(child)
         self.session.commit()
         assert node.left < child.left < child.right < node.right
         return child

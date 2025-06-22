@@ -12,9 +12,9 @@ test tree
 import unittest
 
 from sqlalchemy import Column, Integer
-from sqlalchemy.ext.declarative import declarative_base
 
-from ..mixins import BaseNestedSets
+from sqlalchemy_mptt.mixins import BaseNestedSets
+from sqlalchemy_mptt.sqlalchemy_compat import declarative_base
 
 
 Base = declarative_base()

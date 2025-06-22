@@ -14,13 +14,14 @@ import unittest
 
 from sqlalchemy import Column, Boolean, Integer, create_engine
 from sqlalchemy.event import contains
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy_mptt import mptt_sessionmaker
 
-from . import TreeTestingMixin
-from ..mixins import BaseNestedSets
+from sqlalchemy_mptt.mixins import BaseNestedSets
+from sqlalchemy_mptt.sqlalchemy_compat import declarative_base
+from sqlalchemy_mptt.tests import TreeTestingMixin
+
 
 Base = declarative_base()
 

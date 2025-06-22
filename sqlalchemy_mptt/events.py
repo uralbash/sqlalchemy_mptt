@@ -19,7 +19,7 @@ from sqlalchemy.orm import object_session
 from sqlalchemy.sql import func
 from sqlalchemy.orm.base import NO_VALUE
 
-from sqlalchemy_mptt.sqlalchemy_compat import case, select
+from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
 
 
 def _insert_subtree(
@@ -62,7 +62,7 @@ def _insert_subtree(
         .where(table.c.tree_id == parent_tree_id)
         .values(
             rgt=table.c.rgt + node_size,
-            lft=case(
+            lft=compat_layer.case(
                 (table.c.lft > left_sibling['lft'], table.c.lft + node_size),
                 else_=table.c.lft
             )
@@ -89,7 +89,7 @@ def mptt_before_insert(mapper, connection, instance):
         instance.right = 2
         instance.level = instance.get_default_level()
         tree_id = connection.scalar(
-            select(
+            compat_layer.select(
                 func.max(table.c.tree_id) + 1
             )
         ) or 1
@@ -99,7 +99,7 @@ def mptt_before_insert(mapper, connection, instance):
          parent_pos_right,
          parent_tree_id,
          parent_level) = connection.execute(
-            select(
+            compat_layer.select(
                 table.c.lft,
                 table.c.rgt,
                 table.c.tree_id,
@@ -115,11 +115,11 @@ def mptt_before_insert(mapper, connection, instance):
             .where(table.c.rgt >= parent_pos_right)
             .where(table.c.tree_id == parent_tree_id)
             .values(
-                lft=case(
+                lft=compat_layer.case(
                     (table.c.lft > parent_pos_right, table.c.lft + 2),
                     else_=table.c.lft
                 ),
-                rgt=case(
+                rgt=compat_layer.case(
                     (table.c.rgt >= parent_pos_right, table.c.rgt + 2),
                     else_=table.c.rgt
                 )
@@ -139,7 +139,7 @@ def mptt_before_delete(mapper, connection, instance, delete=True):
     db_pk = instance.get_pk_column()
     table_pk = getattr(table.c, db_pk.name)
     lft, rgt = connection.execute(
-        select(
+        compat_layer.select(
             table.c.lft,
             table.c.rgt
         ).where(
@@ -174,11 +174,11 @@ def mptt_before_delete(mapper, connection, instance, delete=True):
             .where(table.c.rgt > rgt)
             .where(table.c.tree_id == tree_id)
             .values(
-                lft=case(
+                lft=compat_layer.case(
                     (table.c.lft > lft, table.c.lft - delta),
                     else_=table.c.lft
                 ),
-                rgt=case(
+                rgt=compat_layer.case(
                     (table.c.rgt >= rgt, table.c.rgt - delta),
                     else_=table.c.rgt
                 )
@@ -210,7 +210,7 @@ def mptt_before_update(mapper, connection, instance):
             right_sibling_level,
             right_sibling_tree_id
         ) = connection.execute(
-            select(
+            compat_layer.select(
                 table.c.lft,
                 table.c.rgt,
                 table.c.parent_id,
@@ -221,7 +221,7 @@ def mptt_before_update(mapper, connection, instance):
             )
         ).fetchone()
         current_lvl_nodes = connection.execute(
-            select(
+            compat_layer.select(
                 table.c.lft,
                 table.c.rgt,
                 table.c.parent_id,
@@ -259,7 +259,7 @@ def mptt_before_update(mapper, connection, instance):
             left_sibling_parent,
             left_sibling_tree_id
         ) = connection.execute(
-            select(
+            compat_layer.select(
                 table.c.lft,
                 table.c.rgt,
                 table.c.parent_id,
@@ -282,7 +282,7 @@ def mptt_before_update(mapper, connection, instance):
         ORDER BY left_key
     """
     subtree = connection.execute(
-        select(table_pk)
+        compat_layer.select(table_pk)
         .where(
             and_(
                 table.c.lft >= instance.left,
@@ -306,7 +306,7 @@ def mptt_before_update(mapper, connection, instance):
         node_parent_id,
         node_level
     ) = connection.execute(
-        select(
+        compat_layer.select(
             table.c.lft,
             table.c.rgt,
             table.c.tree_id,
@@ -334,7 +334,7 @@ def mptt_before_update(mapper, connection, instance):
             parent_tree_id,
             parent_level
         ) = connection.execute(
-            select(
+            compat_layer.select(
                 table_pk,
                 table.c.rgt,
                 table.c.lft,
@@ -362,7 +362,7 @@ def mptt_before_update(mapper, connection, instance):
             parent_tree_id,
             parent_level
         ) = connection.execute(
-            select(
+            compat_layer.select(
                 table_pk,
                 table.c.rgt,
                 table.c.lft,
@@ -414,7 +414,7 @@ def mptt_before_update(mapper, connection, instance):
         # if just insert
         else:
             tree_id = connection.scalar(
-                select(
+                compat_layer.select(
                     func.max(table.c.tree_id) + 1
                 )
             )

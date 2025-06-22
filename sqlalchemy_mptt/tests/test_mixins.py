@@ -14,10 +14,10 @@ import unittest
 from sqlalchemy import Column, Integer
 
 from sqlalchemy_mptt.mixins import BaseNestedSets
-from sqlalchemy_mptt.sqlalchemy_compat import declarative_base
+from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
 
 
-Base = declarative_base()
+Base = compat_layer.declarative_base()
 
 
 class Tree2(Base, BaseNestedSets):

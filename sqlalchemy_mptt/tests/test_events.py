@@ -19,11 +19,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy_mptt import mptt_sessionmaker
 
 from sqlalchemy_mptt.mixins import BaseNestedSets
-from sqlalchemy_mptt.sqlalchemy_compat import declarative_base
+from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
 from sqlalchemy_mptt.tests import TreeTestingMixin
 
 
-Base = declarative_base()
+Base = compat_layer.declarative_base()
 
 
 class Tree(Base, BaseNestedSets):

@@ -4,11 +4,11 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy_mptt.mixins import BaseNestedSets
-from sqlalchemy_mptt.sqlalchemy_compat import declarative_base, get
+from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
 from sqlalchemy_mptt.tests import TreeTestingMixin, failures_expected_on
 
 
-Base = declarative_base()
+Base = compat_layer.declarative_base()
 
 
 class GenericTree(Base, BaseNestedSets):
@@ -60,7 +60,7 @@ class TestTree(unittest.TestCase):
         self.session.add(GenericTree(ppk=1))
         self.session.commit()
 
-        tree = get(self.session, GenericTree, 1)
+        tree = compat_layer.get(self.session, GenericTree, 1)
         self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
@@ -68,7 +68,7 @@ class TestTree(unittest.TestCase):
         self.session.add(SpecializedTree(ppk=1))
         self.session.commit()
 
-        tree = get(self.session, SpecializedTree, 1)
+        tree = compat_layer.get(self.session, SpecializedTree, 1)
         self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
@@ -84,21 +84,21 @@ class TestTree(unittest.TestCase):
         self.session.add(parent)
         self.session.commit()
 
-        tree = get(self.session, SpecializedTree, 1)
+        tree = compat_layer.get(self.session, SpecializedTree, 1)
         self.assertEqual(tree.ppk, 1)
         self.assertEqual(tree.tree_id, 1)
 
         self.session.delete(child1)
         self.session.commit()
 
-        self.assertEqual(None, get(self.session, SpecializedTree, 2))
+        self.assertEqual(None, compat_layer.get(self.session, SpecializedTree, 2))
 
         self.session.delete(child2)
         self.session.commit()
 
-        self.assertEqual(None, get(self.session, SpecializedTree, 3))
-        self.assertEqual(None, get(self.session, SpecializedTree, 4))
-        self.assertEqual(None, get(self.session, SpecializedTree, 5))
+        self.assertEqual(None, compat_layer.get(self.session, SpecializedTree, 3))
+        self.assertEqual(None, compat_layer.get(self.session, SpecializedTree, 4))
+        self.assertEqual(None, compat_layer.get(self.session, SpecializedTree, 5))
 
 
 class TestGenericTree(TreeTestingMixin, unittest.TestCase):
@@ -116,7 +116,7 @@ class TestSpecializedTree(TreeTestingMixin, unittest.TestCase):
         super().test_rebuild()
 
 
-Base2 = declarative_base()
+Base2 = compat_layer.declarative_base()
 
 
 class BaseInheritance(Base2):

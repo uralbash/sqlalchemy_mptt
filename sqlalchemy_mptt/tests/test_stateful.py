@@ -11,10 +11,10 @@ from sqlalchemy import Column, Integer, Boolean, create_engine
 from sqlalchemy.orm import joinedload, sessionmaker
 
 from sqlalchemy_mptt import BaseNestedSets, mptt_sessionmaker
-from sqlalchemy_mptt.sqlalchemy_compat import declarative_base
+from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
 
 
-Base = declarative_base()
+Base = compat_layer.declarative_base()
 
 
 class Tree(Base, BaseNestedSets):

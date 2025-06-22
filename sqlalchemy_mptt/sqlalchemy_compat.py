@@ -7,34 +7,49 @@
 import sqlalchemy as sa
 
 
-if sa.__version__ < '1.4':
-    from sqlalchemy.ext.declarative import declarative_base
-else:
-    from sqlalchemy.orm import declarative_base
+class LegacySQLAlchemyAPI:
+    """A class to provide compatibility for legacy SQLAlchemy versions (1.0 - 1.3)."""
 
+    @staticmethod
+    def declarative_base(*args, **kwargs):
+        from sqlalchemy.ext.declarative import declarative_base
+        return declarative_base(*args, **kwargs)
 
-def select(*args, **kwargs):
-    """Compatibility function for select."""
-    if sa.__version__ < '1.4':
+    @staticmethod
+    def select(*args, **kwargs):
         return sa.select(args, **kwargs)
-    else:
+
+    @staticmethod
+    def case(*args, **kwargs):
+        return sa.case(args, **kwargs)
+
+    @staticmethod
+    def get(session, model, id):
+        return session.query(model).get(id)
+
+
+class ModernSQLAlchemyAPI:
+    """A class to provide compatibility for modern SQLAlchemy versions (1.4+)."""
+
+    @staticmethod
+    def declarative_base(*args, **kwargs):
+        from sqlalchemy.orm import declarative_base
+        return declarative_base(*args, **kwargs)
+
+    @staticmethod
+    def select(*args, **kwargs):
         return sa.select(*args, **kwargs)
 
-
-def case(*args, **kwargs):
-    """Compatibility function for case."""
-    if sa.__version__ < '1.4':
-        return sa.case(args, **kwargs)
-    else:
+    @staticmethod
+    def case(*args, **kwargs):
         return sa.case(*args, **kwargs)
 
-
-def get(session, model, id):
-    """Compatibility function for getting an object by ID."""
-    if sa.__version__ < '1.4':
-        return session.query(model).get(id)
-    else:
+    @staticmethod
+    def get(session, model, id):
         return session.get(model, id)
 
 
-__all__ = ["case", "declarative_base", "select"]
+if sa.__version__ < '1.4':
+    compat_layer = LegacySQLAlchemyAPI()
+else:
+    compat_layer = ModernSQLAlchemyAPI()

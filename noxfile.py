@@ -94,8 +94,11 @@ def parametrize_test_versions():
 def test(session, sqlalchemy):
     """Run tests with pytest.
 
-    To pass additional arguments to pytest, use the posargs option:
-    $ uv run noxfile.py -s test -- -v
+    You can pass arguments to pytest using the `--` option.
+
+        $ uv run noxfile.py -s test -- sqlalchemy_mptt/tests/test_events.py
+
+    If no arguments are provided, it defaults to running all tests in the package.
 
     For running tests for a specific SQLAlchemy version, use the tags option:
 

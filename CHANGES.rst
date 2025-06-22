@@ -4,8 +4,12 @@ Versions releases 0.2.x & above
 0.5.0 (Unreleased)
 ==================
 
-- Support for SQLAlchemy 1.4
+- Add support for SQLAlchemy 1.4.
 - Drop official support for PyPy.
+- Simplify memory management by using ``weakref.WeakSet`` instead of rolling our own
+  weak reference set.
+- Unify ``after_flush_postexec`` execution path for CPython & PyPy.
+- Simplify ``get_siblings``.
 
 0.4.0 (2025-05-30)
 ==================

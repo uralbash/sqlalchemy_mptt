@@ -110,7 +110,7 @@ def test(session, sqlalchemy):
     session.install(f"sqlalchemy~={sqlalchemy}.0")
     session.install("-e", ".")
     pytest_args = session.posargs or ["--pyargs", "sqlalchemy_mptt"]
-    session.run("pytest", *pytest_args, env={"SQLALCHEMY_SILENCE_UBER_WARNING": "1"})
+    session.run("pytest", *pytest_args, env={"SQLALCHEMY_WARN_20": "1"})
 
 
 @nox.session(default=False)

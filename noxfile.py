@@ -111,6 +111,7 @@ def test(session, sqlalchemy):
     session.install("-e", ".")
     pytest_args = session.posargs or ["--pyargs", "sqlalchemy_mptt"]
     session.run("pytest", *pytest_args, env={"SQLALCHEMY_WARN_20": "1"})
+    session.run("sphinx-build", "-b", "doctest", "docs", "docs/_build")
 
 
 @nox.session(default=False)

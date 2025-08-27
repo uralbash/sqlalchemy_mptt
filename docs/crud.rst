@@ -132,7 +132,7 @@ DELETE
 
 Delete node with id==4
 
-.. code-block:: python
+.. testcode::
 
     node = session.query(Tree).filter(Tree.id == 4).one()
     session.delete(node)

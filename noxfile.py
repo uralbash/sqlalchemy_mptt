@@ -89,8 +89,11 @@ def parametrize_test_versions():
         if sqlalchemy_version >= Version("1.2") or python_minor <= 9]
 
 
+PARAMETRIZED_TEST_VERSIONS = parametrize_test_versions()
+
+
 @nox.session()
-@nox.parametrize("python,sqlalchemy", parametrize_test_versions())
+@nox.parametrize("python,sqlalchemy", PARAMETRIZED_TEST_VERSIONS)
 def test(session, sqlalchemy):
     """Run tests with pytest.
 
@@ -111,6 +114,15 @@ def test(session, sqlalchemy):
     session.install("-e", ".")
     pytest_args = session.posargs or ["--pyargs", "sqlalchemy_mptt"]
     session.run("pytest", *pytest_args, env={"SQLALCHEMY_WARN_20": "1"})
+
+
+@nox.session()
+@nox.parametrize("python,sqlalchemy", PARAMETRIZED_TEST_VERSIONS[-1:])
+def doctest(session, sqlalchemy):
+    """Run doctests in the documentation."""
+    session.install("sphinx")
+    session.install(f"sqlalchemy~={sqlalchemy}.0")
+    session.install("-e", ".")
     session.run("sphinx-build", "-b", "doctest", "docs", "docs/_build")
 
 

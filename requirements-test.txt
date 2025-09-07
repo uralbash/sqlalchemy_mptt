@@ -1,4 +1,3 @@
 hypothesis
 pytest
 pytest-cov
-sphinx

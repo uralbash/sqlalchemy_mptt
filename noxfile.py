@@ -92,6 +92,15 @@ def parametrize_test_versions():
 PARAMETRIZED_TEST_VERSIONS = parametrize_test_versions()
 
 
+def install_dependencies(session, session_name, sqlalchemy_version):
+    """Install dependencies for the given session."""
+    session.install(
+        "-r", f"requirements-{session_name}.txt",
+        f"sqlalchemy~={sqlalchemy_version}.0",
+        "-e", "."
+    )
+
+
 @nox.session()
 @nox.parametrize("python,sqlalchemy", PARAMETRIZED_TEST_VERSIONS)
 def test(session, sqlalchemy):
@@ -109,9 +118,7 @@ def test(session, sqlalchemy):
 
     For fine-grained control over running the tests, refer the nox documentation: https://nox.thea.codes/en/stable/usage.html
     """
-    session.install("-r", "requirements-test.txt")
-    session.install(f"sqlalchemy~={sqlalchemy}.0")
-    session.install("-e", ".")
+    install_dependencies(session, "test", sqlalchemy)
     pytest_args = session.posargs or ["--pyargs", "sqlalchemy_mptt"]
     session.run("pytest", *pytest_args, env={"SQLALCHEMY_WARN_20": "1"})
 
@@ -120,9 +127,7 @@ def test(session, sqlalchemy):
 @nox.parametrize("python,sqlalchemy", PARAMETRIZED_TEST_VERSIONS[-1:])
 def doctest(session, sqlalchemy):
     """Run doctests in the documentation."""
-    session.install("sphinx")
-    session.install(f"sqlalchemy~={sqlalchemy}.0")
-    session.install("-e", ".")
+    install_dependencies(session, "doctest", sqlalchemy)
     session.run("sphinx-build", "-b", "doctest", "docs", "docs/_build")
 
 

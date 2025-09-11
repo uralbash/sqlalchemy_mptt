@@ -40,7 +40,7 @@ Insert node with parent_id==6
         Tree(id=8, parent_id=7),
         Tree(id=9, parent_id=8),
         Tree(id=10, parent_id=7),
-        Tree(id=11, parent_id=11)
+        Tree(id=11, parent_id=10)
     ]
     for instance in instances:
         instance.left = 0

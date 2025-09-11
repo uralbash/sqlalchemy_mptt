@@ -69,3 +69,19 @@ html_theme_options = {
     'github_user': 'uralbash',
     'github_repo': 'sqlalchemy_mptt',
 }
+
+# -- Options for doctest extension ------------------------------------------
+doctest_global_setup = """
+from sqlalchemy import create_engine, Column, Integer, Boolean
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session
+
+from sqlalchemy_mptt import tree_manager
+from sqlalchemy_mptt.mixins import BaseNestedSets
+"""
+doctest_global_cleanup = """
+try:
+    session.flush()
+except NameError:
+    pass
+"""

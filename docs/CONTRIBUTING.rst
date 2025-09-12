@@ -48,7 +48,7 @@ To build the documentation locally, you can run:
 
 .. code-block:: bash
 
-    $ uv tool install sphinx --with-editable .
+    $ uv tool install sphinx --with-editable . --with-requirements requirements-doctest.txt
     $ cd docs
     $ make html
 

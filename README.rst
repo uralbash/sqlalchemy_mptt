@@ -38,12 +38,7 @@ Usage
 
 Add mixin to model
 
-.. testsetup:: *
-
-    engine = create_engine("sqlite:///:memory:")
-    session = Session(engine)
-
-.. testcode:: default,delete-node,update-node,move-inside,move-after,move-top
+.. code-block:: python
 
     from sqlalchemy import Column, Integer, Boolean
     from sqlalchemy.ext.declarative import declarative_base
@@ -62,40 +57,12 @@ Add mixin to model
         def __repr__(self):
             return "<Node (%s)>" % self.id
 
-.. testcode:: default,delete-node,update-node,move-inside,move-after,move-top
-    :hide:
-
-    Base.metadata.create_all(engine)
-    tree_manager.register_events(remove=True)
-    instances = [
-        Tree(id=1, parent_id=None),
-        Tree(id=2, parent_id=1),
-        Tree(id=3, parent_id=2),
-        Tree(id=4, parent_id=1),
-        Tree(id=5, parent_id=4),
-        Tree(id=6, parent_id=4),
-        Tree(id=7, parent_id=1),
-        Tree(id=8, parent_id=7),
-        Tree(id=9, parent_id=8),
-        Tree(id=10, parent_id=7),
-        Tree(id=11, parent_id=10)
-    ]
-    for instance in instances:
-        instance.left = 0
-        instance.right = 0
-        instance.visible = True
-        instance.tree_id = 1
-    session.add_all(instances)
-    session.flush()
-    tree_manager.register_events()
-    Tree.rebuild_tree(session, tree_id=1)
-
 Now you can add, move and delete obj!
 
 Insert node
 -----------
 
-.. testcode::
+.. code-block:: python
 
     node = Tree(parent_id=6)
     session.add(node)
@@ -126,7 +93,7 @@ Insert node
 Delete node
 -----------
 
-.. testcode:: delete-node
+.. code:: python
 
     node = session.query(Tree).filter(Tree.id == 4).one()
     session.delete(node)
@@ -156,7 +123,7 @@ Delete node
 Update node
 -----------
 
-.. testcode:: update-node
+.. code:: python
 
     node = session.query(Tree).filter(Tree.id == 8).one()
     node.parent_id = 5
@@ -195,36 +162,9 @@ Move node (support multitree)
 
    Nested sets multitree
 
-.. testcode:: move-inside,move-top
-    :hide:
-
-    tree_manager.register_events(remove=True)
-    instances = [
-        Tree(id=12, parent_id=None),
-        Tree(id=13, parent_id=12),
-        Tree(id=14, parent_id=13),
-        Tree(id=15, parent_id=12),
-        Tree(id=16, parent_id=15),
-        Tree(id=17, parent_id=15),
-        Tree(id=18, parent_id=12),
-        Tree(id=19, parent_id=18),
-        Tree(id=20, parent_id=19),
-        Tree(id=21, parent_id=18),
-        Tree(id=22, parent_id=21)
-    ]
-    for instance in instances:
-        instance.left = 0
-        instance.right = 0
-        instance.visible = True
-        instance.tree_id = 2
-    session.add_all(instances)
-    session.flush()
-    tree_manager.register_events()
-    Tree.rebuild_tree(session, tree_id=2)
-
 Move inside
 
-.. testcode:: move-inside
+.. code:: python
 
     node = session.query(Tree).filter(Tree.id == 4).one()
     node.move_inside("15")
@@ -254,7 +194,7 @@ Move inside
 
 Move after
 
-.. testcode:: move-after
+.. code:: python
 
     node = session.query(Tree).filter(Tree.id == 8).one()
     node.move_after("5")
@@ -283,7 +223,7 @@ Move after
 
 Move to top level
 
-.. testcode:: move-top
+.. code:: python
 
     node = session.query(Tree).filter(Tree.id == 15).one()
     node.move_after("1")

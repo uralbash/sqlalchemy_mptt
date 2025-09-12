@@ -40,5 +40,19 @@ To run the tests and linters, you can use the following command:
 
 For futher details, refer to the ``noxfile.py`` script.
 
+Building Documentation
+----------------------
+
+The documentation on `ReadtheDocs <https://app.readthedocs.org/projects/sqlalchemy-mptt/>`_ is manually built from the master branch.
+To build the documentation locally, you can run:
+
+.. code-block:: bash
+
+    $ uv tool install sphinx --with-editable .
+    $ cd docs
+    $ make html
+
+For futher details, refer to the ``docs/Makefile``.
+
 .. |IRC Freenode| image:: https://img.shields.io/badge/irc-freenode-blue.svg
    :target: https://webchat.freenode.net/?channels=sacrud

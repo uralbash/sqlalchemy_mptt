@@ -45,6 +45,7 @@ Represent data of tree in table
 Add data to table with tree.
 
 .. testcode::
+    :hide:
 
     app.app_context().push()
 

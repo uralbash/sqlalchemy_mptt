@@ -47,6 +47,7 @@ Add data to table with tree.
 .. testcode::
     :hide:
 
+    # This is some more setup code.
     app.app_context().push()
 
 .. testcode::

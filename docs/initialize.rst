@@ -132,6 +132,7 @@ tree management and finally call manually a rebuild of the tree once at the end:
 .. testcode::
     :hide:
 
+    # This is some more setup code.
     from flask import Flask
 
     class MyModelTree(db.Model, BaseNestedSets):

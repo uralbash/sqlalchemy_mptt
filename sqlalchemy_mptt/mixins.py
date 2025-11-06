@@ -55,6 +55,7 @@ class BaseNestedSets(object):
     .. testcode::
         :hide:
 
+        # This is some more setup code.
         Base.metadata.create_all(engine)
         node = Tree()
         session.add(node)

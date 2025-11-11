@@ -8,12 +8,6 @@ Insert node with parent_id==6
 
 .. testsetup::
 
-    from sqlalchemy import create_engine, Column, Integer, Boolean
-    from sqlalchemy.orm import Session
-    from sqlalchemy_mptt import tree_manager
-    from sqlalchemy_mptt.mixins import BaseNestedSets
-    from sqlalchemy.ext.declarative import declarative_base
-
     Base = declarative_base()
     engine = create_engine("sqlite:///:memory:")
     session = Session(engine)

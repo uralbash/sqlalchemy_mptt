@@ -60,7 +60,9 @@ def lint(session):
 
 def parametrize_test_versions():
     """Parametrize the session with all supported Python & SQLAlchemy versions."""
+    print("Requesting all SQLAlchemy versions from PyPI...")
     response = requests.get("https://pypi.org/pypi/SQLAlchemy/json")
+    print("Preparing test version candidates...")
     response.raise_for_status()
     data = response.json()
     all_major_and_minor_sqlalchemy_versions = [

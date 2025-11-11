@@ -53,7 +53,7 @@ class Changes(object):
     def test_update_wo_move_like_sacrud_save(self):
         """ Just change attr from node w/o move
         initial state of the tree :mod:`sqlalchemy_mptt.tests.add_mptt_tree`
-        c
+
         .. code::
 
             level           Nested sets example

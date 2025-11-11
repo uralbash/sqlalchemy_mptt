@@ -34,6 +34,7 @@
         $ uv run noxfile.py -s dev -P 3.X
 """
 from itertools import groupby
+import sys
 
 import nox
 from packaging.requirements import Requirement
@@ -60,7 +61,9 @@ def lint(session):
 
 def parametrize_test_versions():
     """Parametrize the session with all supported Python & SQLAlchemy versions."""
+    print("Requesting all SQLAlchemy versions from PyPI...", file=sys.stderr)
     response = requests.get("https://pypi.org/pypi/SQLAlchemy/json")
+    print("Preparing test version candidates...", file=sys.stderr)
     response.raise_for_status()
     data = response.json()
     all_major_and_minor_sqlalchemy_versions = [
@@ -89,8 +92,20 @@ def parametrize_test_versions():
         if sqlalchemy_version >= Version("1.2") or python_minor <= 9]
 
 
+PARAMETRIZED_TEST_VERSIONS = parametrize_test_versions()
+
+
+def install_dependencies(session, session_name, sqlalchemy_version):
+    """Install dependencies for the given session."""
+    session.install(
+        "-r", f"requirements-{session_name}.txt",
+        f"sqlalchemy~={sqlalchemy_version}.0",
+        "-e", "."
+    )
+
+
 @nox.session()
-@nox.parametrize("python,sqlalchemy", parametrize_test_versions())
+@nox.parametrize("python,sqlalchemy", PARAMETRIZED_TEST_VERSIONS)
 def test(session, sqlalchemy):
     """Run tests with pytest.
 
@@ -106,11 +121,17 @@ def test(session, sqlalchemy):
 
     For fine-grained control over running the tests, refer the nox documentation: https://nox.thea.codes/en/stable/usage.html
     """
-    session.install("-r", "requirements-test.txt")
-    session.install(f"sqlalchemy~={sqlalchemy}.0")
-    session.install("-e", ".")
+    install_dependencies(session, "test", sqlalchemy)
     pytest_args = session.posargs or ["--pyargs", "sqlalchemy_mptt"]
     session.run("pytest", *pytest_args, env={"SQLALCHEMY_WARN_20": "1"})
+
+
+@nox.session()
+@nox.parametrize("python,sqlalchemy", PARAMETRIZED_TEST_VERSIONS[-1:])
+def doctest(session, sqlalchemy):
+    """Run doctests in the documentation."""
+    install_dependencies(session, "doctest", sqlalchemy)
+    session.run("sphinx-build", "-b", "doctest", "docs", "docs/_build")
 
 
 @nox.session(default=False)

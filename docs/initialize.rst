@@ -3,8 +3,7 @@ Setup
 
 Create model with MPTT mixin:
 
-.. code-block:: python
-    :linenos:
+.. testcode::
 
     from sqlalchemy import Column, Integer, Boolean
     from sqlalchemy.ext.declarative import declarative_base
@@ -31,14 +30,13 @@ Session factory wrapper
 For the automatic tree maintainance triggered after session flush to work
 correctly, wrap the Session factory with :mod:`sqlalchemy_mptt.mptt_sessionmaker`
 
-.. code-block:: python
-    :linenos:
+.. testcode::
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy_mptt import mptt_sessionmaker
 
-    engine = create_engine('...')
+    engine = create_engine('sqlite:///:memory:')
     Session = mptt_sessionmaker(sessionmaker(bind=engine))
 
 Using session factory wrapper with flask_sqlalchemy
@@ -48,8 +46,7 @@ If you use Flask and SQLAlchemy, you probably use also flask_sqlalchemy
 extension for integration. In that case the Session creation is not directly
 accessible. The following allows you to use the wrapper:
 
-.. code-block:: python
-    :linenos:
+.. testcode::
 
     from sqlalchemy_mptt import mptt_sessionmaker
     from flask_sqlalchemy import SQLAlchemy
@@ -76,7 +73,7 @@ Events
 
 The tree manager automatically registers events. But you can do it manually:
 
-.. code-block:: python
+.. testcode::
 
    from sqlalchemy_mptt import tree_manager
 
@@ -85,7 +82,7 @@ The tree manager automatically registers events. But you can do it manually:
 
 Or disable events if it required:
 
-.. code-block:: python
+.. testcode::
 
    from sqlalchemy_mptt import tree_manager
 
@@ -103,7 +100,7 @@ Fill table with records, for example, as shown in the picture
 
 Represented data of tree like dict
 
-.. code-block:: python
+.. testcode::
 
     tree = (
         {'id':  '1',                  'parent_id': None},
@@ -132,7 +129,29 @@ tree, it might become a big overhead. In this case, it is recommended to
 deactivate automatic tree management, fill in the data, reactivate automatic
 tree management and finally call manually a rebuild of the tree once at the end:
 
-.. no-code-block:: python
+.. testcode::
+    :hide:
+
+    # This is some more setup code.
+    from flask import Flask
+
+    class MyModelTree(db.Model, BaseNestedSets):
+        __tablename__ = "my_model_tree"
+
+        id = db.Column(db.Integer, primary_key=True)
+        visible = db.Column(db.Boolean)  # you custom field
+
+        def __repr__(self):
+            return "<Node (%s)>" % self.id
+
+    app = Flask('test')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    db.init_app(app)
+    app.app_context().push()
+    db.create_all()
+    items = [MyModelTree(**data) for data in tree]
+
+.. testcode::
 
     from sqlalchemy_mptt import tree_manager
 
@@ -144,13 +163,13 @@ tree management and finally call manually a rebuild of the tree once at the end:
     for item in items:
         item.left = 0
         item.right = 0
-        item.tree_id = 'my_tree_1'
+        item.tree_id = 1
         db.session.add(item)
     db.session.commit()
 
     ...
 
     tree_manager.register_events() # enabled MPTT events back
-    models.MyModelTree.rebuild_tree(db.session, 'my_tree_1') # rebuild lft, rgt value automatically
+    MyModelTree.rebuild_tree(db.session, 1) # rebuild lft, rgt value automatically
 
 After an initial table with tree you can use mptt features.

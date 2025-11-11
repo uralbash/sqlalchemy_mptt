@@ -192,7 +192,7 @@ class InitialInsert(unittest.TestCase):
 
         tree_manager.register_events(remove=True)  # Disable MPTT events
 
-        _tree_id = 'tree1'
+        _tree_id = 1
 
         for node_id, parent_id in [(1, None), (2, 1), (3, 1), (4, 2)]:
             item = Tree(

@@ -1,67 +1,76 @@
-Setup & Usage with Flask-SQLAlchemy
-===================================
+Usage with Flask-SQLAlchemy
+===========================
 
 Initialize Flask app and sqlalchemy
 
-.. code-block:: python
+.. testsetup::
 
-   from pprint import pprint
-   from flask import Flask
-   from flask_sqlalchemy import SQLAlchemy
+    __name__ = "__main__"
 
-   from sqlalchemy_mptt.mixins import BaseNestedSets
+.. testcode::
 
-   app = Flask(__name__)
-   app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-   db = SQLAlchemy(app)
+    from pprint import pprint
+    from flask import Flask
+    from flask_sqlalchemy import SQLAlchemy
+
+    from sqlalchemy_mptt.mixins import BaseNestedSets
+
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    db = SQLAlchemy(app)
 
 Make models.
 
-.. code-block:: python
-   :emphasize-lines: 1
+.. testcode::
 
-   class Category(db.Model, BaseNestedSets):
-       __tablename__ = 'categories'
-       id = db.Column(db.Integer, primary_key=True)
-       name = db.Column(db.String(400), index=True, unique=True)
-       items = db.relationship("Product", backref='item', lazy='dynamic')
+    class Category(db.Model, BaseNestedSets):
+        __tablename__ = 'categories'
+        id = db.Column(db.Integer, primary_key=True)
+        name = db.Column(db.String(400), index=True, unique=True)
+        items = db.relationship("Product", backref='item', lazy='dynamic')
 
-       def __repr__(self):
-           return '<Category {}>'.format(self.name)
+        def __repr__(self):
+            return '<Category {}>'.format(self.name)
 
 
-   class Product(db.Model):
-       __tablename__ = 'products'
-       id = db.Column(db.Integer, primary_key=True)
-       category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
-       name = db.Column(db.String(475), index=True)
+    class Product(db.Model):
+        __tablename__ = 'products'
+        id = db.Column(db.Integer, primary_key=True)
+        category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+        name = db.Column(db.String(475), index=True)
 
 Represent data of tree in table
 -------------------------------
 
 Add data to table with tree.
 
-.. code-block:: python
+.. testcode::
+    :hide:
 
-   db.session.add(Category(name="root"))  # root node
-   db.session.add_all(  # first branch of tree
-       [
-           Category(name="foo", parent_id=1),
-           Category(name="bar", parent_id=2),
-           Category(name="baz", parent_id=3),
-       ]
-   )
-   db.session.add_all(  # second branch of tree
-       [
-           Category(name="foo1", parent_id=1),
-           Category(name="bar1", parent_id=5),
-           Category(name="baz1", parent_id=5),
-       ]
-   )
+    # This is some more setup code.
+    app.app_context().push()
 
-   db.drop_all()
-   db.create_all()
-   db.session.commit()
+.. testcode::
+
+    db.session.add(Category(name="root"))  # root node
+    db.session.add_all(  # first branch of tree
+        [
+            Category(name="foo", parent_id=1),
+            Category(name="bar", parent_id=2),
+            Category(name="baz", parent_id=3),
+        ]
+    )
+    db.session.add_all(  # second branch of tree
+        [
+            Category(name="foo1", parent_id=1),
+            Category(name="bar1", parent_id=5),
+            Category(name="baz1", parent_id=5),
+        ]
+    )
+
+    db.drop_all()
+    db.create_all()
+    db.session.commit()
 
 The database entries are added:
 
@@ -127,16 +136,17 @@ something like:
                    |         --------------------------
      4          4(baz)5
 
-.. code-block:: python
+.. testcode::
 
-   categories = Category.query.all()
+    categories = Category.query.all()
 
-   for item in categories:
-       print(item)
-       pprint(item.drilldown_tree())
-       print()
+    for item in categories:
+        print(item)
+        pprint(item.drilldown_tree())
+        print()
 
-.. code-block:: text
+.. testoutput::
+   :options: +NORMALIZE_WHITESPACE
 
     <Category root>
     [{'children': [{'children': [{'children': [{'node': <Category baz>}],
@@ -170,7 +180,7 @@ something like:
 
 Represent it to JSON format:
 
-.. code-block:: python
+.. testcode::
 
    def cat_to_json(item):
        return {
@@ -182,7 +192,8 @@ Represent it to JSON format:
        pprint(item.drilldown_tree(json=True, json_fields=cat_to_json))
        print()
 
-.. code-block:: text
+.. testoutput::
+    :options: +NORMALIZE_WHITESPACE
 
     [{'children': [{'children': [{'children': [{'id': 4,
                                                 'label': '<Category baz>',
@@ -253,7 +264,7 @@ Returns a list containing the ancestors and the node itself in tree order.
               -----|-----
      4          4(baz)5
 
-.. code-block:: python
+.. testcode::
 
    for item in categories:
        print(item)
@@ -262,7 +273,8 @@ Returns a list containing the ancestors and the node itself in tree order.
        pprint(item.path_to_root().all())
        print()
 
-.. code-block:: text
+.. testoutput::
+   :options: +NORMALIZE_WHITESPACE
 
     <Category root>
     <Category root>
@@ -295,7 +307,7 @@ Returns a list containing the ancestors and the node itself in tree order.
 Full code
 ---------
 
-.. code-block:: python3
+.. testcode::
 
     from pprint import pprint
     from flask import Flask
@@ -324,6 +336,7 @@ Full code
         category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
         name = db.Column(db.String(475), index=True)
 
+    app.app_context().push()
     db.session.add(Category(name="root"))  # root node
     db.session.add_all(  # first branch of tree
         [
@@ -443,3 +456,65 @@ Full code
     <Category root>
     [<Category baz1>, <Category foo1>, <Category root>]
     '''
+
+.. testoutput::
+    :options: +NORMALIZE_WHITESPACE
+    :hide:
+
+     <Category root>
+     [{'children': [{'children': [{'children': [{'node': <Category baz>}],
+                                     'node': <Category bar>}],
+                      'node': <Category foo>},
+                     {'children': [{'node': <Category bar1>},
+                                    {'node': <Category baz1>}],
+                      'node': <Category foo1>}],
+        'node': <Category root>}]
+
+     <Category foo>
+     [{'children': [{'children': [{'node': <Category baz>}],
+                      'node': <Category bar>}],
+        'node': <Category foo>}]
+
+     <Category bar>
+     [{'children': [{'node': <Category baz>}], 'node': <Category bar>}]
+
+     <Category baz>
+     [{'node': <Category baz>}]
+
+     <Category foo1>
+     [{'children': [{'node': <Category bar1>}, {'node': <Category baz1>}],
+        'node': <Category foo1>}]
+
+     <Category bar1>
+     [{'node': <Category bar1>}]
+
+     <Category baz1>
+     [{'node': <Category baz1>}]
+
+     <Category root>
+     <Category root>
+     [<Category root>]
+
+     <Category foo>
+     <Category root>
+     [<Category foo>, <Category root>]
+
+     <Category bar>
+     <Category root>
+     [<Category bar>, <Category foo>, <Category root>]
+
+     <Category baz>
+     <Category root>
+     [<Category baz>, <Category bar>, <Category foo>, <Category root>]
+
+     <Category foo1>
+     <Category root>
+     [<Category foo1>, <Category root>]
+
+     <Category bar1>
+     <Category root>
+     [<Category bar1>, <Category foo1>, <Category root>]
+
+     <Category baz1>
+     <Category root>
+     [<Category baz1>, <Category foo1>, <Category root>]

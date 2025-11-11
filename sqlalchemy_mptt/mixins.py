@@ -9,6 +9,12 @@
 
 """
 SQLAlchemy nested sets mixin
+
+.. testsetup::
+
+    engine = create_engine('sqlite:///:memory:')
+    session = Session(bind=engine)
+
 """
 # SQLAlchemy
 from sqlalchemy import Column, Integer, ForeignKey, asc, desc
@@ -26,7 +32,7 @@ class BaseNestedSets(object):
 
     Example:
 
-    .. code::
+    .. testcode::
 
         from sqlalchemy import Boolean, Column, create_engine, Integer
         from sqlalchemy.ext.declarative import declarative_base
@@ -45,6 +51,26 @@ class BaseNestedSets(object):
 
             def __repr__(self):
                 return "<Node (%s)>" % self.id
+
+    .. testcode::
+        :hide:
+
+        # This is some more setup code.
+        Base.metadata.create_all(engine)
+        node = Tree()
+        session.add(node)
+        session.flush()
+        node7 = Tree(parent=node)
+        session.add(node7)
+        session.flush()
+        node8 = Tree(parent=node7)
+        session.add(node8)
+        session.flush()
+        node10 = Tree(parent=node7)
+        session.add(node10)
+        session.flush()
+        node11 = Tree(parent=node10)
+        session.add(node11)
     """
 
     @classmethod
@@ -254,12 +280,12 @@ class BaseNestedSets(object):
             query (function): it takes :class:`sqlalchemy.orm.query.Query`
             object as an argument, and returns in a modified form
 
-                ::
+                .. testcode::
 
                     def query(nodes):
                         return nodes.filter(node.__class__.tree_id.is_(node.tree_id))
 
-                    node.get_tree(session=DBSession, json=True, query=query)
+                    node.get_tree(session=session, json=True, query=query)
 
         Example:
 
@@ -312,7 +338,9 @@ class BaseNestedSets(object):
 
         For example:
 
-            node7.drilldown_tree()
+            .. testcode::
+
+                node7.drilldown_tree()
 
             .. code::
 
@@ -346,7 +374,9 @@ class BaseNestedSets(object):
 
         For example:
 
-            node11.path_to_root()
+            .. testcode::
+
+                node11.path_to_root()
 
             .. code::
 
@@ -382,7 +412,9 @@ class BaseNestedSets(object):
 
         For example:
 
-            node10.get_siblings() -> [Node(8)]
+            .. testcode::
+
+                node10.get_siblings() #-> [Node(8)]
 
             Only one node is sibling of node10
 
@@ -420,7 +452,9 @@ class BaseNestedSets(object):
 
         For example:
 
-            node7.get_children() -> [Node(8), Node(10)]
+            .. testcode::
+
+                node7.get_children() #-> [Node(8), Node(10)]
 
             .. code::
 

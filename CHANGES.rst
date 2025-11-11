@@ -4,7 +4,7 @@ Versions releases 0.2.x & above
 0.5.0 (Unreleased)
 ==================
 
-see issue #104
+see issues #104 & #110
 
 - Add support for SQLAlchemy 1.4.
 - Drop official support for PyPy.
@@ -12,6 +12,8 @@ see issue #104
   weak reference set.
 - Unify ``after_flush_postexec`` execution path for CPython & PyPy.
 - Simplify ``get_siblings``.
+- Run doctest on all code snippets in the documentation.
+- Fix some of the incorrect documentation snippets.
 
 0.4.0 (2025-05-30)
 ==================

@@ -268,8 +268,6 @@ Returns a list containing the ancestors and the node itself in tree order.
 
    for item in categories:
        print(item)
-       print(item.path_to_root()[-1])  # get root
-                                       # last element in list
        pprint(item.path_to_root().all())
        print()
 
@@ -277,31 +275,24 @@ Returns a list containing the ancestors and the node itself in tree order.
    :options: +NORMALIZE_WHITESPACE
 
     <Category root>
-    <Category root>
     [<Category root>]
 
     <Category foo>
-    <Category root>
     [<Category foo>, <Category root>]
 
     <Category bar>
-    <Category root>
     [<Category bar>, <Category foo>, <Category root>]
 
     <Category baz>
-    <Category root>
     [<Category baz>, <Category bar>, <Category foo>, <Category root>]
 
     <Category foo1>
-    <Category root>
     [<Category foo1>, <Category root>]
 
     <Category bar1>
-    <Category root>
     [<Category bar1>, <Category foo1>, <Category root>]
 
     <Category baz1>
-    <Category root>
     [<Category baz1>, <Category foo1>, <Category root>]
 
 Full code
@@ -423,37 +414,29 @@ Full code
 
     for item in categories:
         print(item)
-        print(item.path_to_root()[-1])
         pprint(item.path_to_root().all())
         print()
 
     '''
     <Category root>
-    <Category root>
     [<Category root>]
 
     <Category foo>
-    <Category root>
     [<Category foo>, <Category root>]
 
     <Category bar>
-    <Category root>
     [<Category bar>, <Category foo>, <Category root>]
 
     <Category baz>
-    <Category root>
     [<Category baz>, <Category bar>, <Category foo>, <Category root>]
 
     <Category foo1>
-    <Category root>
     [<Category foo1>, <Category root>]
 
     <Category bar1>
-    <Category root>
     [<Category bar1>, <Category foo1>, <Category root>]
 
     <Category baz1>
-    <Category root>
     [<Category baz1>, <Category foo1>, <Category root>]
     '''
 
@@ -492,29 +475,22 @@ Full code
      [{'node': <Category baz1>}]
 
      <Category root>
-     <Category root>
      [<Category root>]
 
      <Category foo>
-     <Category root>
      [<Category foo>, <Category root>]
 
      <Category bar>
-     <Category root>
      [<Category bar>, <Category foo>, <Category root>]
 
      <Category baz>
-     <Category root>
      [<Category baz>, <Category bar>, <Category foo>, <Category root>]
 
      <Category foo1>
-     <Category root>
      [<Category foo1>, <Category root>]
 
      <Category bar1>
-     <Category root>
      [<Category bar1>, <Category foo1>, <Category root>]
 
      <Category baz1>
-     <Category root>
      [<Category baz1>, <Category foo1>, <Category root>]

@@ -1,6 +1,14 @@
 Versions releases 0.2.x & above
 ###############################
 
+0.6.0 (Unreleased)
+==================
+
+see issues #109 & #111
+
+- Add support for SQLAlchemy 2.0.
+- Remove examples of defunct features from the documentation.
+
 0.5.0 (2025-11-18)
 ==================
 

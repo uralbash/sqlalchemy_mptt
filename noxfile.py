@@ -42,9 +42,9 @@ from packaging.version import Version
 import requests
 
 
-# Python versions supported and tested against: 3.8, 3.9, 3.10, 3.11
+# Python versions supported and tested against: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13
 PYTHON_MINOR_VERSION_MIN = 8
-PYTHON_MINOR_VERSION_MAX = 11
+PYTHON_MINOR_VERSION_MAX = 13
 
 nox.options.default_venv_backend = "uv"
 

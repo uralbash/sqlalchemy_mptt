@@ -7,6 +7,7 @@ Versions releases 0.2.x & above
 see issues #109 & #111
 
 - Add support for SQLAlchemy 2.0.
+- Add official support for Python 3.12 and 3.13.
 - Remove examples of defunct features from the documentation.
 
 0.5.0 (2025-11-18)

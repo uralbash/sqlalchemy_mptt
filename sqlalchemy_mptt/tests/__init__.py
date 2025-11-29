@@ -54,7 +54,6 @@ from .cases.integrity import DataIntegrity
 from .cases.move_node import MoveAfter, MoveBefore, MoveInside
 
 BaseType = unittest.TestCase if typing.TYPE_CHECKING else object
-DeclarativeBase = compat_layer.declarative_base()
 
 
 def failures_expected_on(*, sqlalchemy_versions=[], python_versions=[]):
@@ -78,7 +77,7 @@ def failures_expected_on(*, sqlalchemy_versions=[], python_versions=[]):
 
 
 class DatabaseSetupMixin(BaseType):
-    base: DeclarativeBase  # type: ignore
+    base: compat_layer.declarative_base()  # type: ignore
 
     def setUp(self):
         with contextlib.suppress(AttributeError):

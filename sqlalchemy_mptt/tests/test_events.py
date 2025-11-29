@@ -12,16 +12,12 @@ test tree
 
 import unittest
 
-from sqlalchemy import Column, Boolean, Integer, create_engine
+from sqlalchemy import Boolean, Column, Integer
 from sqlalchemy.event import contains
-from sqlalchemy.orm import sessionmaker
-
-from sqlalchemy_mptt import mptt_sessionmaker
 
 from sqlalchemy_mptt.mixins import BaseNestedSets
 from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
-from sqlalchemy_mptt.tests import TreeTestingMixin
-
+from sqlalchemy_mptt.tests import DatabaseSetupMixin, TreeTestingMixin
 
 Base = compat_layer.declarative_base()
 
@@ -156,39 +152,35 @@ class Events(unittest.TestCase):
         tree_manager.register_events()
 
 
-class Tree0Id(unittest.TestCase):
+class Tree0Id(DatabaseSetupMixin, unittest.TestCase):
     """Test case where node id is provided and starts with 0
 
     See comments in https://github.com/uralbash/sqlalchemy_mptt/issues/57
     """
-    def test(self):
-        engine = create_engine('sqlite:///:memory:')
-        Session = mptt_sessionmaker(sessionmaker(bind=engine))
-        session = Session()
-        Base.metadata.create_all(engine)
 
+    base = Base
+
+    def test(self):
         root = Tree(id=0)
         child = Tree(id=1, parent_id=0)
 
-        session.add(root)
-        session.add(child)
-        session.commit()
+        self.session.add(root)
+        self.session.add(child)
+        self.session.commit()
 
         self.assertEqual(root.tree_id, 1)
         self.assertEqual(child.tree_id, 1)
 
 
-class InitialInsert(unittest.TestCase):
+class InitialInsert(DatabaseSetupMixin, unittest.TestCase):
     """Test case for initial insertion of node as specified in
     docs/initialize.rst
     """
+
+    base = Base
+
     def test_documented_initial_insert(self):
         from sqlalchemy_mptt import tree_manager
-
-        engine = create_engine('sqlite:///:memory:')
-        Session = mptt_sessionmaker(sessionmaker(bind=engine))
-        session = Session()
-        Base.metadata.create_all(engine)
 
         tree_manager.register_events(remove=True)  # Disable MPTT events
 
@@ -202,11 +194,11 @@ class InitialInsert(unittest.TestCase):
                 right=0,
                 tree_id=_tree_id
             )
-            session.add(item)
-        session.commit()
+            self.session.add(item)
+        self.session.commit()
 
         tree_manager.register_events()  # enabled MPTT events back
         Tree.rebuild_tree(
-            session,
+            self.session,
             _tree_id
         )  # rebuild lft, rgt value automatically

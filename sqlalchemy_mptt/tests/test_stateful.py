@@ -5,14 +5,16 @@
 #
 # Distributed under terms of the MIT license.
 """Test cases written using Hypothesis stateful testing framework."""
-from hypothesis import HealthCheck, settings, strategies as st
-from hypothesis.stateful import Bundle, RuleBasedStateMachine, consumes, invariant, rule
-from sqlalchemy import Column, Integer, Boolean, create_engine
-from sqlalchemy.orm import joinedload, sessionmaker
+from hypothesis import HealthCheck, settings
+from hypothesis import strategies as st
+from hypothesis.stateful import (Bundle, RuleBasedStateMachine, consumes,
+                                 invariant, rule)
+from sqlalchemy import Boolean, Column, Integer
+from sqlalchemy.orm import joinedload
 
-from sqlalchemy_mptt import BaseNestedSets, mptt_sessionmaker
+from sqlalchemy_mptt import BaseNestedSets
 from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
-
+from sqlalchemy_mptt.tests import DatabaseSetupMixin
 
 Base = compat_layer.declarative_base()
 
@@ -27,15 +29,18 @@ class Tree(Base, BaseNestedSets):
         return "<Node (%s)>" % self.id
 
 
-class TreeStateMachine(RuleBasedStateMachine):
+class TreeStateMachine(DatabaseSetupMixin, RuleBasedStateMachine):
     """A state machine with various possible actions and transitions for the Tree model."""
+
+    base = Base
 
     def __init__(self):
         super().__init__()
-        self.engine = create_engine("sqlite:///:memory:")
-        Session = mptt_sessionmaker(sessionmaker(bind=self.engine))
-        self.session = Session()
-        Base.metadata.create_all(self.engine)
+        self.setUp()
+
+    def teardown(self):
+        super().teardown()
+        self.tearDown()
 
     node = Bundle('node')
 

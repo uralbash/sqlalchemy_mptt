@@ -31,26 +31,33 @@
 
 """
 # standard library
-import os
+import contextlib
 import json
+import os
 import sys
+import typing
 import unittest
 
 # SQLAlchemy
 import sqlalchemy as sa
-from sqlalchemy import event, create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
-# third-party
 from sqlalchemy_mptt import mptt_sessionmaker
+from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
 
-# local
-from .cases.get_tree import Tree
-from .cases.get_node import GetNodes
 from .cases.edit_node import Changes
+from .cases.get_node import GetNodes
+from .cases.get_tree import Tree
+from .cases.initialize import Initialize
 from .cases.integrity import DataIntegrity
 from .cases.move_node import MoveAfter, MoveBefore, MoveInside
-from .cases.initialize import Initialize
+
+if typing.TYPE_CHECKING:
+    BaseType = unittest.TestCase
+else:
+    BaseType = object
+DeclarativeBase = compat_layer.declarative_base()
 
 
 def failures_expected_on(*, sqlalchemy_versions=[], python_versions=[]):
@@ -71,6 +78,24 @@ def failures_expected_on(*, sqlalchemy_versions=[], python_versions=[]):
         # If we reach here, it means the test is expected to fail
         return unittest.expectedFailure(test_method)
     return decorator
+
+
+class DatabaseSetupMixin(BaseType):
+    base: DeclarativeBase  # type: ignore
+
+    def setUp(self):
+        with contextlib.suppress(AttributeError):
+            super().setUp()
+        self.engine: sa.engine.Engine = create_engine("sqlite:///:memory:")
+        Session = mptt_sessionmaker(sessionmaker(bind=self.engine))
+        self.session = Session()
+        self.base.metadata.create_all(self.engine)
+
+    def tearDown(self):
+        with contextlib.suppress(AttributeError):
+            super().tearDown()
+        self.session.close()
+        self.engine.dispose()
 
 
 class Fixtures(object):
@@ -97,6 +122,7 @@ class TreeTestingMixin(
     MoveInside,
     Tree,
     GetNodes,
+    DatabaseSetupMixin
 ):
     base = None
     model = None
@@ -116,10 +142,7 @@ class TreeTestingMixin(
         )
 
     def setUp(self):
-        self.engine = create_engine("sqlite:///:memory:")
-        Session = mptt_sessionmaker(sessionmaker(bind=self.engine))
-        self.session = Session()
-        self.base.metadata.create_all(self.engine)
+        super().setUp()
         self.fixture = Fixtures(self.session)
         self.fixture.add(
             self.model, os.path.join("fixtures", getattr(self, "fixtures", "tree.json"))
@@ -133,9 +156,6 @@ class TreeTestingMixin(
             self.model.parent_id,
             self.model.tree_id,
         )
-
-    def tearDown(self):
-        self.base.metadata.drop_all(self.engine)
 
     def test_session_expire_for_move_after_to_new_tree(self):
         """

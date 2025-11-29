@@ -53,10 +53,7 @@ from .cases.initialize import Initialize
 from .cases.integrity import DataIntegrity
 from .cases.move_node import MoveAfter, MoveBefore, MoveInside
 
-if typing.TYPE_CHECKING:
-    BaseType = unittest.TestCase
-else:
-    BaseType = object
+BaseType = unittest.TestCase if typing.TYPE_CHECKING else object
 DeclarativeBase = compat_layer.declarative_base()
 
 

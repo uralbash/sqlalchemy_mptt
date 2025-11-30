@@ -1,12 +1,11 @@
 import unittest
 
 import sqlalchemy as sa
-from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy_mptt.mixins import BaseNestedSets
 from sqlalchemy_mptt.sqlalchemy_compat import compat_layer
-from sqlalchemy_mptt.tests import TreeTestingMixin, failures_expected_on
-
+from sqlalchemy_mptt.tests import (DatabaseSetupMixin, TreeTestingMixin,
+                                   failures_expected_on)
 
 Base = compat_layer.declarative_base()
 
@@ -45,16 +44,9 @@ class SpecializedTree(GenericTree):
     __table_args__ = tuple()
 
 
-class TestTree(unittest.TestCase):
+class TestTree(DatabaseSetupMixin, unittest.TestCase):
 
-    def setUp(self):
-        self.engine = sa.create_engine('sqlite:///:memory:')
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
-        Base.metadata.create_all(self.engine)
-
-    def tearDown(self):
-        Base.metadata.drop_all(self.engine)
+    base = Base
 
     def test_create_generic(self):
         self.session.add(GenericTree(ppk=1))

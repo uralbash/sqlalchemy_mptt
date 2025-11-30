@@ -4,10 +4,10 @@ Versions releases 0.2.x & above
 0.6.0 (Unreleased)
 ==================
 
-see issues #109, #111 & #112
+see issues #109, #111, #112 & #113
 
 - Add support for SQLAlchemy 2.0.
-- Add official support for Python 3.12 and 3.13.
+- Add official support for Python 3.12, 3.13 and 3.14.
 - Remove examples of defunct features from the documentation.
 
 0.5.0 (2025-11-18)

@@ -33,18 +33,17 @@
       Set up a development environment with a specific Python version:
         $ uv run noxfile.py -s dev -P 3.X
 """
-from itertools import groupby
 import sys
+from itertools import groupby
 
 import nox
+import requests
 from packaging.requirements import Requirement
 from packaging.version import Version
-import requests
 
-
-# Python versions supported and tested against: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13
+# Python versions supported and tested against: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14
 PYTHON_MINOR_VERSION_MIN = 8
-PYTHON_MINOR_VERSION_MAX = 13
+PYTHON_MINOR_VERSION_MAX = 14
 
 nox.options.default_venv_backend = "uv"
 
@@ -89,7 +88,9 @@ def parametrize_test_versions():
         for python_minor in range(PYTHON_MINOR_VERSION_MIN, PYTHON_MINOR_VERSION_MAX + 1)
         for sqlalchemy_version in filtered_sqlalchemy_versions
         # SQLA 1.1 or below doesn't seem to support Python 3.10+
-        if sqlalchemy_version >= Version("1.2") or python_minor <= 9]
+        # SQLA 1.2 doesn't seem to support Python 3.14+
+        if ((sqlalchemy_version >= Version("1.2") or python_minor <= 9)
+            and (sqlalchemy_version >= Version("1.3") or python_minor <= 13))]
 
 
 PARAMETRIZED_TEST_VERSIONS = parametrize_test_versions()

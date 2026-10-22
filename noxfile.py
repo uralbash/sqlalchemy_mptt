@@ -27,6 +27,10 @@
         $ uv run noxfile.py -t sqla12
       Run tests for a specific Python version:
         $ uv run noxfile.py -s test -p 3.X
+      Run tests for released SQLAlchemy versions only:
+        $ uv run noxfile.py -t released
+      Run tests for pre-release SQLAlchemy versions only:
+        $ uv run noxfile.py -t pre-release
 
       Set up a development environment with the default Python version (3.8):
         $ uv run noxfile.py -s dev
@@ -65,32 +69,37 @@ def parametrize_test_versions():
     print("Preparing test version candidates...", file=sys.stderr)
     response.raise_for_status()
     data = response.json()
+    all_sqlalchemy_versions = sorted(Version(version_string) for version_string in data["releases"].keys())
     all_major_and_minor_sqlalchemy_versions = [
-        Version(f"{major}.{minor}")
-        for (major, minor), _ in groupby(
-            sorted(Version(version) for version in data["releases"].keys()),
-            key=lambda v: (v.major, v.minor)
+        (Version(f"{major}.{minor}"), (any(not version.is_prerelease for version in grouped_versions)))
+        for (major, minor), grouped_versions in groupby(
+            all_sqlalchemy_versions, key=lambda v: (v.major, v.minor)
         )
     ]
 
     with open("requirements.txt", "r") as f:
         requirement = Requirement(f.read().strip())
     filtered_sqlalchemy_versions = [
-        version for version in all_major_and_minor_sqlalchemy_versions
+        (version, is_released) for (version, is_released) in all_major_and_minor_sqlalchemy_versions
         if version in requirement.specifier
     ]
 
     return [
         nox.param(
             f"3.{python_minor}", str(sqlalchemy_version),
-            tags=[f"sqla{sqlalchemy_version.major}{sqlalchemy_version.minor}"]
+            tags=[
+                f"sqla{sqlalchemy_version.major}{sqlalchemy_version.minor}",
+                "released" if is_released else "pre-release"
+            ]
         )
         for python_minor in range(PYTHON_MINOR_VERSION_MIN, PYTHON_MINOR_VERSION_MAX + 1)
-        for sqlalchemy_version in filtered_sqlalchemy_versions
+        for (sqlalchemy_version, is_released) in filtered_sqlalchemy_versions
         # SQLA 1.1 or below doesn't seem to support Python 3.10+
         # SQLA 1.2 doesn't seem to support Python 3.14+
+        # SQLA 2.1 only supports Python 3.11+
         if ((sqlalchemy_version >= Version("1.2") or python_minor <= 9)
-            and (sqlalchemy_version >= Version("1.3") or python_minor <= 13))]
+            and (sqlalchemy_version >= Version("1.3") or python_minor <= 13)
+            and (sqlalchemy_version < Version("2.1") or python_minor >= 11))]
 
 
 PARAMETRIZED_TEST_VERSIONS = parametrize_test_versions()
@@ -127,8 +136,14 @@ def test(session, sqlalchemy):
     session.run("pytest", *pytest_args, env={"SQLALCHEMY_WARN_20": "1"})
 
 
+LATEST_SUPPORTED_SQLALCHEMY_VERSION = max(
+    (param for param in PARAMETRIZED_TEST_VERSIONS if "released" in param.tags),
+    key=lambda param: tuple(map(Version, param.args))
+)
+
+
 @nox.session()
-@nox.parametrize("python,sqlalchemy", PARAMETRIZED_TEST_VERSIONS[-1:])
+@nox.parametrize("python,sqlalchemy", LATEST_SUPPORTED_SQLALCHEMY_VERSION)
 def doctest(session, sqlalchemy):
     """Run doctests in the documentation."""
     install_dependencies(session, "doctest", sqlalchemy)

@@ -45,9 +45,9 @@ import requests
 from packaging.requirements import Requirement
 from packaging.version import Version
 
-# Python versions supported and tested against: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14, 3.15
+# Python versions supported and tested against: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, 3.14, 3.15, 3.16
 PYTHON_MINOR_VERSION_MIN = 8
-PYTHON_MINOR_VERSION_MAX = 15
+PYTHON_MINOR_VERSION_MAX = 16
 
 nox.options.default_venv_backend = "uv"
 

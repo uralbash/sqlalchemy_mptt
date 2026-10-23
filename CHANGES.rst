@@ -1,6 +1,14 @@
 Versions releases 0.2.x & above
 ###############################
 
+0.7.0 (unreleased)
+==================
+
+see issues #119
+
+- Add official support for Python 3.15 and 3.16.
+- Add support for SQLAlchemy 2.1.
+
 0.6.0 (2025-11-29)
 ==================
 

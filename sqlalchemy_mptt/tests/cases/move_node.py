@@ -864,6 +864,60 @@ class MoveAfter(object):
         )
 
 
+    def test_move_after_right_sibling(self):
+        """ Move node(2) after its right sibling node(4)
+
+        Regression test for #67: the left sibling's lft/rgt were read
+        before node(2) was removed, so node(2) landed one slot too far
+        right.
+
+        .. code::
+
+            level           Move 2 after 4
+                1                    1(1)22
+                        _______________|___________________
+                       |               |                   |
+                2    2(4)7           8(2)11             12(7)21
+                       ^               |                   ^
+                3  3(5)4 5(6)6       9(3)10    13(8)16   17(10)20
+                                                  |          |
+                4                              14(9)15   18(11)19
+        """
+        node = self.session.query(self.model).\
+            filter(self.model.get_pk_column() == 2).one()
+        node.move_after("4")
+        _level = node.get_default_level()
+        self.assertEqual(
+            [
+                # id lft rgt lvl parent tree
+                (1,   1, 22, _level + 0, None, 1),
+                (2,   8, 11, _level + 1,  1, 1),
+                (3,   9, 10, _level + 2,  2, 1),
+                (4,   2,  7, _level + 1,  1, 1),
+                (5,   3,  4, _level + 2,  4, 1),
+                (6,   5,  6, _level + 2,  4, 1),
+                (7,  12, 21, _level + 1,  1, 1),
+                (8,  13, 16, _level + 2,  7, 1),
+                (9,  14, 15, _level + 3,  8, 1),
+                (10, 17, 20, _level + 2,  7, 1),
+                (11, 18, 19, _level + 3, 10, 1),
+
+                (12,  1, 22, _level + 0, None, 2),
+                (13,  2,  5, _level + 1, 12, 2),
+                (14,  3,  4, _level + 2, 13, 2),
+                (15,  6, 11, _level + 1, 12, 2),
+                (16,  7,  8, _level + 2, 15, 2),
+                (17,  9, 10, _level + 2, 15, 2),
+                (18, 12, 21, _level + 1, 12, 2),
+                (19, 13, 16, _level + 2, 18, 2),
+                (20, 14, 15, _level + 3, 19, 2),
+                (21, 17, 20, _level + 2, 18, 2),
+                (22, 18, 19, _level + 3, 21, 2)
+            ],
+            self.result.all()
+        )
+
+
 class MoveInside(object):
 
     def test_move_between_tree(self):

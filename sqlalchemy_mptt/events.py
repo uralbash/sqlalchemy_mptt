@@ -222,6 +222,7 @@ def mptt_before_update(mapper, connection, instance):
         ).fetchone()
         current_lvl_nodes = connection.execute(
             compat_layer.select(
+                table_pk,
                 table.c.lft,
                 table.c.rgt,
                 table.c.parent_id,
@@ -236,6 +237,7 @@ def mptt_before_update(mapper, connection, instance):
         ).fetchall()
         if current_lvl_nodes:
             (
+                left_sibling_pk,
                 left_sibling_left,
                 left_sibling_right,
                 left_sibling_parent,
@@ -243,6 +245,7 @@ def mptt_before_update(mapper, connection, instance):
             ) = current_lvl_nodes[-1]
             instance.parent_id = left_sibling_parent
             left_sibling = {
+                'pk': left_sibling_pk,
                 'lft': left_sibling_left,
                 'rgt': left_sibling_right,
                 'is_parent': False
@@ -270,6 +273,7 @@ def mptt_before_update(mapper, connection, instance):
         ).fetchone()
         instance.parent_id = left_sibling_parent
         left_sibling = {
+            'pk': instance.mptt_move_after,
             'lft': left_sibling_left,
             'rgt': left_sibling_right,
             'is_parent': False
@@ -376,7 +380,18 @@ def mptt_before_update(mapper, connection, instance):
         node_size = node_pos_right - node_pos_left + 1
 
         # left sibling node
-        if not left_sibling:
+        if left_sibling:
+            # Removing the moved subtree above may have shifted the left
+            # sibling, so re-read its current position (#67).
+            left_sibling['lft'], left_sibling['rgt'] = connection.execute(
+                compat_layer.select(
+                    table.c.lft,
+                    table.c.rgt
+                ).where(
+                    table_pk == left_sibling['pk']
+                )
+            ).fetchone()
+        else:
             left_sibling = {
                 'lft': parent_pos_left,
                 'rgt': parent_pos_right,

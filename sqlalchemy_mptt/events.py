@@ -198,6 +198,7 @@ def mptt_before_update(mapper, connection, instance):
     mptt_move_inside = None
     left_sibling = None
     left_sibling_tree_id = None
+    move_to_leftmost = False
 
     if hasattr(instance, 'mptt_move_inside'):
         mptt_move_inside = instance.mptt_move_inside
@@ -230,9 +231,10 @@ def mptt_before_update(mapper, connection, instance):
                 and_(
                     table.c.level == right_sibling_level,
                     table.c.tree_id == right_sibling_tree_id,
+                    table.c.parent_id == right_sibling_parent,
                     table.c.lft < right_sibling_left
                 )
-            )
+            ).order_by(table.c.lft)
         ).fetchall()
         if current_lvl_nodes:
             (
@@ -250,6 +252,10 @@ def mptt_before_update(mapper, connection, instance):
         # if move_before to top level
         elif not right_sibling_parent:
             left_sibling_tree_id = right_sibling_tree_id - 1
+        # move_before the first child: insert as leftmost child (#68)
+        else:
+            instance.parent_id = right_sibling_parent
+            move_to_leftmost = True
 
     # if placed after a particular node
     if hasattr(instance, 'mptt_move_after'):
@@ -321,7 +327,8 @@ def mptt_before_update(mapper, connection, instance):
     # XXX why this str() around parent_id comparison?
     if not left_sibling \
             and str(node_parent_id) == str(instance.parent_id) \
-            and not mptt_move_inside:
+            and not mptt_move_inside \
+            and not move_to_leftmost:
         if left_sibling_tree_id is None:
             return
 

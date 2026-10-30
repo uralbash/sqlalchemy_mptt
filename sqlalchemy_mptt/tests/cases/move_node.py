@@ -197,6 +197,46 @@ class MoveBefore(object):
             ],
             self.result.all())
 
+    def test_move_before_leftmost_child(self):
+        """ Move node(6) before node(5), the first child of node(4).
+
+        Regression test for #68: moving to the leftmost position did
+        nothing, and node(3) (a cousin at the same level) must not be
+        mistaken for the left sibling.
+        """
+        node = self.session.query(self.model)\
+            .filter(self.model.get_pk_column() == 6).one()
+        node.move_before("5")
+        _level = node.get_default_level()
+        self.assertEqual(
+            [
+                # id lft rgt lvl parent tree
+                (1,   1, 22, _level + 0, None, 1),
+                (2,   2,  5, _level + 1,  1, 1),
+                (3,   3,  4, _level + 2,  2, 1),
+                (4,   6, 11, _level + 1,  1, 1),
+                (5,   9, 10, _level + 2,  4, 1),
+                (6,   7,  8, _level + 2,  4, 1),
+                (7,  12, 21, _level + 1,  1, 1),
+                (8,  13, 16, _level + 2,  7, 1),
+                (9,  14, 15, _level + 3,  8, 1),
+                (10, 17, 20, _level + 2,  7, 1),
+                (11, 18, 19, _level + 3, 10, 1),
+
+                (12,  1, 22, _level + 0, None, 2),
+                (13,  2,  5, _level + 1, 12, 2),
+                (14,  3,  4, _level + 2, 13, 2),
+                (15,  6, 11, _level + 1, 12, 2),
+                (16,  7,  8, _level + 2, 15, 2),
+                (17,  9, 10, _level + 2, 15, 2),
+                (18, 12, 21, _level + 1, 12, 2),
+                (19, 13, 16, _level + 2, 18, 2),
+                (20, 14, 15, _level + 3, 19, 2),
+                (21, 17, 20, _level + 2, 18, 2),
+                (22, 18, 19, _level + 3, 21, 2)
+            ],
+            self.result.all())
+
     def test_move_one_tree_before_other_tree(self):
         self.fixture.add(
             self.model,
